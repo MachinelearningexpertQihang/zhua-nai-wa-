@@ -425,6 +425,11 @@ body.fever #scoreBox::after{content:'奶蛙暴走 ×2';position:absolute;left:10
 .halo-badge.hit{animation:pop-in .4s}
 .lv.hellcard{grid-column:1/-1;min-height:118px;background:radial-gradient(circle at 80% 120%,rgba(255,140,0,.55),transparent 55%),linear-gradient(150deg,#3a0a0a,#7a1d06 55%,#1a0505);box-shadow:0 6px 0 #1a0505,0 12px 18px rgba(80,10,0,.35);color:#fff}
 .lv.secret.locked{filter:saturate(.4) brightness(.9)}.lv.secret.locked .peek{filter:brightness(0) opacity(.5)}.lv.secret.locked .go{background:#3a2f8f;color:#cdbcff}
+.lv.storycard{grid-column:1/-1;min-height:128px;background:radial-gradient(circle at 88% 110%,rgba(255,255,255,.45),transparent 45%),linear-gradient(135deg,#9b7bff,#6a4fc9 55%,#4a32a8);box-shadow:0 6px 0 #3a2690,0 12px 18px rgba(74,50,168,.3);color:#fff}
+.lv.storycard h3{color:#fff;font-size:30px}.lv.storycard .tg,.lv.storycard .meta{color:#e4dcff}.lv.storycard .bt{color:#ffe08a}.lv.storycard .peek{width:100px;height:110px;top:-4px}
+.story-intro{width:100%;max-width:440px;margin:0 0 10px;font-family:var(--body);font-size:14px;line-height:1.6;color:var(--ink-soft,#6b628f)}
+.story-prog{font-size:16px;color:#b77f00;background:#fff;border-radius:99px;padding:4px 12px;box-shadow:0 3px 0 rgba(106,79,201,.18)}
+#story .levels{margin-top:0}
 .lv.hellcard.locked{filter:saturate(.35) brightness(.85)}.lv.hellcard.locked .peek{filter:brightness(0) opacity(.5)}.lv.hellcard.locked .go{background:#5a2a20;color:#ffcfa8}
 .lv.hellcard h3{color:#fff}.lv.hellcard .tg,.lv.hellcard .meta{color:#ffcfa8}.lv.hellcard .bt{color:#ffe08a}.lv.hellcard .peek{width:90px;height:100px;top:-4px}
 .lv>.halo-chip.halo-chip{position:absolute;right:60px;bottom:22px;font-style:normal;display:inline-block;line-height:1.4;z-index:2}.halo-chip{position:absolute;right:56px;bottom:14px;font-family:var(--body);font-size:11px;color:#6b4a00;background:linear-gradient(135deg,#fff6c2,#f2b705);border-radius:99px;padding:2px 8px}
@@ -554,13 +559,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     <span class="chip nameplate" id="heroName"><i></i><span></span></span>
   </div>
   <div class="levels">
+    <button class="lv storycard" id="lv0" type="button"><img class="peek" id="peek0" alt=""><span class="tg">故事模式</span><h3>奶蛙大冒险</h3><span class="meta" id="meta0">从小池塘一路打到大魔王之锅</span><span class="lvst" id="st0"></span><span class="bt" id="best0"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
     <button class="lv dailycard locked" id="lv7" type="button"><img class="peek" id="peek7" alt=""><span class="tg" id="tg7">每日挑战</span><h3>今日之锅</h3><span class="meta">每天一锅，所有人都一样 · 4 分钟</span><span class="lvst"></span><span class="bt" id="best7"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv" id="lv1" type="button" disabled><img class="peek" id="peek1" alt=""><span class="tg">热身</span><h3>第 1 关</h3><span class="meta">9 个物品 · 60 秒</span><span class="lvst" id="st1"></span><span class="bt" id="best1">加载中…</span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv hard" id="lv2" type="button" disabled><img class="peek" id="peek2" alt=""><span class="tg">难度暴增</span><h3>第 2 关</h3><span class="meta">约 70 个物品 · 4 分钟</span><span class="lvst" id="st2"></span><span class="bt" id="best2"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv icy" id="lv4" type="button" disabled><img class="peek" id="peek4" alt=""><span class="tg">更有挑战</span><h3>第 3 关</h3><span class="meta">冰块要敲开 · 5 分钟</span><span class="lvst" id="st4"></span><span class="bt" id="best4"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv bosscard" id="lv5" type="button" disabled><img class="peek" id="peek5" alt=""><span class="tg">最终关 · 大魔王</span><h3>第 4 关</h3><span class="meta">东西多一半 · 大魔王会掀锅 · 7 分钟</span><span class="lvst" id="st5"></span><span class="bt" id="best5"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv hellcard locked" id="lv6" type="button"><img class="peek" id="peek6" alt=""><span class="tg">无尽模式</span><h3>十八层地狱</h3><span class="meta">每过一层，储物栏少一格 · 看你能下到第几层</span><span class="lvst"></span><span class="bt" id="best6"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
-    <button class="lv secret locked" id="lv3" type="button"><img class="peek" id="peek3" alt=""><span class="tg" id="tg3">隐藏关 · 低重力</span><h3 id="h3_3">星空池塘</h3><span class="meta" id="meta3">东西会飘起来 · 4 分钟</span><span class="lvst" id="st3"></span><span class="bt" id="best3"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
   </div>
   <div class="tiles">
     <button class="tile t-dex" id="dexBtn" type="button"><span class="ti"><svg class="i"><use href="#ic-book"/></svg></span><b>图鉴</b><small id="dexMini">0/0</small></button>
@@ -575,6 +575,18 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 </section>
 
 <!-- dex -->
+<section class="screen" id="story" hidden>
+  <div class="screen-head"><button class="iconbtn" data-go="home" type="button" aria-label="返回"><svg class="i"><use href="#ic-back"/></svg></button><h2>故事模式</h2><span class="grow"></span><span class="story-prog" id="storyProg"></span></div>
+  <p class="story-intro">奶蛙们把池塘搅得一团乱。一关一关抓下去，听说锅底住着一只大魔王……</p>
+  <div class="levels">
+    <button class="lv" id="lv1" type="button" disabled><img class="peek" id="peek1" alt=""><span class="tg">热身</span><h3>第 1 关</h3><span class="meta">9 个物品 · 60 秒</span><span class="lvst" id="st1"></span><span class="bt" id="best1">加载中…</span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+    <button class="lv hard" id="lv2" type="button" disabled><img class="peek" id="peek2" alt=""><span class="tg">难度暴增</span><h3>第 2 关</h3><span class="meta">约 70 个物品 · 4 分钟</span><span class="lvst" id="st2"></span><span class="bt" id="best2"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+    <button class="lv secret locked" id="lv3" type="button"><img class="peek" id="peek3" alt=""><span class="tg" id="tg3">隐藏关 · 低重力</span><h3 id="h3_3">星空池塘</h3><span class="meta" id="meta3">东西会飘起来 · 4 分钟</span><span class="lvst" id="st3"></span><span class="bt" id="best3"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+    <button class="lv icy" id="lv4" type="button" disabled><img class="peek" id="peek4" alt=""><span class="tg">更有挑战</span><h3>第 3 关</h3><span class="meta">冰块要敲开 · 5 分钟</span><span class="lvst" id="st4"></span><span class="bt" id="best4"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+    <button class="lv bosscard" id="lv5" type="button" disabled><img class="peek" id="peek5" alt=""><span class="tg">最终关 · 大魔王</span><h3>第 4 关</h3><span class="meta">东西多一半 · 大魔王会掀锅 · 7 分钟</span><span class="lvst" id="st5"></span><span class="bt" id="best5"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+    <button class="lv hellcard locked" id="lv6" type="button"><img class="peek" id="peek6" alt=""><span class="tg">无尽模式</span><h3>十八层地狱</h3><span class="meta">每过一层，储物栏少一格 · 看你能下到第几层</span><span class="lvst"></span><span class="bt" id="best6"></span><span class="go"><svg class="i"><use href="#ic-play"/></svg></span></button>
+  </div>
+</section>
 <section class="screen" id="dex" hidden>
   <div class="screen-head"><button class="iconbtn" data-go="home" type="button" aria-label="返回"><svg class="i"><use href="#ic-back"/></svg></button><h2>奶蛙图鉴</h2></div>
   <div class="dex-sum"><b id="dexCount">0/19</b><div class="meter"><i id="dexMeter"></i></div><span class="shinybadge" style="position:static" id="shinyCount"></span></div>
@@ -950,7 +962,8 @@ syncToggles();
 
 /* ================= screens ================= */
 let screen='home';
-function go(s){screen=s;['home','dex','rank'].forEach(id=>$(id).hidden=id!==s);if(s==='dex')renderDex();if(s==='rank')renderRank(rankTab);if(s==='home')renderHome();if(window.onScreen)onScreen(s)}
+let menuScreen='home';
+function go(s){screen=s;if(s==='home'||s==='story')menuScreen=s;['home','story','dex','rank'].forEach(id=>$(id).hidden=id!==s);if(s==='story')renderHome();if(s==='dex')renderDex();if(s==='rank')renderRank(rankTab);if(s==='home')renderHome();if(window.onScreen)onScreen(s)}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){SFX.click();go(b.dataset.go)}});
 $('dexBtn').onclick=()=>{SFX.click();go('dex')};
 $('achBtn').onclick=()=>{SFX.click();go('dex');setTimeout(()=>{const h=document.querySelector('.ach-head');if(h)h.scrollIntoView({block:'start'})},30)};
@@ -996,6 +1009,10 @@ function renderHome(){
   {const dk=dayKey(),d=new Date(),dl7=$('lv7');dl7.classList.toggle('locked',!unlocked2);$('tg7').textContent='每日挑战 · '+(d.getMonth()+1)+'月'+d.getDate()+'日';$('peek7').src=IMGS[daily().img];
     if(DAILY.d!==dk&&RANK[6]&&RANK[6].length){RANK[6]=[];store.set('rank',RANK)}
     const bd=RANK[6]&&RANK[6][0],done=(DAILY.days||[]).includes(dk);$('best7').textContent=!unlocked2?'通关第 1 关解锁':bd?'今日最快 '+fmt(bd.t):done?'今天已完成 ✓':'今天还没挑战 · 首通 +30 奶币';$('tab7').hidden=!unlocked2}
+  {const done=[0,1,2,3,4].filter(i=>RANK[i]&&RANK[i].length||BEST[i]).length,stars=[0,1,2,3,4].reduce((a,i)=>a+(BEST[i]||0),0);
+   const nxt=!BEST[0]?['第 1 关','i5']:!BEST[1]?['第 2 关','n4']:!unlockedL3||!BEST[3]?['第 3 关 · 冰封池塘','m6']:!BEST[4]?['第 4 关 · 大魔王之锅','bx']:!BEST[2]?['隐藏关 · 星空池塘','nx']:['十八层地狱','hn'];
+   $('peek0').src=IMGS[nxt[1]];$('meta0').textContent=(done>=5?'全部通关！还能去十八层地狱':'下一关：'+nxt[0]);$('best0').textContent='已通关 '+done+' / 5 · ★ '+stars+' / 15';
+   $('storyProg').textContent='★ '+stars+' / 15'}
   $('coinN').textContent=COINS;$('shopMini').textContent=COINS+' 奶币';
   setHero(heroIdx);renderNest();
 }
@@ -1322,7 +1339,7 @@ function initThumbR(){if(thumbR)return;thumbR=new THREE.WebGLRenderer({antialias
   thumbS=new THREE.Scene();thumbS.add(new THREE.HemisphereLight(0xffffff,0x8a9a80,1.05));const d=new THREE.DirectionalLight(0xffffff,.6);d.position.set(2,5,4);thumbS.add(d);
   thumbC=new THREE.PerspectiveCamera(32,1,.1,50)}
 function renderThumb(t){const g=t.make();
-  if(t.img||t.key==='lotus'||t.key==='cookie'||t.key==='slipper')g.rotation.x=Math.PI/2.6;if(t.painting)g.rotation.x=Math.PI/2.2;else g.rotation.set(.25,.5,0);
+  if(t.painting)g.rotation.x=Math.PI/2.2;else if(t.img||t.key==='lotus'||t.key==='cookie'||t.key==='slipper')g.rotation.x=Math.PI/2.6;else g.rotation.set(.25,.5,0);
   thumbS.add(g);g.updateMatrixWorld(true);const sp=new THREE.Box3().setFromObject(g).getBoundingSphere(new THREE.Sphere());
   g.position.sub(sp.center);thumbC.position.set(0,0,sp.radius/Math.tan(16*Math.PI/180)*1.02);thumbC.lookAt(0,0,0);
   thumbR.render(thumbS,thumbC);THUMB[t.key]=thumbR.domElement.toDataURL();thumbS.remove(g)}
@@ -1575,7 +1592,7 @@ function pause(on){if(demo||ended)return;paused=on;A.paused=on;updateTools();
 }
 $('pauseBtn').onclick=()=>{if(demo){go('home');return}pause(true)};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&ready&&!ended&&!paused)pause(true)});
-function toHome(){TUT.on=false;$('tut').hidden=true;paused=false;A.paused=false;startDemo();go('home')}
+function toHome(){TUT.on=false;$('tut').hidden=true;paused=false;A.paused=false;startDemo();go(menuScreen)}
 function starsFor(t,L){return usedProps===0&&t<=L.time*.5?3:(t<=L.time*.75||usedProps<=1)?2:1}
 function win(){if(LEVELS[level].hell)return hellClear();ended=true;endFever();timerOn=false;updateTools();renderTray();SFX.win();setTimeout(SFX.laughBig,650);STATS.wins++;store.set('stats',STATS);
   {const firstBoss=level===4&&!ACH_STATE.w5;if(firstBoss&&ACH_STATE.w3)unlockAch('xianji',achToast);if(level===4)unlockAch(HALO?'zhiqu':'mangfu',achToast);
@@ -1826,6 +1843,7 @@ function loop(t){
 Promise.all(Object.keys(IMGS).map(k=>loadImg(IMGS[k]).then(i=>loaded[k]=i))).then(()=>{
   fitCamera();$('loading').hidden=true;startDemo();requestAnimationFrame(loop);setLoad(100,'准备好了');makeThumbsAsync();
   $('lv1').disabled=false;$('lv2').disabled=false;$('lv3').disabled=false;$('lv4').disabled=false;renderHome();
+  $('lv0').onclick=()=>{SFX.click();go('story')};
   $('lv7').onclick=()=>{if(!unlocked2){const b=$('lv7');b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge');SFX.tick();return}SFX.click();go('game');startLevel(6)};
   $('lv6').disabled=false;$('lv6').onclick=()=>{if(!unlockedHell){const b=$('lv6');b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge');SFX.tick();return}SFX.click();HELL.floor=1;go('game');startLevel(5)};
   $('lv5').disabled=false;$('lv5').onclick=()=>{if(!unlocked4){const b=$('lv5');b.classList.remove('nudge');void b.offsetWidth;b.classList.add('nudge');SFX.tick();return}SFX.click();go('game');startLevel(4)};
