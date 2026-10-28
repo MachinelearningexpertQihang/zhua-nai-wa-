@@ -1,5 +1,5 @@
-const V='naiwa-safe-202610122334';
-const CORE=['./','index.html','naiwa.html','three.min.js','cannon.min.js','qrcode.min.js','zanshang.jpg'];
+const V='naiwa-safe-202610281521';
+const CORE=['three.min.js','cannon.min.js','qrcode.min.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(V).then(c=>Promise.all(CORE.map(u=>c.add(u).catch(()=>{})))))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
