@@ -128,6 +128,16 @@
     return withTimeout(T.getCloudStorage(['sv_m'])).then(function(r){add(G,'读取云存档',r&&r.sv_m?'ok':'warn',r&&r.sv_m?'云端有存档：'+String(r.sv_m).slice(0,80):'能读，但云端还没有存档')},function(e){add(G,'读取云存档','bad','失败：'+((e&&(e.message||e.type))||e)+'（多半是没登录 B站）')}).then(function(){
       return withTimeout(T.getRankList({board:1,period:'day',limit:3})).then(function(l){add(G,'读取全服排行（牧场今日）','ok','前 '+(l||[]).length+' 名')},function(e){add(G,'读取全服排行（牧场今日）','bad','失败：'+((e&&(e.message||e.type))||e))})});
   }
+  function crashTests(){
+    var G='闪退记录',cl=[],el=[];try{cl=JSON.parse(localStorage.getItem('nw-crashlog')||'[]')}catch(e){}try{el=JSON.parse(localStorage.getItem('nw-errlog')||'[]')}catch(e){}
+    var tm=function(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
+    var SN={home:'主页',story:'关卡选择',dex:'图鉴',rank:'排行榜',achs:'成就',shopS:'商店'};
+    if(!cl.length)add(G,'最近的异常退出','ok','没有');
+    cl.slice(-6).forEach(function(c){add(G,tm(c.at||c.t),'warn',c.gl?'3D 画面丢失，已自动重新加载（'+(SN[c.s]||c.s||'?')+'）':'上次没有正常退出：'+(SN[c.s]||c.s||'?')+(c.p?' · 正在第 '+c.l+' 关里，玩了 '+c.e+' 秒 · 锅里 '+c.n+' 个':'')+(c.m?' · 内存 '+c.m+'MB':'')+(c.h?' · 当时在后台':''))});
+    if(!el.length)add(G,'最近的脚本报错','ok','没有');
+    el.slice(-6).forEach(function(e){add(G,'报错 '+tm(e.t),'warn',e.m+(e.f?' @'+e.f+':'+e.l:''))});
+    return Promise.resolve();
+  }
   // ---------- 4. network ----------
   function fetchTest(group,name,url,opt,check){
     var t0=Date.now();
@@ -167,7 +177,7 @@
     results=[];csp=[];el('out').hidden=true;render();
     el('sum').innerHTML='<div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div>';
     envTests();platformTests();
-    storageTests().then(persistTests).then(sdkTests).then(function(){
+    storageTests().then(persistTests).then(sdkTests).then(crashTests).then(function(){
       var json={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'naiwa',test:1})};
       return Promise.all([
         fetchTest('外部网络','同源文件（基准）','nettest.html?'+Date.now()),
