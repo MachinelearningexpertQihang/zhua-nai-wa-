@@ -120,6 +120,14 @@
       });
     });
   }
+  function sdkTests(){
+    var G='B站 Toy SDK',T=W.toy;
+    add(G,'SDK 已加载（window.toy）',T?'ok':'bad',T?'是':'没有（不在 B站 里打开，或者 SDK 没加载出来）');
+    if(!T||!T.getCloudStorage)return Promise.resolve();
+    try{if(W.CS)add(G,'游戏里的云存档状态',W.CS.st==='on'?'ok':'warn',W.CS.st+(W.CS.lastUp?' · 上次同步 '+fmt(W.CS.lastUp):''))}catch(e){}
+    return withTimeout(T.getCloudStorage(['sv_m'])).then(function(r){add(G,'读取云存档',r&&r.sv_m?'ok':'warn',r&&r.sv_m?'云端有存档：'+String(r.sv_m).slice(0,80):'能读，但云端还没有存档')},function(e){add(G,'读取云存档','bad','失败：'+((e&&(e.message||e.type))||e)+'（多半是没登录 B站）')}).then(function(){
+      return withTimeout(T.getRankList({board:1,period:'day',limit:3})).then(function(l){add(G,'读取全服排行（牧场今日）','ok','前 '+(l||[]).length+' 名')},function(e){add(G,'读取全服排行（牧场今日）','bad','失败：'+((e&&(e.message||e.type))||e))})});
+  }
   // ---------- 4. network ----------
   function fetchTest(group,name,url,opt,check){
     var t0=Date.now();
@@ -159,7 +167,7 @@
     results=[];csp=[];el('out').hidden=true;render();
     el('sum').innerHTML='<div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div>';
     envTests();platformTests();
-    storageTests().then(persistTests).then(function(){
+    storageTests().then(persistTests).then(sdkTests).then(function(){
       var json={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'naiwa',test:1})};
       return Promise.all([
         fetchTest('外部网络','同源文件（基准）','nettest.html?'+Date.now()),
