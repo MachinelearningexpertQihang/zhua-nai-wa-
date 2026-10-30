@@ -35,7 +35,7 @@
 <div class="btns">
   <button type="button" id="copy">复制结果</button>
   <button type="button" class="ghost" id="again">重新检测</button>
-  <a class="btn ghost" href="index.html">返回游戏</a>
+  <a class="btn ghost" href="index.html" onclick="try{if(window.frameElement&&window.frameElement.id==='ntFrame'){parent.closeNT();return false}}catch(e){}">返回游戏</a>
 </div>
 <textarea id="out" readonly hidden></textarea>
 <div class="card"><h2>详细结果</h2><div id="list"></div></div>
@@ -43,7 +43,7 @@
 
 <script>
 (function(){
-  var TIMEOUT=7000, results=[], csp=[];
+  var TIMEOUT=7000, results=[], csp=[];var W=window,EMB=false;try{if(window.frameElement&&window.frameElement.id==='ntFrame'){W=window.parent;EMB=true}}catch(e){}
   document.addEventListener('securitypolicyviolation',function(e){csp.push((e.violatedDirective||e.effectiveDirective||'?')+' → '+(e.blockedURI||'?'))});
   function el(id){return document.getElementById(id)}
   function add(group,name,state,detail){results.push({group:group,name:name,state:state,detail:detail||''});render()}
@@ -62,11 +62,11 @@
 
   // ---------- 1. environment ----------
   function envTests(){
-    var inFrame=false;try{inFrame=window.top!==window}catch(e){inFrame=true}
-    add('环境','页面地址',  'ok', location.origin+location.pathname.replace(/[^/]*$/,''));
-    add('环境','运行在框架里（iframe）', inFrame?'warn':'ok', inFrame?'是。来源页面：'+origin(document.referrer)+(location.ancestorOrigins&&location.ancestorOrigins.length?' · 上层：'+Array.prototype.join.call(location.ancestorOrigins,' > '):''):'否');
+    var inFrame=false;try{inFrame=W.top!==W}catch(e){inFrame=true}
+    add('环境','页面地址',  'ok', W.location.origin+W.location.pathname.replace(/[^/]*$/,'')+(EMB?'（游戏内打开）':''));
+    add('环境','运行在框架里（iframe）', inFrame?'warn':'ok', inFrame?'是。来源页面：'+origin(W.document.referrer)+(W.location.ancestorOrigins&&W.location.ancestorOrigins.length?' · 上层：'+Array.prototype.join.call(W.location.ancestorOrigins,' > '):''):'否');
     add('环境','安全上下文（HTTPS）', window.isSecureContext?'ok':'warn', window.isSecureContext?'是':'否');
-    var metaCsp=document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    var metaCsp=W.document.querySelector('meta[http-equiv="Content-Security-Policy"]');
     add('环境','页面内安全策略', metaCsp?'warn':'ok', metaCsp?metaCsp.content:'没有（平台若有策略会在下面的网络检测里体现）');
     add('环境','浏览器', 'ok', navigator.userAgent.replace(/\s+/g,' ').slice(0,180));
   }
@@ -75,11 +75,11 @@
     var base={};
     try{var f=document.createElement('iframe');f.style.display='none';document.body.appendChild(f);Object.getOwnPropertyNames(f.contentWindow).forEach(function(k){base[k]=1});f.remove()}catch(e){}
     var mine={TIMEOUT:1,results:1,csp:1};
-    var extra=Object.getOwnPropertyNames(window).filter(function(k){return !base[k]&&!mine[k]&&!/^on/.test(k)});
+    var extra=(W.__g0||Object.getOwnPropertyNames(window)).filter(function(k){return !base[k]&&!mine[k]&&!/^on/.test(k)});
     var hint=extra.filter(function(k){return /bili|toy|bridge|jsb|native|sdk|app|hybrid|wx|tt|qq/i.test(k)});
     add('平台接口','页面里额外的全局对象', extra.length?'warn':'ok', extra.length?extra.slice(0,40).join(', '):'没有发现平台注入的对象');
     add('平台接口','疑似平台 SDK / 桥接', hint.length?'ok':'warn', hint.length?hint.join(', '):'没有发现名字像 bili / toy / bridge 的对象');
-    var wk=!!(window.webkit&&window.webkit.messageHandlers);
+    var wk=!!(W.webkit&&W.webkit.messageHandlers);
     add('平台接口','App 内嵌通道（iOS webkit）', wk?'ok':'warn', wk?'存在（说明运行在 App 内的网页容器里）':'不存在');
   }
   // ---------- 3. storage ----------
