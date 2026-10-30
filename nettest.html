@@ -91,6 +91,35 @@
       try{var r=indexedDB.open('__nt',1);r.onsuccess=function(){r.result.close();indexedDB.deleteDatabase('__nt');add('本地存储','IndexedDB','ok','可用');res()};r.onerror=function(){add('本地存储','IndexedDB','bad','打不开');res()};setTimeout(res,3000)}catch(e){add('本地存储','IndexedDB','bad',e.message);res()}
     });
   }
+  // ---------- 3b. does storage survive between opens? ----------
+  function fmt(t){if(!t)return '没有（第一次检测，或者上次的记录被清掉了）';var d=new Date(+t);return d.getMonth()+1+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+'（'+Math.round((Date.now()-t)/60000)+' 分钟前）'}
+  function idbGet(name,store,key){return new Promise(function(res){try{var r=indexedDB.open(name,1);r.onupgradeneeded=function(){r.result.createObjectStore(store)};r.onsuccess=function(){var db=r.result;try{var q=db.transaction(store,'readonly').objectStore(store).get(key);q.onsuccess=function(){db.close();res(q.result)};q.onerror=function(){db.close();res(null)}}catch(e){db.close();res(null)}};r.onerror=function(){res(null)};setTimeout(function(){res(null)},2500)}catch(e){res(null)}})}
+  function idbPut(name,store,key,val){return new Promise(function(res){try{var r=indexedDB.open(name,1);r.onupgradeneeded=function(){r.result.createObjectStore(store)};r.onsuccess=function(){var db=r.result;try{var tx=db.transaction(store,'readwrite');tx.objectStore(store).put(val,key);tx.oncomplete=tx.onerror=function(){db.close();res()}}catch(e){db.close();res()}};r.onerror=function(){res()};setTimeout(res,2500)}catch(e){res()}})}
+  function persistTests(){
+    var G='存档能不能留住';var now=Date.now(),ls=null,ck=null;
+    try{ls=localStorage.getItem('__nt_seen')}catch(e){}
+    try{var m=/(?:^|;\s*)__nt_seen=(\d+)/.exec(document.cookie);ck=m&&m[1]}catch(e){}
+    return idbGet('__nt_keep','kv','seen').then(function(idb){
+      add(G,'上次检测记录 · localStorage',ls?'ok':'warn',fmt(ls));
+      add(G,'上次检测记录 · IndexedDB',idb?'ok':'warn',fmt(idb));
+      add(G,'上次检测记录 · Cookie',ck?'ok':'warn',fmt(ck));
+      try{localStorage.setItem('__nt_seen',String(now))}catch(e){}
+      try{document.cookie='__nt_seen='+now+';path=/;max-age=31536000;SameSite=None;Secure'}catch(e){}
+      return idbPut('__nt_keep','kv','seen',now);
+    }).then(function(){
+      var st=null;try{st=localStorage.getItem('nw-stats')}catch(e){}
+      add(G,'游戏存档（localStorage）',st?'ok':'warn',st?'有：'+st.slice(0,80):'没有');
+      return idbGet('nw-backup','kv','s');
+    }).then(function(b){
+      add(G,'游戏存档备份（IndexedDB）',b?'ok':'warn',b&&b.t?'有，备份时间 '+fmt(b.t):'没有');
+      add(G,'无凭据框架（每次打开都清空）',(function(){try{return W.credentialless===true}catch(e){return false}})()?'bad':'ok','crossOriginIsolated='+!!W.crossOriginIsolated+(function(){try{return ' · credentialless='+(W.credentialless===true)}catch(e){return ''}})());
+      var p=navigator.storage&&navigator.storage.persisted?navigator.storage.persisted():Promise.resolve(null);
+      var q=navigator.storage&&navigator.storage.estimate?navigator.storage.estimate():Promise.resolve(null);
+      return Promise.all([p.catch(function(){return null}),q.catch(function(){return null})]).then(function(r){
+        add(G,'存储空间',r[1]?'ok':'warn',r[1]?'已用 '+Math.round((r[1].usage||0)/1024)+' KB / 配额 '+Math.round((r[1].quota||0)/1048576)+' MB · 持久化：'+(r[0]===true?'是':r[0]===false?'否':'未知'):'读不到');
+      });
+    });
+  }
   // ---------- 4. network ----------
   function fetchTest(group,name,url,opt,check){
     var t0=Date.now();
@@ -130,7 +159,7 @@
     results=[];csp=[];el('out').hidden=true;render();
     el('sum').innerHTML='<div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div>';
     envTests();platformTests();
-    storageTests().then(function(){
+    storageTests().then(persistTests).then(function(){
       var json={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'naiwa',test:1})};
       return Promise.all([
         fetchTest('外部网络','同源文件（基准）','nettest.html?'+Date.now()),
