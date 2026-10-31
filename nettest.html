@@ -150,29 +150,6 @@
       return new Promise(function(r){setTimeout(r,200)});
     });
   }
-  function wsTest(){
-    return new Promise(function(res){
-      var done=false,t0=Date.now();
-      function fin(s,d){if(done)return;done=true;add('外部网络','WebSocket 实时连接（对战/实时排行用）',s,d);res()}
-      try{
-        var ws=new WebSocket('wss://ws.postman-echo.com/raw');
-        ws.onopen=function(){ws.send('naiwa-ping')};
-        ws.onmessage=function(e){fin(String(e.data).indexOf('naiwa-ping')>=0?'ok':'warn','收发正常（'+(Date.now()-t0)+' ms）');try{ws.close()}catch(x){}};
-        ws.onerror=function(){setTimeout(function(){var h=cspHit('ws.postman-echo.com');fin('bad',h.length?'被平台拦截：'+h[0]:'连不上（可能是测试服务器在国内不稳定）')},150)};
-        setTimeout(function(){fin('bad','超时')},TIMEOUT);
-      }catch(e){fin('bad',e.message)}
-    });
-  }
-  function biliLogin(){
-    return withTimeout(fetch('https://api.bilibili.com/x/web-interface/nav',{credentials:'include'})).then(function(r){return r.json()}).then(function(j){
-      var on=!!(j&&j.data&&j.data.isLogin);
-      add('B 站身份','读取当前登录的 B 站账号','ok',on?'能读到：当前已登录（不显示、不上传任何账号信息）':'接口能访问，但显示未登录或读不到登录状态');
-      return on;
-    }).catch(function(e){
-      setTimeout(function(){var h=cspHit('api.bilibili.com');add('B 站身份','读取当前登录的 B 站账号','bad',h.length?'被平台拦截：'+h[0]:'读不到（跨域被拒绝或连不上）')},150);
-      return new Promise(function(r){setTimeout(function(){r(false)},200)});
-    });
-  }
   function run(){
     results=[];csp=[];el('out').hidden=true;render();
     el('sum').innerHTML='<div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div>';
@@ -180,15 +157,7 @@
     storageTests().then(persistTests).then(sdkTests).then(crashTests).then(function(){
       var json={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'naiwa',test:1})};
       return Promise.all([
-        fetchTest('外部网络','同源文件（基准）','nettest.html?'+Date.now()),
-        fetchTest('外部网络','读取：jsDelivr CDN','https://cdn.jsdelivr.net/npm/three@0.128.0/package.json'),
-        fetchTest('外部网络','读取：unpkg CDN','https://unpkg.com/three@0.128.0/package.json'),
-        fetchTest('外部网络','提交数据 POST：httpbin（上传成绩用）','https://httpbin.org/post',json),
-        fetchTest('外部网络','提交数据 POST：postman-echo','https://postman-echo.com/post',json),
-        fetchTest('腾讯云','腾讯云开发接口地址','https://tcb-api.tencentcloudapi.com/web',{mode:'no-cors'}),
-        fetchTest('腾讯云','腾讯云官网','https://cloud.tencent.com/favicon.ico',{mode:'no-cors'}),
-        wsTest(),
-        biliLogin()
+        fetchTest('网络','同源文件（基准）','nettest.html?'+Date.now())
       ]);
     }).then(function(){setTimeout(summary,300)});
   }
@@ -198,17 +167,13 @@
     var get=pick('外部网络',/读取/),post=pick('外部网络',/POST/),ws=pick('外部网络',/WebSocket/),tc=pick('腾讯云'),bl=pick('B 站身份'),sdk=pick('平台接口',/SDK/),ls=pick('本地存储',/localStorage/);
     var line=function(ok,txt,why){return '<div class="row"><span class="ic '+(ok===true?'ok':ok===false?'bad':'warn')+'">'+icon(ok===true?'ok':ok===false?'bad':'warn')+'</span><span class="t"><b>'+txt+'</b>'+(why?'<small>'+why+'</small>':'')+'</span></div>'};
     var S=[
-      line(any(get),'读取外部网站：'+(any(get)?'可以':'不行'),blocked(get)?'平台安全规则拦截了':''),
-      line(any(post),'向外部提交数据（上传成绩）：'+(any(post)?'可以':'不行'),blocked(post)?'平台安全规则拦截了':''),
-      line(any(ws)?true:null,'实时连接 WebSocket：'+(any(ws)?'可以':'没测通'),'这个只影响以后的实时对战，排行榜用不到'),
-      line(any(tc),'腾讯云：'+(any(tc)?'能连上':'连不上'),blocked(tc)?'平台安全规则拦截了':''),
-      line(any(bl)?true:null,'B 站登录身份：'+(any(bl)?(bl[0].detail.indexOf('已登录')>=0?'能识别':'接口可访问，未识别到登录'):'读不到'),'读不到也没关系，排行榜可以让玩家自己起昵称'),
+      line(any(pick('网络')),'游戏文件加载：'+(any(pick('网络'))?'正常':'异常')),
       line(any(sdk)?true:null,'平台自带接口：'+(any(sdk)?'发现疑似 SDK':'没有发现'),any(sdk)?sdk[0].detail:''),
       line(any(ls),'本地存档：'+(any(ls)?'正常':'异常'))
     ];
     if(csp.length)S.push(line(false,'平台拦截记录 '+csp.length+' 条',csp.slice(0,6).join('；')));
     el('sum').innerHTML=S.join('');
-    var txt='【抓奶蛙联网检测】'+new Date().toLocaleString()+'\n'+results.map(function(r){return '['+icon(r.state)+'] '+r.group+' / '+r.name+(r.detail?'：'+r.detail:'')}).join('\n')+(csp.length?'\n拦截记录：\n'+csp.join('\n'):'');
+    var txt='【抓奶蛙自检】'+new Date().toLocaleString()+'\n'+results.map(function(r){return '['+icon(r.state)+'] '+r.group+' / '+r.name+(r.detail?'：'+r.detail:'')}).join('\n')+(csp.length?'\n拦截记录：\n'+csp.join('\n'):'');
     el('out').value=txt;
   }
   el('copy').onclick=function(){
