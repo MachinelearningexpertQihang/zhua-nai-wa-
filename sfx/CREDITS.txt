@@ -23,3 +23,6 @@ DEALINGS IN THE SOFTWARE.
 
 laugh1-3:
   Cut from "奶蛙捧腹大笑" (爱给网 aigei.com, 4088154573), supplied by the game author.
+
+pot1-4 / flip1-3 / tin1-3 / itm1-4 / hrd1-3:
+  From "Impact Sounds" by Kenney (www.kenney.nl) — CC0 1.0 Universal
