@@ -12,12 +12,18 @@ keys = set(re.findall(r'img:"(\w+)"', texts)) | set(re.findall(r'IMG\("(\w+)"\)'
 keys = sorted(k for k in keys if k in allimg)
 print("images:", len(keys))
 sys.path.insert(0, ROOT); import procimg
-cache_p = os.path.join(ROOT, "assets/_proc.json")
+from PIL import Image
+cache_p = os.path.join(ROOT, "assets/_proc2.json")
 cache = json.load(open(cache_p)) if os.path.exists(cache_p) else {}
 for k in keys:
-    if k not in cache: cache[k] = procimg.to_uri(procimg.proc(allimg[k]))
+    srp = os.path.join(ROOT, "sr/out", k + ".png")
+    if k in cache and cache[k][0] == os.path.exists(srp): continue
+    if os.path.exists(srp): cache[k] = [True, procimg.to_uri(procimg.proc(None, src=Image.open(srp)))]
+    else: cache[k] = [False, procimg.to_uri(procimg.proc(allimg[k]))]
+    missing_sr = not os.path.exists(srp)
+    if missing_sr: print("  (no SR yet)", k)
 json.dump(cache, open(cache_p, "w"))
-allimg = cache
+allimg = {k: v[1] for k, v in cache.items()}
 
 def write_imgs(out):
     chunks, cur, size = [], {}, 0

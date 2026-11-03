@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>抓奶蛙 · 联网检测</title>
+<style>
+  :root{--bg:#f4f0fb;--card:#fff;--ink:#3a2f6b;--sub:#7a6fa3;--ok:#2f9e63;--bad:#d64552;--warn:#c98a12;--line:#e6def6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+  h1{font-size:20px;margin:4px 0 2px}
+  .sub{color:var(--sub);font-size:13px;margin:0 0 14px}
+  .card{background:var(--card);border-radius:16px;padding:12px 14px;margin:0 0 12px;box-shadow:0 4px 14px rgba(80,50,160,.08)}
+  .card h2{font-size:15px;margin:0 0 6px}
+  .row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+  .row:first-of-type{border-top:0}
+  .ic{flex:0 0 22px;text-align:center;font-weight:800}
+  .ic.ok{color:var(--ok)}.ic.bad{color:var(--bad)}.ic.warn{color:var(--warn)}.ic.run{color:var(--sub)}
+  .t{flex:1;min-width:0}
+  .t b{display:block;font-weight:600}
+  .t small{display:block;color:var(--sub);word-break:break-all}
+  .sum .row b{font-size:15px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+  button,a.btn{border:0;border-radius:999px;padding:10px 18px;font:inherit;font-weight:600;color:#fff;background:linear-gradient(135deg,#ff8fb1,#b39bff);text-decoration:none;cursor:pointer}
+  button.ghost,a.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+  textarea{width:100%;height:160px;border-radius:12px;border:1.5px solid var(--line);padding:10px;font:12px/1.45 ui-monospace,Menlo,monospace;color:var(--ink);background:#fbf9ff}
+  .note{font-size:12px;color:var(--sub)}
+</style>
+</head>
+<body>
+<h1>联网检测</h1>
+<p class="sub">检测这个平台能不能联网、有没有自带接口。结果只显示在你自己的屏幕上，不会上传到任何地方。</p>
+
+<div class="card sum"><h2>结论</h2><div id="sum"><div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div></div></div>
+<div class="btns">
+  <button type="button" id="copy">复制结果</button>
+  <button type="button" class="ghost" id="again">重新检测</button>
+  <a class="btn ghost" href="index.html" onclick="try{if(window.frameElement&&window.frameElement.id==='ntFrame'){parent.closeNT();return false}}catch(e){}">返回游戏</a>
+</div>
+<textarea id="out" readonly hidden></textarea>
+<div class="card"><h2>详细结果</h2><div id="list"></div></div>
+<p class="note">说明：「被平台拦截」表示平台的安全规则禁止访问该地址；「连不上」可能是该网站在国内访问不稳定，不一定是平台的问题。</p>
+
+<script>
+(function(){
+  var TIMEOUT=7000, results=[], csp=[];var W=window,EMB=false;try{if(window.frameElement&&window.frameElement.id==='ntFrame'){W=window.parent;EMB=true}}catch(e){}
+  document.addEventListener('securitypolicyviolation',function(e){csp.push((e.violatedDirective||e.effectiveDirective||'?')+' → '+(e.blockedURI||'?'))});
+  function el(id){return document.getElementById(id)}
+  function add(group,name,state,detail){results.push({group:group,name:name,state:state,detail:detail||''});render()}
+  function icon(s){return s==='ok'?'✓':s==='bad'?'✗':s==='warn'?'!':'…'}
+  function render(){
+    var html='',g='';
+    results.forEach(function(r){
+      if(r.group!==g){g=r.group;html+='<div class="row" style="border-top:0;padding-top:10px"><span class="t"><b style="color:#7a6fa3;font-size:13px">'+g+'</b></span></div>'}
+      html+='<div class="row"><span class="ic '+r.state+'">'+icon(r.state)+'</span><span class="t"><b>'+esc(r.name)+'</b>'+(r.detail?'<small>'+esc(r.detail)+'</small>':'')+'</span></div>'});
+    el('list').innerHTML=html;
+  }
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function withTimeout(p){return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej(new Error('超时'))},TIMEOUT)})])}
+  function cspHit(url){var h=url.replace(/^https?:\/\//,'').split('/')[0];return csp.filter(function(c){return c.indexOf(h)>=0})}
+  function origin(u){try{return new URL(u).origin}catch(e){return u?'(不可读)':'(空)'}}
+
+  // ---------- 1. environment ----------
+  function envTests(){
+    var inFrame=false;try{inFrame=W.top!==W}catch(e){inFrame=true}
+    add('环境','页面地址',  'ok', W.location.origin+W.location.pathname.replace(/[^/]*$/,'')+(EMB?'（游戏内打开）':''));
+    add('环境','运行在框架里（iframe）', inFrame?'warn':'ok', inFrame?'是。来源页面：'+origin(W.document.referrer)+(W.location.ancestorOrigins&&W.location.ancestorOrigins.length?' · 上层：'+Array.prototype.join.call(W.location.ancestorOrigins,' > '):''):'否');
+    add('环境','安全上下文（HTTPS）', window.isSecureContext?'ok':'warn', window.isSecureContext?'是':'否');
+    var metaCsp=W.document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    add('环境','页面内安全策略', metaCsp?'warn':'ok', metaCsp?metaCsp.content:'没有（平台若有策略会在下面的网络检测里体现）');
+    add('环境','浏览器', 'ok', navigator.userAgent.replace(/\s+/g,' ').slice(0,180));
+  }
+  // ---------- 2. platform-injected objects ----------
+  function platformTests(){
+    var base={};
+    try{var f=document.createElement('iframe');f.style.display='none';document.body.appendChild(f);Object.getOwnPropertyNames(f.contentWindow).forEach(function(k){base[k]=1});f.remove()}catch(e){}
+    var mine={TIMEOUT:1,results:1,csp:1};
+    var extra=(W.__g0||Object.getOwnPropertyNames(window)).filter(function(k){return !base[k]&&!mine[k]&&!/^on/.test(k)});
+    var hint=extra.filter(function(k){return /bili|toy|bridge|jsb|native|sdk|app|hybrid|wx|tt|qq/i.test(k)});
+    add('平台接口','页面里额外的全局对象', extra.length?'warn':'ok', extra.length?extra.slice(0,40).join(', '):'没有发现平台注入的对象');
+    add('平台接口','疑似平台 SDK / 桥接', hint.length?'ok':'warn', hint.length?hint.join(', '):'没有发现名字像 bili / toy / bridge 的对象');
+    var wk=!!(W.webkit&&W.webkit.messageHandlers);
+    add('平台接口','App 内嵌通道（iOS webkit）', wk?'ok':'warn', wk?'存在（说明运行在 App 内的网页容器里）':'不存在');
+  }
+  // ---------- 3. storage ----------
+  function storageTests(){
+    try{localStorage.setItem('__nt','1');var v=localStorage.getItem('__nt');localStorage.removeItem('__nt');add('本地存储','localStorage（游戏存档用）',v==='1'?'ok':'bad',v==='1'?'可用':'读写不一致')}catch(e){add('本地存储','localStorage（游戏存档用）','bad','不可用：'+e.message)}
+    try{sessionStorage.setItem('__nt','1');sessionStorage.removeItem('__nt');add('本地存储','sessionStorage','ok','可用')}catch(e){add('本地存储','sessionStorage','bad',e.message)}
+    try{document.cookie='__nt=1;path=/;SameSite=None;Secure';var ck=document.cookie.indexOf('__nt=1')>=0;add('本地存储','Cookie',ck?'ok':'warn',ck?'可写':'写不进去（框架里常见，不影响游戏）')}catch(e){add('本地存储','Cookie','warn',e.message)}
+    return new Promise(function(res){
+      try{var r=indexedDB.open('__nt',1);r.onsuccess=function(){r.result.close();indexedDB.deleteDatabase('__nt');add('本地存储','IndexedDB','ok','可用');res()};r.onerror=function(){add('本地存储','IndexedDB','bad','打不开');res()};setTimeout(res,3000)}catch(e){add('本地存储','IndexedDB','bad',e.message);res()}
+    });
+  }
+  // ---------- 3b. does storage survive between opens? ----------
+  function fmt(t){if(!t)return '没有（第一次检测，或者上次的记录被清掉了）';var d=new Date(+t);return d.getMonth()+1+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+'（'+Math.round((Date.now()-t)/60000)+' 分钟前）'}
+  function idbGet(name,store,key){return new Promise(function(res){try{var r=indexedDB.open(name,1);r.onupgradeneeded=function(){r.result.createObjectStore(store)};r.onsuccess=function(){var db=r.result;try{var q=db.transaction(store,'readonly').objectStore(store).get(key);q.onsuccess=function(){db.close();res(q.result)};q.onerror=function(){db.close();res(null)}}catch(e){db.close();res(null)}};r.onerror=function(){res(null)};setTimeout(function(){res(null)},2500)}catch(e){res(null)}})}
+  function idbPut(name,store,key,val){return new Promise(function(res){try{var r=indexedDB.open(name,1);r.onupgradeneeded=function(){r.result.createObjectStore(store)};r.onsuccess=function(){var db=r.result;try{var tx=db.transaction(store,'readwrite');tx.objectStore(store).put(val,key);tx.oncomplete=tx.onerror=function(){db.close();res()}}catch(e){db.close();res()}};r.onerror=function(){res()};setTimeout(res,2500)}catch(e){res()}})}
+  function persistTests(){
+    var G='存档能不能留住';var now=Date.now(),ls=null,ck=null;
+    try{ls=localStorage.getItem('__nt_seen')}catch(e){}
+    try{var m=/(?:^|;\s*)__nt_seen=(\d+)/.exec(document.cookie);ck=m&&m[1]}catch(e){}
+    return idbGet('__nt_keep','kv','seen').then(function(idb){
+      add(G,'上次检测记录 · localStorage',ls?'ok':'warn',fmt(ls));
+      add(G,'上次检测记录 · IndexedDB',idb?'ok':'warn',fmt(idb));
+      add(G,'上次检测记录 · Cookie',ck?'ok':'warn',fmt(ck));
+      try{localStorage.setItem('__nt_seen',String(now))}catch(e){}
+      try{document.cookie='__nt_seen='+now+';path=/;max-age=31536000;SameSite=None;Secure'}catch(e){}
+      return idbPut('__nt_keep','kv','seen',now);
+    }).then(function(){
+      var st=null;try{st=localStorage.getItem('nw-stats')}catch(e){}
+      add(G,'游戏存档（localStorage）',st?'ok':'warn',st?'有：'+st.slice(0,80):'没有');
+      return idbGet('nw-backup','kv','s');
+    }).then(function(b){
+      add(G,'游戏存档备份（IndexedDB）',b?'ok':'warn',b&&b.t?'有，备份时间 '+fmt(b.t):'没有');
+      add(G,'无凭据框架（每次打开都清空）',(function(){try{return W.credentialless===true}catch(e){return false}})()?'bad':'ok','crossOriginIsolated='+!!W.crossOriginIsolated+(function(){try{return ' · credentialless='+(W.credentialless===true)}catch(e){return ''}})());
+      var p=navigator.storage&&navigator.storage.persisted?navigator.storage.persisted():Promise.resolve(null);
+      var q=navigator.storage&&navigator.storage.estimate?navigator.storage.estimate():Promise.resolve(null);
+      return Promise.all([p.catch(function(){return null}),q.catch(function(){return null})]).then(function(r){
+        add(G,'存储空间',r[1]?'ok':'warn',r[1]?'已用 '+Math.round((r[1].usage||0)/1024)+' KB / 配额 '+Math.round((r[1].quota||0)/1048576)+' MB · 持久化：'+(r[0]===true?'是':r[0]===false?'否':'未知'):'读不到');
+      });
+    });
+  }
+  function sdkTests(){
+    var G='B站 Toy SDK',T=W.toy;
+    add(G,'SDK 已加载（window.toy）',T?'ok':'bad',T?'是':'没有（不在 B站 里打开，或者 SDK 没加载出来）');
+    if(!T||!T.getCloudStorage)return Promise.resolve();
+    try{if(W.CS)add(G,'游戏里的云存档状态',W.CS.st==='on'?'ok':'warn',W.CS.st+(W.CS.lastUp?' · 上次同步 '+fmt(W.CS.lastUp):''))}catch(e){}
+    return withTimeout(T.getCloudStorage(['sv_m'])).then(function(r){add(G,'读取云存档',r&&r.sv_m?'ok':'warn',r&&r.sv_m?'云端有存档：'+String(r.sv_m).slice(0,80):'能读，但云端还没有存档')},function(e){add(G,'读取云存档','bad','失败：'+((e&&(e.message||e.type))||e)+'（多半是没登录 B站）')}).then(function(){
+      return withTimeout(T.getRankList({board:1,period:'day',limit:3})).then(function(l){add(G,'读取全服排行（牧场今日）','ok','前 '+(l||[]).length+' 名')},function(e){add(G,'读取全服排行（牧场今日）','bad','失败：'+((e&&(e.message||e.type))||e))})});
+  }
+  function crashTests(){
+    var G='闪退记录',cl=[],el=[];try{cl=JSON.parse(localStorage.getItem('nw-crashlog')||'[]')}catch(e){}try{el=JSON.parse(localStorage.getItem('nw-errlog')||'[]')}catch(e){}
+    var tm=function(t){var d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
+    var SN={home:'主页',story:'关卡选择',dex:'图鉴',rank:'排行榜',achs:'成就',shopS:'商店'};
+    if(!cl.length)add(G,'最近的异常退出','ok','没有');
+    cl.slice(-6).forEach(function(c){add(G,tm(c.at||c.t),'warn',c.gl?'3D 画面丢失，已自动重新加载（'+(SN[c.s]||c.s||'?')+'）':'上次没有正常退出：'+(SN[c.s]||c.s||'?')+(c.p?' · 正在第 '+c.l+' 关里，玩了 '+c.e+' 秒 · 锅里 '+c.n+' 个':'')+(c.m?' · 内存 '+c.m+'MB':'')+(c.h?' · 当时在后台':''))});
+    if(!el.length)add(G,'最近的脚本报错','ok','没有');
+    el.slice(-6).forEach(function(e){add(G,'报错 '+tm(e.t),'warn',e.m+(e.f?' @'+e.f+':'+e.l:''))});
+    return Promise.resolve();
+  }
+  // ---------- 4. network ----------
+  function fetchTest(group,name,url,opt,check){
+    var t0=Date.now();
+    return withTimeout(fetch(url,opt||{})).then(function(r){
+      var ms=Date.now()-t0;
+      if(opt&&opt.mode==='no-cors'){add(group,name,'ok','能连上（'+ms+' ms）');return}
+      return (check?check(r):Promise.resolve(r.ok?'':'HTTP '+r.status)).then(function(extra){add(group,name,r.ok?'ok':'warn','HTTP '+r.status+'，'+ms+' ms'+(extra?' · '+extra:''))});
+    }).catch(function(e){
+      setTimeout(function(){var h=cspHit(url);add(group,name,'bad',h.length?'被平台拦截：'+h[0]:'连不上：'+(e&&e.message||e))},150);
+      return new Promise(function(r){setTimeout(r,200)});
+    });
+  }
+  function run(){
+    results=[];csp=[];el('out').hidden=true;render();
+    el('sum').innerHTML='<div class="row"><span class="ic run">…</span><span class="t"><b>正在检测，大约 10 秒</b></span></div>';
+    envTests();platformTests();
+    storageTests().then(persistTests).then(sdkTests).then(crashTests).then(function(){
+      var json={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'naiwa',test:1})};
+      return Promise.all([
+        fetchTest('网络','同源文件（基准）','nettest.html?'+Date.now())
+      ]);
+    }).then(function(){setTimeout(summary,300)});
+  }
+  function pick(group,re){return results.filter(function(r){return r.group===group&&(!re||re.test(r.name))})}
+  function summary(){
+    var any=function(L){return L.some(function(r){return r.state==='ok'})},blocked=function(L){return L.some(function(r){return /被平台拦截/.test(r.detail)})};
+    var get=pick('外部网络',/读取/),post=pick('外部网络',/POST/),ws=pick('外部网络',/WebSocket/),tc=pick('腾讯云'),bl=pick('B 站身份'),sdk=pick('平台接口',/SDK/),ls=pick('本地存储',/localStorage/);
+    var line=function(ok,txt,why){return '<div class="row"><span class="ic '+(ok===true?'ok':ok===false?'bad':'warn')+'">'+icon(ok===true?'ok':ok===false?'bad':'warn')+'</span><span class="t"><b>'+txt+'</b>'+(why?'<small>'+why+'</small>':'')+'</span></div>'};
+    var S=[
+      line(any(pick('网络')),'游戏文件加载：'+(any(pick('网络'))?'正常':'异常')),
+      line(any(sdk)?true:null,'平台自带接口：'+(any(sdk)?'发现疑似 SDK':'没有发现'),any(sdk)?sdk[0].detail:''),
+      line(any(ls),'本地存档：'+(any(ls)?'正常':'异常'))
+    ];
+    if(csp.length)S.push(line(false,'平台拦截记录 '+csp.length+' 条',csp.slice(0,6).join('；')));
+    el('sum').innerHTML=S.join('');
+    var txt='【抓奶蛙自检】'+new Date().toLocaleString()+'\n'+results.map(function(r){return '['+icon(r.state)+'] '+r.group+' / '+r.name+(r.detail?'：'+r.detail:'')}).join('\n')+(csp.length?'\n拦截记录：\n'+csp.join('\n'):'');
+    el('out').value=txt;
+  }
+  el('copy').onclick=function(){
+    var t=el('out').value||'检测还没完成';
+    var ok=function(){el('copy').textContent='已复制';setTimeout(function(){el('copy').textContent='复制结果'},1500)};
+    var fallback=function(){el('out').hidden=false;el('out').focus();el('out').select();try{if(document.execCommand('copy'))return ok()}catch(e){}el('copy').textContent='请长按下方文字复制'};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fallback);else fallback();
+  };
+  el('again').onclick=run;
+  run();
+})();
+</script>
+</body>
+</html>

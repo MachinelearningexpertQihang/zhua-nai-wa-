@@ -1,7 +1,15 @@
 """角色图处理：硬化边缘 + 锐化 + 贴纸描边"""
 import json,base64,io,sys
 from PIL import Image,ImageFilter,ImageChops
-def proc(data_uri, outline=True):
+def proc(data_uri, outline=True, src=None):
+    if src is not None:
+        im=src.convert('RGBA'); s=512/max(im.size); im=im.resize((round(im.width*s),round(im.height*s)),Image.LANCZOS)
+        pad=12; big=Image.new('RGBA',(im.width+pad*2,im.height+pad*2),(0,0,0,0)); big.paste(im,(pad,pad)); im=big
+        r,g,b,a=im.split()
+        a=a.point(lambda v:0 if v<100 else 255 if v>160 else int((v-100)*255/60)).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(.6))
+        rgb=Image.merge('RGB',(r,g,b)).filter(ImageFilter.UnsharpMask(radius=1.2,percent=50,threshold=2))
+        body=Image.merge('RGBA',(*rgb.split(),a))
+        return _outline(body,a)
     im=Image.open(io.BytesIO(base64.b64decode(data_uri.split(',')[1]))).convert('RGBA')
     pad=14; W,H=im.size
     big=Image.new('RGBA',(W+pad*2,H+pad*2),(0,0,0,0)); big.paste(im,(pad,pad)); im=big
@@ -16,15 +24,17 @@ def proc(data_uri, outline=True):
     rgb=rgb.filter(ImageFilter.UnsharpMask(radius=.8,percent=60,threshold=1))
     body=Image.merge('RGBA',(*rgb.split(),a))
     if not outline: return body
+    return _outline(body,a)
+def _outline(body,a):
     hard=a.point(lambda v:255 if v>60 else 0)
-    w1=hard.filter(ImageFilter.MaxFilter(11)).filter(ImageFilter.GaussianBlur(.8))   # 白边
-    w2=hard.filter(ImageFilter.MaxFilter(17)).filter(ImageFilter.GaussianBlur(.8))  # 深色外线
+    w1=hard.filter(ImageFilter.MaxFilter(13)).filter(ImageFilter.GaussianBlur(.8))   # 白边
+    w2=hard.filter(ImageFilter.MaxFilter(19)).filter(ImageFilter.GaussianBlur(.8))  # 深色外线
     out=Image.new('RGBA',body.size,(0,0,0,0))
     out.paste(Image.new('RGBA',body.size,(43,26,58,255)),(0,0),w2)
     out.paste(Image.new('RGBA',body.size,(255,252,240,255)),(0,0),w1)
     out.alpha_composite(body)
     return out
-def to_uri(im,q=86):
+def to_uri(im,q=84):
     buf=io.BytesIO(); im.save(buf,'WEBP',quality=q,method=6); return 'data:image/webp;base64,'+base64.b64encode(buf.getvalue()).decode()
 if __name__=='__main__':
     d=json.load(open('/home/claude/naiwa-tower/assets/_all.json'))

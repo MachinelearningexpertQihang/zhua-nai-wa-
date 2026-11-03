@@ -32,7 +32,7 @@ glow:{n:"回光",cost:2,type:"skl",r:"R",fam:"chick",img:"ckg",exh:1,d:u=>`回�
 calm:{n:"定心",cost:1,type:"pow",r:"R",fam:"frog",img:"c7",d:u=>`每次触发三连，获得 ${U(u,4,6)} 护盾`,fx:(B,u)=>{B.p.pw.calm=(B.p.pw.calm||0)+U(u,4,6)}},
 /* ---- 史诗 ---- */
 way:{n:"修行之道",cost:2,cu:1,type:"pow",r:"E",fam:"frog",img:"c1",d:u=>`每回合第一次三连后，多给 1 点奶力`,fx:(B,u)=>{B.p.pw.way=1}},
-zone:{n:"心流",cost:1,cu:0,type:"pow",r:"E",fam:"horse",img:"hrr",d:u=>`每打出 5 张牌，抽 2 张`,fx:(B,u)=>{B.p.pw.zone=(B.p.pw.zone||0)+1}},
+zone:{n:"心流",cost:1,cu:0,type:"pow",r:"E",fam:"horse",img:"hrf",d:u=>`每打出 5 张牌，抽 2 张`,fx:(B,u)=>{B.p.pw.zone=(B.p.pw.zone||0)+1}},
 thunder:{n:"雷霆一击",cost:3,type:"atk",r:"E",fam:"horse",img:"hrz",tgt:1,dyn:B=>B.played>=4?-2:0,d:u=>`造成 ${U(u,28,36)} 伤害。本回合已打出 4 张牌时费用 -2`,fx:(B,u,t)=>{B.hit(t,U(u,28,36));B.shake(10)}},
 /* ---- 传说 ---- */
 hundred:{n:"百连",cost:-1,type:"atk",r:"L",fam:"frog",img:"n4",tgt:1,d:u=>`X 费。打（X + 连击数）次，每次 ${U(u,4,5)} 伤害`,fx:(B,u,t,c,x)=>B.hit(t,U(u,4,5),x+B.combo)},
@@ -49,14 +49,54 @@ bombfrog:{n:"炸弹奶蛙",cost:1,type:"atk",r:"X",fam:"frog",img:"xsr",d:u=>`�
 kiss:{n:"吸血鬼之吻",cost:1,type:"atk",r:"X",fam:"none",img:"vp",tgt:1,exh:1,d:u=>`造成 ${U(u,8,11)} 伤害，回复 ${U(u,8,11)} 生命。消耗`,fx:(B,u,t)=>{B.hit(t,U(u,8,11));B.heal(U(u,8,11))}},
 goldfrog:{n:"金奶蛙",cost:0,type:"skl",r:"X",fam:"none",img:"hg",exh:1,d:u=>`获得 ${U(u,25,40)} 金币。消耗`,fx:(B,u)=>B.gainGold(U(u,25,40))},
 tray:{n:"异世界的端盘",cost:2,type:"skl",r:"X",fam:"none",img:"yjx",exh:1,d:u=>`获得 3 点奶力，抽 3 张，回复 10 生命。消耗`,fx:B=>{B.gainEnergy(3);B.draw(3);B.heal(10)}},
+/* ---- 3.0 扩充：奶蛙（连击） ---- */
+leap:{n:"蛙跳",cost:1,type:"atk",r:"C",fam:"frog",img:"c3",tgt:1,d:u=>`造成 ${U(u,6,9)} 伤害。连击 ≥2 时抽 1 张`,fx:(B,u,t)=>{B.hit(t,U(u,6,9));if(B.combo>=2)B.draw(1)}},
+jab:{n:"刺拳",cost:0,type:"atk",r:"C",fam:"frog",img:"xs",tgt:1,d:u=>`造成 ${U(u,3,5)} 伤害`,fx:(B,u,t)=>B.hit(t,U(u,3,5))},
+flurry:{n:"乱拳",cost:1,type:"atk",r:"C",fam:"frog",img:"m5",tgt:1,d:u=>`造成 ${U(u,4,6)} 伤害，本回合每打出过 1 张攻击牌，再 +${U(u,2,3)}`,fx:(B,u,t)=>B.hit(t,U(u,4,6)+(B.combo-1)*U(u,2,3))},
+tongue:{n:"长舌卷",cost:1,type:"atk",r:"C",fam:"frog",img:"xsp",tgt:1,d:u=>`造成 ${U(u,7,10)} 伤害。从弃牌堆随机拿回 1 张攻击牌`,fx:(B,u,t)=>{B.hit(t,U(u,7,10));B.fetchAtk()}},
+echo:{n:"余音",cost:1,type:"skl",r:"R",fam:"frog",img:"c5",exhU:1,d:u=>`下一张攻击牌打出两次${U(u,"。消耗","")}`,fx:B=>{B.p.echo=(B.p.echo||0)+1}},
+dragon:{n:"飞龙在天",cost:2,type:"atk",r:"R",fam:"frog",img:"nx",tgt:1,dyn:B=>B.combo>=3?-2:0,d:u=>`造成 ${U(u,14,19)} 伤害。连击 ≥3 时费用 -2`,fx:(B,u,t)=>{B.hit(t,U(u,14,19));B.shake()}},
+rhythm:{n:"节奏感",cost:1,cu:0,type:"pow",r:"R",fam:"frog",img:"xsw",d:u=>`每回合打出第 3 张攻击牌时，获得 1 点奶力，抽 1 张`,fx:B=>{B.p.pw.rhythm=(B.p.pw.rhythm||0)+1}},
+storm:{n:"奶拳风暴",cost:2,type:"atk",r:"E",fam:"frog",img:"n2",d:u=>`对所有敌人造成 4 伤害 ${U(u,3,4)} 次`,fx:(B,u)=>{for(let i=0;i<U(u,3,4);i++)B.hitAll(4)}},
+/* 奶马（冲锋 / 群攻 / 易伤） */
+gallop:{n:"奔腾",cost:1,type:"atk",r:"C",fam:"horse",img:"hra",d:u=>`对所有敌人造成 ${U(u,4,6)} 伤害，并给予易伤 1`,fx:(B,u)=>{B.hitAll(U(u,4,6));B.alive().forEach(e=>B.apply(e,"vuln",1))}},
+rush:{n:"冲锋",cost:2,type:"atk",r:"C",fam:"horse",img:"hrg",tgt:1,d:u=>`造成 ${U(u,12,16)} 伤害，本回合每打出过 1 张奶马牌再 +4`,fx:(B,u,t)=>B.hit(t,U(u,12,16)+(B.horseN-1)*4)},
+backkick:{n:"后踢",cost:1,type:"atk",r:"C",fam:"horse",img:"hrc",tgt:1,d:u=>`造成 ${U(u,8,11)} 伤害。目标有易伤时抽 1 张`,fx:(B,u,t)=>{B.hit(t,U(u,8,11));if(t.vuln>0)B.draw(1)}},
+mane:{n:"抖鬃毛",cost:0,type:"skl",r:"C",fam:"horse",img:"hrh",d:u=>`所有敌人易伤 ${U(u,1,2)}`,fx:(B,u)=>B.alive().forEach(e=>B.apply(e,"vuln",U(u,1,2)))},
+trample:{n:"践踏",cost:2,type:"atk",r:"R",fam:"horse",img:"hrz",d:u=>`对所有敌人造成 ${U(u,10,14)} 伤害，有易伤的敌人再受 5`,fx:(B,u)=>B.alive().forEach(e=>{B.hit(e,U(u,10,14));if(e.vuln>0&&e.hp>0)B.hit(e,5)})},
+stampede:{n:"万马奔腾",cost:2,cu:1,type:"pow",r:"E",fam:"horse",img:"hrar",d:u=>`每回合开始，对所有敌人造成 4 伤害`,fx:B=>{B.p.pw.stampede=(B.p.pw.stampede||0)+4}},
+unicorn:{n:"独角冲",cost:2,type:"atk",r:"L",fam:"horse",img:"hrr",tgt:1,d:u=>`造成 ${U(u,22,30)} 伤害。击败敌人时回满奶力，抽 2 张`,fx:(B,u,t)=>{const a=t.hp>0;B.hit(t,U(u,22,30));B.shake();if(a&&t.hp<=0){B.p.energy=Math.max(B.p.energy,3);B.gainEnergy(0);B.draw(2)}}},
+/* 奶鸡（护盾 / 虚弱 / 反击） */
+peck:{n:"啄一啄",cost:1,type:"atk",r:"C",fam:"chick",img:"cka",tgt:1,d:u=>`造成 ${U(u,6,8)} 伤害，获得 ${U(u,4,6)} 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,6,8));B.block(U(u,4,6))}},
+fluff:{n:"炸毛",cost:1,type:"skl",r:"C",fam:"chick",img:"ckh",d:u=>`获得 ${U(u,8,11)} 护盾。有敌人虚弱时再 +4`,fx:(B,u)=>B.block(U(u,8,11)+(B.alive().some(e=>e.weak>0)?4:0))},
+roost:{n:"回窝",cost:1,type:"skl",r:"C",fam:"chick",img:"ckb",d:u=>`获得 ${U(u,6,8)} 护盾，下回合开始再获得 ${U(u,6,8)}`,fx:(B,u)=>{B.block(U(u,6,8));B.p.nextBlock=(B.p.nextBlock||0)+U(u,6,8)}},
+crow:{n:"晨啼",cost:1,type:"skl",r:"C",fam:"chick",img:"ckg",d:u=>`所有敌人虚弱 ${U(u,2,3)}，抽 1 张`,fx:(B,u)=>{B.alive().forEach(e=>B.apply(e,"weak",U(u,2,3)));B.draw(1)}},
+spur:{n:"鸡爪反击",cost:1,type:"pow",r:"R",fam:"chick",img:"cks",d:u=>`获得荆棘 ${U(u,3,5)}（被攻击时反弹伤害）`,fx:(B,u)=>B.apply(B.p,"thorn",U(u,3,5))},
+wall:{n:"鸡毛长城",cost:2,cu:1,type:"skl",r:"R",fam:"chick",img:"cki",exh:1,d:u=>`护盾翻倍。消耗`,fx:B=>B.block(B.p.block,1)},
+iron:{n:"铁公鸡",cost:3,cu:2,type:"pow",r:"E",fam:"chick",img:"ckik",d:u=>`护盾不会在回合开始时清零`,fx:B=>{B.p.pw.iron=1}},
+blaze:{n:"浴火",cost:2,type:"skl",r:"L",fam:"chick",img:"ckar",exh:1,d:u=>`获得 ${U(u,20,28)} 护盾，所有敌人虚弱 2。消耗`,fx:(B,u)=>{B.block(U(u,20,28));B.alive().forEach(e=>B.apply(e,"weak",2))}},
+/* 奶猫（回复 / 抽牌 / 保留） */
+paw:{n:"猫猫拳",cost:1,type:"atk",r:"C",fam:"cat",img:"ctl",tgt:1,ret:1,d:u=>`造成 ${U(u,7,10)} 伤害。保留`,fx:(B,u,t)=>B.hit(t,U(u,7,10))},
+nap:{n:"打盹",cost:1,type:"skl",r:"C",fam:"cat",img:"ctu",ret:1,d:u=>`抽 ${U(u,2,3)} 张。保留`,fx:(B,u)=>B.draw(U(u,2,3))},
+purr:{n:"呼噜",cost:1,type:"skl",r:"C",fam:"cat",img:"ctp",d:u=>`回复 ${U(u,4,6)} 生命，获得 ${U(u,4,6)} 护盾`,fx:(B,u)=>{B.heal(U(u,4,6));B.block(U(u,4,6))}},
+yarn:{n:"毛线球",cost:0,type:"skl",r:"C",fam:"cat",img:"cty",d:u=>`抽 1 张，抽到奶猫牌就再抽 ${U(u,1,2)} 张`,fx:(B,u)=>{const c=B.draw(1);if(c&&CARDS[c.id].fam==="cat")B.draw(U(u,1,2))}},
+nine:{n:"九命",cost:1,type:"pow",r:"R",fam:"cat",img:"ctw",d:u=>`每回合开始，回复 ${U(u,2,3)} 生命`,fx:(B,u)=>{B.p.pw.nine=(B.p.pw.nine||0)+U(u,2,3)}},
+prowl:{n:"潜行",cost:1,type:"pow",r:"R",fam:"cat",img:"ctcc",d:u=>`敏捷 +${U(u,2,3)}（护盾牌效果更好）`,fx:(B,u)=>B.apply(B.p,"dex",U(u,2,3))},
+stargaze:{n:"观星",cost:1,type:"skl",r:"E",fam:"cat",img:"ctf",ret:1,d:u=>`从抽牌堆选 ${U(u,1,2)} 张放进手里。保留`,fx:(B,u)=>{for(let i=0;i<U(u,1,2);i++)B.chooseFromDraw()}},
+galaxy:{n:"银河猫",cost:3,cu:2,type:"pow",r:"L",fam:"cat",img:"ctar",d:u=>`每回合多抽 1 张，多 1 点奶力`,fx:B=>{B.p.pw.galaxy=(B.p.pw.galaxy||0)+1}},
+/* 无色扩充 */
+dogpal:{n:"奶狗来帮忙",cost:1,type:"atk",r:"X",fam:"none",img:"dg",tgt:1,d:u=>`造成 ${U(u,5,7)} 伤害 2 次`,fx:(B,u,t)=>B.hit(t,U(u,5,7),2)},
+twinegg:{n:"双黄蛋",cost:1,cu:0,type:"skl",r:"X",fam:"none",img:"ega",exh:1,d:u=>`下回合多 1 点奶力，多抽 2 张。消耗`,fx:B=>{B.p.nextEnergy=(B.p.nextEnergy||0)+1;B.p.nextDraw=(B.p.nextDraw||0)+2}},
+snakestep:{n:"蛇形步",cost:0,type:"skl",r:"X",fam:"none",img:"sn",ret:1,d:u=>`获得 ${U(u,4,7)} 护盾，敏捷 +1。保留`,fx:(B,u)=>{B.block(U(u,4,7));B.apply(B.p,"dex",1)}},
+ratpack:{n:"鼠群",cost:1,type:"atk",r:"X",fam:"none",img:"msa",d:u=>`对所有敌人造成 3 伤害 ${U(u,3,4)} 次`,fx:(B,u)=>{for(let i=0;i<U(u,3,4);i++)B.hitAll(3)}},
 /* ---- 诅咒 / 状态 ---- */
 mud:{n:"泥巴块",cost:1,type:"sts",r:"T",fam:"none",img:"pp",exh:1,d:u=>`在手里时，回合结束受到 2 伤害。打出后消耗`,fx:()=>{}},
 heavy:{n:"沉重",cost:-2,type:"cur",r:"K",fam:"none",img:"xsh",d:u=>`不能打出`,fx:()=>{}},
 fret:{n:"烦躁",cost:-2,type:"cur",r:"K",fam:"none",img:"xch",d:u=>`不能打出。抽到时失去 1 点奶力`,fx:()=>{}},
 frozen:{n:"冻住",cost:-2,type:"sts",r:"T",fam:"none",img:"c7",eth:1,d:u=>`不能打出。回合结束时消失`,fx:()=>{}},
 };
-const POOL_HERO=["fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
-const POOL_X=["milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
+const POOL_HERO=["leap","jab","flurry","tongue","echo","dragon","rhythm","storm","gallop","rush","backkick","mane","trample","stampede","unicorn","peck","fluff","roost","crow","spur","wall","iron","blaze","paw","nap","purr","yarn","nine","prowl","stargaze","galaxy","fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
+const POOL_X=["dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
 const STARTER=["strike","strike","strike","strike","strike","guard","guard","guard","guard","fist"];
 
 /* ===================== 敌人 ===================== */
@@ -119,7 +159,7 @@ pice:{n:"冰冻药水",c:"#bfefff",d:"所有敌人虚弱 3",fx:B=>B.enemies.forE
 };
 
 /* ===================== 状态 ===================== */
-const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"}};
+const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"},thorn:{n:"荆棘",c:"#4fa86a",d:"被攻击时，对攻击者造成等量伤害"}};
 
 /* ===================== 剧情 ===================== */
 const STORY={

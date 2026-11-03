@@ -302,7 +302,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 @keyframes bubA{0%{opacity:0;transform:translateY(10px)}10%,85%{opacity:1;transform:none}100%{opacity:0}}
 
 /* ============ 浮层 ============ */
-#ov{position:absolute;inset:0;z-index:70;display:none;background:rgba(20,12,40,.9);color:var(--milk)}
+#ov{position:absolute;inset:0;z-index:70;display:none;background:rgba(18,11,38,.96);color:var(--milk)}
 #ov.on{display:block;animation:scrIn .2s}
 .ovHead{position:absolute;top:22px;left:0;right:0;text-align:center}
 .ovHead .ribbon{margin:0;font-size:30px;padding:6px 56px}
@@ -313,7 +313,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 .ovGrid .card.pk{background:var(--gold);box-shadow:0 0 0 .2em var(--ink)}
 .ovFoot{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;gap:18px}
 .ovEmpty{width:100%;text-align:center;font-size:22px;color:#a99fc4;margin-top:120px}
-.tabs{position:absolute;top:84px;left:0;right:0;display:flex;justify-content:center;gap:8px}
+.tabs{position:absolute;top:104px;left:0;right:0;display:flex;justify-content:center;gap:8px}
 .tabs button{padding:2px 16px;border-radius:10px;font-size:17px;color:var(--milk);background:#3b2d74;border:2.5px solid var(--ink)}
 .tabs button.on{color:var(--ink);background:var(--gold)}
 .cmpRow{position:absolute;top:150px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:50px}
@@ -438,3 +438,26 @@ img{-webkit-user-drag:none;pointer-events:none}
 .tipBox b{font-weight:400;color:var(--red2);font-size:20px}
 .tipBox p{margin-top:4px;font:600 15px/1.5 var(--body);color:#5a3d2a}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+.scene .tw{animation:twk 3s ease-in-out infinite alternate}
+@keyframes twk{from{opacity:.25}to{opacity:1}}
+.scene .cloud{animation:cloud 80s linear infinite alternate}
+@keyframes cloud{from{transform:translateX(-80px)}to{transform:translateX(120px)}}
+.scene .sway{animation:sway 4s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-2.5deg)}to{transform:rotate(2.5deg)}}
+.scene .swing{animation:swing 3s ease-in-out infinite alternate}
+@keyframes swing{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+.scene .float{animation:flt 3.5s ease-in-out infinite alternate}
+@keyframes flt{to{transform:translateY(4px)}}
+.scene .rip{animation:rip 3s ease-out infinite}
+@keyframes rip{0%{transform:scale(.3);opacity:.5}100%{transform:scale(1.6);opacity:0}}
+.scene .shim{animation:twk 2.4s ease-in-out infinite alternate}
+.scene .halo{animation:twk 5s ease-in-out infinite alternate}
+.scene .win rect{animation:twk 2s steps(2) infinite alternate}
+
+.card.cback .cf{background:linear-gradient(#5a43b8 0 50%,#4a35a0 50%)}
+.card.cback .in{background:repeating-linear-gradient(45deg,#3b2d74 0 10px,#33276a 10px 20px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3em}
+.card.cback .in b{font:800 3.4em var(--num);color:var(--gold);-webkit-text-stroke:.12em var(--ink);paint-order:stroke}
+.card.cback .in small{font-size:.8em;color:#cfc4f2}
+.scene .rise{animation:rise 30s linear infinite}
+@keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(60px,-520px);opacity:0}}

@@ -118,7 +118,7 @@ function pickCards(list,opts){return new Promise(res=>{let sel=[];const n=opts.n
  const confirmPick=c=>{ov(`<div class="ovHead"><span class="ribbon b">${opts.title}</span><small>确认一下</small></div><div class="cmpRow">${opts.confirm(c)}</div><div class="ovFoot"><button class="btn sm ghost" id="pkB">换一张</button><button class="btn sm" id="pkY">就它了</button></div>`);$("#pkB").onclick=draw;$("#pkY").onclick=()=>{closeOv();res([c])}};
  draw()})}
 function codex(){const all=[...POOL_HERO,...POOL_X];let up=false;const d=()=>{const list=all.map(id=>({id,u:up?1:0,k:id}));
- ov(`<div class="ovHead"><span class="ribbon b">卡牌图鉴</span><small>已见过 ${all.filter(i=>M.seen[i]).length} / ${all.length} 张　没见过的牌会显示成剪影</small></div><div class="tabs"><button class="${up?"":"on"}" id="cx0">原版</button><button class="${up?"on":""}" id="cx1">升级后</button></div><div class="ovGrid" style="top:126px">${list.map(c=>M.seen[c.id]?cardHTML(c,"mid"):`<div style="filter:brightness(0) opacity(.35)">${cardHTML(c,"mid")}</div>`).join("")}</div><div class="ovFoot"><button class="btn sm" id="ovX">返回</button></div>`);
+ ov(`<div class="ovHead"><span class="ribbon b">卡牌图鉴</span><small>已见过 ${all.filter(i=>M.seen[i]).length} / ${all.length} 张　没见过的牌会显示成剪影</small></div><div class="tabs"><button class="${up?"":"on"}" id="cx0">原版</button><button class="${up?"on":""}" id="cx1">升级后</button></div><div class="ovGrid" style="top:150px">${list.map(c=>M.seen[c.id]?cardHTML(c,"mid"):`<div class="card mid cback"><div class="cf"><div class="in"><b>?</b><small>还没遇到</small></div></div></div>`).join("")}</div><div class="ovFoot"><button class="btn sm" id="ovX">返回</button></div>`);
  $("#cx0").onclick=()=>{up=false;d()};$("#cx1").onclick=()=>{up=true;d()};$("#ovX").onclick=()=>{closeOv();if(S&&$("#top").classList.contains("on"))settings()}};d()}
 
 /* ---------- 对话 ---------- */
@@ -204,18 +204,21 @@ function startCombat(kind){if(S.cur){if(!S.cur.snap)S.cur.snap={hp:S.hp,gold:S.g
  B={kind,enemies:list.map(mkEnemy),p:{block:0,energy:0,str:has("star")?1:0,tstr:0,dex:0,vuln:0,weak:0,mud:0,nextAtk:0,borrow:0,retain:0,drawMinus:0,free:0,pw:{}},
   dp:shuffle(S.deck.map(c=>({...c}))),hand:[],disc:[],exh:[],turn:0,combo:0,played:0,fam:{},badge:0,mirror:has("mirror"),over:0,after:[],sel:null,myTurn:false,totalPlayed:0};
  Object.assign(B,API);
- setBg(kind==="B"?"boss":"swamp");show("battle");renderTop();if(kind!=="B")playMusic(kind==="E"?"boss":"tense");
+ setBg(kind==="B"?"boss":kind==="E"?"elite":["swamp","reed","ruin"][(S.row+3)%3]);show("battle");renderTop();if(kind!=="B")playMusic(kind==="E"?"boss":"tense");
  B.enemies.forEach(e=>e.intent=ENEMY[e.id].ai(e,0));
  renderBattle(true);
  if(has("feather"))B.block(8,1);
  setTimeout(()=>startTurn(),300)}
 function relicPulse(id){const e=$(`#top .rl[data-rl="${id}"]`);if(e){e.classList.remove("pulse");void e.offsetWidth;e.classList.add("pulse")}}
 async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
- if(!p.retain)p.block=0;p.retain=0;
+ B.horseN=0;if(!p.retain&&!p.pw.iron)p.block=0;p.retain=0;
  banner("你的回合");sfx("turn");
  if(p.mud>0){dmgPlayer(p.mud,null,true);p.mud--;sfx("mud");if(S.hp<=0)return lose()}
- p.energy=3+(B.turn===1&&has("lantern")?1:0)+(has("moon")&&B.turn%3===0?1:0);if(B.turn%3===0&&has("moon"))relicPulse("moon");
- let n=5-p.drawMinus+(B.turn===1&&has("sand")?2:0);p.drawMinus=0;
+ p.energy=3+(p.nextEnergy||0)+(p.pw.galaxy||0)+(B.turn===1&&has("lantern")?1:0)+(has("moon")&&B.turn%3===0?1:0);if(B.turn%3===0&&has("moon"))relicPulse("moon");
+ let n=5-p.drawMinus+(p.nextDraw||0)+(p.pw.galaxy||0)+(B.turn===1&&has("sand")?2:0);p.drawMinus=0;p.nextEnergy=0;p.nextDraw=0;
+ if(p.nextBlock){B.block(p.nextBlock,1);p.nextBlock=0}
+ if(p.pw.nine&&S.hp<S.max)B.heal(p.pw.nine);
+ if(p.pw.stampede){const v=p.pw.stampede;setTimeout(()=>{B.alive().forEach(e=>B.hit(e,v,1,1));afterAction()},500)}
  if(B.turn===1&&has("pup")){const t=pick(B.alive());if(t){relicPulse("pup");setTimeout(()=>{B.hit(t,6,1,1);afterAction()},600)}}
  await sleep(350);B.draw(n);busy=false;renderBattle();$("#endBtn").classList.remove("wait")}
 function banner(t,en){const b=$("#turnBan");b.innerHTML=`<span>${t}</span>`;b.className="";void b.offsetWidth;b.className="on"+(en?" en":"")}
@@ -235,8 +238,8 @@ function intentHTML(e){const I=e.intent;if(!I||e.hp<=0)return"";const dmg=v=>{le
  case"atkcnt":return`<div class="intent atk">${ic("sword")}${dmg(I.v)}${ic("bomb")}${I.c}</div>`;
  case"boom":return`<div class="intent boom">${ic("boom")}${dmg(I.v)}<small>自爆</small></div>`}return""}
 function intentTip(e){const I=e.intent||{};const m={atk:"准备攻击",def:"准备防御",buff:"准备变强",debuff:"准备给你上负面状态",add:"准备往你的弃牌堆扔泥巴块",atkdef:"攻击并防御",steal:"攻击并偷走金币",flee:"准备带着金币逃跑",atkcnt:"攻击，倒计时结束会自爆",boom:"要自爆了！"};return m[I.k]||""}
-function stsHTML(o){const a=[];if(o.str)a.push(["str",o.str]);if(o.tstr)a.push(["str",o.tstr,"本回合"]);if(o.dex)a.push(["dex",o.dex]);["vuln","weak","mud"].forEach(k=>o[k]&&a.push([k,o[k]]));
- return a.map(([k,v,x])=>`<span class="st" style="--sc:${STAT[k].c}">${STAT[k].n}${v}</span>`).join("")+(o.pw?Object.keys(o.pw).map(k=>`<span class="st" style="--sc:#c8901e">${{calm:"定心",way:"修行之道",zone:"心流",noself:"无我"}[k]}</span>`).join(""):"")}
+function stsHTML(o){const a=[];if(o.str)a.push(["str",o.str]);if(o.tstr)a.push(["str",o.tstr,"本回合"]);if(o.dex)a.push(["dex",o.dex]);["vuln","weak","mud","thorn"].forEach(k=>o[k]&&a.push([k,o[k]]));
+ return a.map(([k,v,x])=>`<span class="st" style="--sc:${STAT[k].c}">${STAT[k].n}${v}</span>`).join("")+(o.pw?Object.keys(o.pw).map(k=>`<span class="st" style="--sc:#c8901e">${{calm:"定心",way:"修行之道",zone:"心流",noself:"无我",rhythm:"节奏感",stampede:"万马奔腾",iron:"铁公鸡",nine:"九命",galaxy:"银河猫"}[k]}</span>`).join(""):"")}
 function hpHTML(hp,max,blk){return`<div class="blkB ${blk?"on":""}">${ICON.shield}<b>${blk||""}</b></div><div class="hpbar ${blk?"blk":""}"><u style="width:${hp/max*100}%"></u><i style="width:${hp/max*100}%"></i><span>${hp}/${max}</span></div>`}
 function renderBattle(first){if(!B)return;const p=B.p;
  const pl=$("#player");if(first||!pl.firstChild)pl.innerHTML=`<div class="body"><i class="plat"></i><img src="${IMG("n1")}"></div><div class="hpw"></div><div class="sts"></div>`;
@@ -270,7 +273,9 @@ function clickCard(k){if(busy||!B.myTurn||B.over)return;const c=B.hand.find(x=>x
  const v=curCost(c);if(D.cost>=0&&v>B.p.energy){toast("奶力不够");shakeEl($("#energy"));return}
  if(B.sel&&B.sel.k===k){ // 再点一次
   if(!D.tgt){playCard(c)}else{const al=B.alive();if(al.length===1)playCard(c,al[0]);else hint("点一个敌人")}return}
- B.sel={k};sfx("click");hint(D.tgt?(B.alive().length===1?"再点一次这张牌，或点敌人":"点一个敌人"):"再点一次打出");renderBattle()}
+ B.sel={k};sfx("click");const kw=kwText(c);hint((D.tgt?(B.alive().length===1?"再点一次这张牌，或点敌人":"点一个敌人"):"再点一次打出")+(kw?"　｜　"+kw:""));renderBattle()}
+const KW={"保留":"回合结束时不会被弃掉","消耗":"打出后本场战斗移除","连击":"本回合打出的攻击牌数","易伤":"受到的伤害 +50%","虚弱":"造成的伤害 -25%","荆棘":"被攻击时反弹伤害","敏捷":"每层让护盾 +1","三连":"同家族连出 3 张，效果翻倍"};
+function kwText(c){const t=CARDS[c.id].d(!!c.u);return Object.keys(KW).filter(k=>t.includes(k)).slice(0,2).map(k=>k+"："+KW[k]).join("　")}
 function clickEnemy(e){if(e.hp<=0)return;if(B.sel&&!busy){if(B.sel.pot!=null){const i=B.sel.pot;const id=S.pots[i];B.sel=null;hint();S.pots.splice(i,1);POTIONS[id].fx(B,e);afterAction();return}
   const c=B.hand.find(x=>x.k===B.sel.k);if(c){if(CARDS[c.id].tgt)playCard(c,e);else playCard(c);return}}
  const el=$(`.en[data-k="${e.k}"]`);tipAt(el.querySelector(".body"),`<b>${e.n}</b><p>${intentTip(e)}</p>${["str","vuln","weak","mud"].filter(k=>e[k]).map(k=>`<p>${STAT[k].n} ${e[k]}：${STAT[k].d}</p>`).join("")}`)}
@@ -292,8 +297,10 @@ const API={
   let d=base+(raw?0:this.p.str+this.p.tstr+(this.bonus||0));if(!raw&&this.p.weak>0)d*=.75;if(t.vuln>0)d*=1.5;d=Math.max(0,Math.floor(d));dealEnemy(t,d,i)}},
  hitAll(v){this.alive().forEach(e=>this.hit(e,v))},
  block(v,raw){const b=Math.max(0,v+(raw?0:this.p.dex));this.p.block+=b;sfx("block");const el=$("#player .body");fxAt(el,"shieldFx",0,ICON.shield);const c=center(el);fnum(c.x,c.top+40,"+"+b,"blk")},
- draw(n){for(let i=0;i<n;i++){if(!this.dp.length){if(!this.disc.length)break;this.dp=shuffle(this.disc);this.disc=[];toast("弃牌堆洗回了抽牌堆")}
-  const c=this.dp.pop();if(this.hand.length>=10){this.disc.push(c);toast("手牌满了");continue}this.hand.push(c);seeCard(c.id);if(c.id==="fret"){this.p.energy=Math.max(0,this.p.energy-1);toast("烦躁……失去 1 点奶力")}}sfx("draw");renderBattle()},
+ draw(n){let last=null;for(let i=0;i<n;i++){if(!this.dp.length){if(!this.disc.length)break;this.dp=shuffle(this.disc);this.disc=[];toast("弃牌堆洗回了抽牌堆")}
+  const c=this.dp.pop();if(this.hand.length>=10){this.disc.push(c);toast("手牌满了");continue}last=c;this.hand.push(c);seeCard(c.id);if(c.id==="fret"){this.p.energy=Math.max(0,this.p.energy-1);toast("烦躁……失去 1 点奶力")}}sfx("draw");renderBattle();return last},
+ fetchAtk(){const l=this.disc.filter(c=>CARDS[c.id].type==="atk");if(l.length&&this.hand.length<10){const c=pick(l);this.disc.splice(this.disc.indexOf(c),1);this.hand.push(c);toast(`拿回了 <b>${cname(c)}</b>`)}},
+ chooseFromDraw(){this.after.push(async()=>{if(!this.dp.length)return;const r=await pickCards([...this.dp],{title:"观星",sub:"选一张放进手里",cancel:false});const c=r[0];if(c&&this.hand.length<10){this.dp.splice(this.dp.indexOf(c),1);this.hand.push(c)}})},
  gainEnergy(n){this.p.energy+=n;anim($("#energy"),"pop");sfx("buff")},
  apply(t,s,v){t[s]=(t[s]||0)+v;const el=t===this.p?$("#player"):enEl(t);if(el){const c=center(el.querySelector(".body"));fnum(c.x,c.top+30,STAT[s].n+"+"+v,"txt")}sfx(s==="str"?"buff":"debuff")},
  heal(v){const h=Math.min(v,S.max-S.hp);S.hp+=h;sfx("heal");const c=center($("#player .body"));fnum(c.x,c.top+20,"+"+h,"heal");renderTop()},
@@ -321,6 +328,7 @@ function dmgPlayer(v,src,raw){const p=B.p;let d=v;if(!raw){if(src){d+=src.str;if
  const blk=raw?0:Math.min(p.block,d);p.block-=blk;const loss=d-blk;S.hp=Math.max(0,S.hp-loss);
  const el=$("#player");const c=center(el.querySelector(".body"));anim(el,"hit");sfx(loss?"hurt":"block");fnum(c.x,c.top+30,loss||"格挡",loss?"":"blk");if(loss>=12)stageShake();
  if(S.hp<=0&&has("phoenix")&&!S.flags.phoenix){S.flags.phoenix=1;S.hp=Math.ceil(S.max*.3);relicPulse("phoenix");toast("<b>不死羽</b>燃烧了！你又站了起来");sfx("relic")}
+ if(src&&!raw&&p.thorn&&src.hp>0){const t=src;setTimeout(()=>{if(t.hp>0){dealEnemy(t,p.thorn);renderBattle()}},150)}
  renderTop();return loss}
 
 /* ---- 出牌 ---- */
@@ -334,7 +342,8 @@ async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=cu
  B.bonus=0;if(D.type==="atk"){B.bonus=B.p.nextAtk;B.p.nextAtk=0}
  let tri=false;if(D.fam!=="none"&&D.type!=="cur"&&D.type!=="sts"){B.fam[D.fam]=(B.fam[D.fam]||0)+1;if(B.fam[D.fam]>=(B.p.pw.noself?2:3)){tri=true;B.fam[D.fam]=0}}
  let reps=tri?2:1;if(B.mirror){reps++;B.mirror=false;relicPulse("mirror")}
- if(D.type==="atk"){B.combo++;if(B.p.borrow)B.block(B.p.borrow,1)}
+ if(D.fam==="horse")B.horseN=(B.horseN||0)+1;
+ if(D.type==="atk"){B.combo++;if(B.p.borrow)B.block(B.p.borrow,1);if(B.p.echo>0){B.p.echo--;reps++}if(B.combo===3&&B.p.pw.rhythm){B.after.push(async()=>{B.gainEnergy(1);B.draw(B.p.pw.rhythm)})}}
  B.played++;
  if(tri){S.stats.tri++;triBanner(D.fam)}
  await sleep(tri?380:160);
@@ -358,7 +367,7 @@ $("#exhPile").onclick=()=>B&&viewCards(B.exh,"消耗的牌",`本场战斗不会�
 $("#battle").addEventListener("click",e=>{if(B&&B.sel&&!e.target.closest(".card")&&!e.target.closest(".en")){const c=B.hand.find(x=>x.k===B.sel.k);if(c&&!CARDS[c.id].tgt&&e.target.closest("#arena")){playCard(c);return}B.sel=null;hint();renderBattle()}});
 async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;busy=true;B.myTurn=false;B.sel=null;hint();$("#endBtn").classList.add("wait");
  const p=B.p;let mud=B.hand.filter(c=>c.id==="mud").length;if(mud){dmgPlayer(mud*2,null,true);toast(`手里的泥巴块弄脏了你，受到 <b>${mud*2}</b> 伤害`);if(S.hp<=0)return lose()}
- for(const c of B.hand){delete c.tmp;if(CARDS[c.id].eth)B.exh.push(c);else B.disc.push(c)}B.hand=[];
+ const keep=[];for(const c of B.hand){delete c.tmp;if(CARDS[c.id].ret)keep.push(c);else if(CARDS[c.id].eth)B.exh.push(c);else B.disc.push(c)}B.hand=keep;
  p.tstr=0;p.free=0;p.borrow=0;if(p.vuln)p.vuln--;if(p.weak)p.weak--;
  renderBattle();await sleep(300);banner("敌人回合",1);sfx("enemy");await sleep(700);
  for(const e of B.enemies){if(e.hp<=0||e.fled)continue;e.block=0;
