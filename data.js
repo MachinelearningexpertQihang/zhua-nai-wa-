@@ -1,4 +1,4 @@
-/* ===================== 奶蛙尖塔 · 数据 ===================== */
+/* ===================== 奶蛙之塔 · 数据 ===================== */
 const FAM={frog:{n:"奶蛙",c:"#7bd06b"},horse:{n:"奶马",c:"#f0a54a"},chick:{n:"奶鸡",c:"#ffd23f"},cat:{n:"奶猫",c:"#ff8fb1"},pal:{n:"伙伴",c:"#b392ff"},mud:{n:"泥巴",c:"#8a6038"},none:{n:"无",c:"#b7b0c9"}};
 const RAR={P:{n:"伙伴",c:"#b392ff"},G:{n:"金卡",c:"#f7c948"},S:{n:"起始",c:"#b8b3c8"},C:{n:"普通",c:"#9aa6bb"},R:{n:"稀有",c:"#3d8bff"},E:{n:"史诗",c:"#9b5cff"},L:{n:"传说",c:"#ff9a1f"},X:{n:"无色",c:"#6fc7c0"},K:{n:"诅咒",c:"#4a3d5c"},T:{n:"状态",c:"#6b7080"}};
 const TYPE={atk:{n:"攻击",c:"#e2546a"},skl:{n:"技能",c:"#3aa3e0"},pow:{n:"能力",c:"#e8a400"},cur:{n:"诅咒",c:"#5b4b72"},sts:{n:"状态",c:"#6b7080"}};
@@ -99,6 +99,11 @@ chain:{n:"连锁",cost:1,type:"atk",r:"R",fam:"frog",img:"c4",tgt:1,d:u=>`造成
 cushion:{n:"鸡毛垫",cost:1,type:"skl",r:"C",fam:"chick",img:"ckl",d:u=>`获得 ${U(u,7,10)} 护盾，本回合池子溢出不受伤`,fx:(B,u)=>{B.block(U(u,7,10));B.p.noOverflow=1}},
 reservoir:{n:"蓄水",cost:1,type:"skl",r:"R",fam:"cat",img:"ctu",d:u=>`池里每有 1 个，获得 ${U(u,2,3)} 护盾`,fx:(B,u)=>B.block(B.pool.length*U(u,2,3))},
 devil:{n:"大魔王之怒",cost:2,cu:1,type:"skl",r:"L",fam:"none",img:"bx",exh:1,d:u=>`立刻消除池里最多的那种，不管几个都触发爆发。消耗`,fx:B=>B.poolForce()},
+squeeze:{n:"挤一挤",cost:1,cu:0,type:"skl",r:"C",fam:"cat",img:"ctcc",d:u=>`把池子按家族重新排好（可能连锁！）`,fx:B=>B.poolSort()},
+rainbow:{n:"彩虹奶蛙",cost:0,type:"skl",r:"R",fam:"none",img:"hrr",exhU:1,d:u=>`往池里放 1 只彩虹奶蛙（万能，能当任何家族）${U(u,"。消耗","")}`,fx:B=>B.poolAdd("any")},
+nudge:{n:"推一推",cost:0,type:"skl",r:"C",fam:"horse",img:"hrs",d:u=>`把池子最后 1 只推到最前面${U(u,"",'，抽 1 张')}`,fx:(B,u)=>{B.poolNudge();if(u)B.draw(1)}},
+icebreak:{n:"敲冰",cost:1,type:"skl",r:"C",fam:"chick",img:"ckd",d:u=>`池里的冰全部敲碎，每块获得 ${U(u,4,6)} 护盾`,fx:(B,u)=>B.block(B.poolThaw()*U(u,4,6))},
+stir:{n:"搅一搅",cost:0,type:"skl",r:"X",fam:"none",img:"egj",d:u=>`把池子打乱重排，抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.poolShuffle();B.draw(U(u,1,2))}},
 /* 天气 / 月相 */
 callwind:{n:"呼风",cost:1,cu:0,type:"skl",r:"R",fam:"horse",img:"hrw",d:u=>`本场战斗天气变成大风，抽 1 张`,fx:B=>{B.setWx("wind");B.draw(1)}},
 callrain:{n:"唤雨",cost:1,cu:0,type:"skl",r:"R",fam:"frog",img:"c2",d:u=>`本场战斗天气变成下雨，抽 1 张`,fx:B=>{B.setWx("rain");B.draw(1)}},
@@ -130,42 +135,185 @@ p_crawl:{n:"爬行突袭",cost:2,type:"atk",r:"P",fam:"pal",img:"xcs",tgt:1,d:u=
 p_giant:{n:"巨无霸伙伴",cost:2,type:"atk",r:"P",fam:"pal",img:"m4",tgt:1,d:u=>`造成 ${U(u,20,26)} 伤害，力气 +1`,fx:(B,u,t)=>{B.hit(t,U(u,20,26));B.apply(B.p,"str",1);B.shake()}},
 p_bomb:{n:"炸弹伙伴",cost:1,type:"atk",r:"P",fam:"pal",img:"xsr",exh:1,d:u=>`对所有敌人造成 ${U(u,12,16)} 伤害。消耗`,fx:(B,u)=>{B.hitAll(U(u,12,16));B.shake()}},
 p_mud:{n:"小泥怪",cost:0,type:"skl",r:"P",fam:"pal",img:"xc",d:u=>`把池里 ${U(u,1,2)} 个泥巴变成伙伴`,fx:(B,u)=>B.poolConvert("mud","pal",U(u,1,2))},
+p_ml:{n:"名画凝视",cost:1,type:"skl",r:"P",fam:"pal",img:"ml",d:u=>`所有敌人虚弱 ${U(u,2,3)}，易伤 1`,fx:(B,u)=>B.alive().forEach(e=>{B.apply(e,"weak",U(u,2,3));B.apply(e,"vuln",1)})},
+p_np:{n:"拿破仑冲锋",cost:2,type:"atk",r:"P",fam:"pal",img:"np",tgt:1,d:u=>`造成 ${U(u,16,22)} 伤害，获得 6 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,16,22));B.block(6)}},
+p_xg:{n:"管家整理",cost:0,type:"skl",r:"P",fam:"pal",img:"xg",d:u=>`把池子按家族排好，抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.poolSort();B.draw(U(u,1,2))}},
+p_xb:{n:"新娘捧花",cost:1,type:"skl",r:"P",fam:"pal",img:"xb",d:u=>`回复 ${U(u,6,9)} 生命，获得 6 护盾`,fx:(B,u)=>{B.heal(U(u,6,9));B.block(6)}},
+p_hs:{n:"尖叫",cost:1,type:"skl",r:"P",fam:"pal",img:"hs",exh:1,d:u=>`所有敌人虚弱 3、易伤 3。消耗`,fx:B=>B.alive().forEach(e=>{B.apply(e,"weak",3);B.apply(e,"vuln",3)})},
+p_dog:{n:"看门狗",cost:1,type:"atk",r:"P",fam:"pal",img:"dgcc",tgt:1,d:u=>`造成 ${U(u,7,10)} 伤害，下回合开始获得 7 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,7,10));B.p.nextBlock=(B.p.nextBlock||0)+7}},
+p_ice:{n:"冰雕",cost:1,type:"skl",r:"P",fam:"pal",img:"c7",d:u=>`获得 ${U(u,10,14)} 护盾，敌人虚弱 1`,fx:(B,u)=>{B.block(U(u,10,14));B.alive().forEach(e=>B.apply(e,"weak",1))}},
+p_vp:{n:"蝙蝠群",cost:1,type:"atk",r:"P",fam:"pal",img:"vp",d:u=>`对所有敌人造成 ${U(u,5,7)} 伤害，每命中 1 个回复 2`,fx:(B,u)=>{const n=B.alive().length;B.hitAll(U(u,5,7));B.heal(2*n)}},
+p_nx:{n:"星光",cost:0,type:"skl",r:"P",fam:"pal",img:"nx",d:u=>`获得 1 点奶力${U(u,"",'，抽 1 张')}`,fx:(B,u)=>{B.gainEnergy(1);if(u)B.draw(1)}},
+p_n4:{n:"黑洞",cost:2,type:"atk",r:"P",fam:"pal",img:"n4",tgt:1,exh:1,d:u=>`造成 ${U(u,30,40)} 伤害。消耗`,fx:(B,u,t)=>{B.hit(t,U(u,30,40));B.shake()}},
+p_star:{n:"星座",cost:1,type:"skl",r:"P",fam:"pal",img:"ckf",d:u=>`往池里放 1 只彩虹奶蛙，抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.poolAdd("any");B.draw(U(u,1,2))}},
+p_hn:{n:"发光",cost:1,type:"pow",r:"P",fam:"pal",img:"hn",d:u=>`每回合开始，回复 ${U(u,2,3)} 生命`,fx:(B,u)=>{B.p.pw.nine=(B.p.pw.nine||0)+U(u,2,3)}},
+p_an:{n:"天使祝福",cost:2,cu:1,type:"skl",r:"P",fam:"pal",img:"an",exh:1,d:u=>`回复 15 生命，清掉池里所有泥巴和冰。消耗`,fx:B=>{B.heal(15);B.poolCleanse()}},
+p_yjx:{n:"异世界传送",cost:1,type:"skl",r:"P",fam:"pal",img:"yjx",exh:1,d:u=>`手牌全部变成 0 费。消耗`,fx:B=>{B.hand.forEach(c=>c.tmp=0);renderHand()}},
+/* ---- 0.4：连锁扩充 ---- */
+chainbomb:{n:"连环爆",cost:1,type:"atk",r:"R",fam:"frog",img:"xsr",tgt:1,d:u=>`造成 ${U(u,8,11)} 伤害，本回合每发生过 1 次连锁再 +8`,fx:(B,u,t)=>B.hit(t,U(u,8,11)+8*(B.chainsTurn||0))},
+surge:{n:"蛙群涌动",cost:1,cu:0,type:"skl",r:"C",fam:"frog",img:"xsw",d:u=>`往池里放 2 只奶蛙`,fx:B=>{B.poolAdd("frog");B.poolAdd("frog")}},
+rally:{n:"马群集结",cost:1,type:"skl",r:"C",fam:"horse",img:"hrl",d:u=>`往池里多放 1 只奶马，获得 ${U(u,5,8)} 护盾`,fx:(B,u)=>{B.poolAdd("horse");B.block(U(u,5,8))}},
+nest:{n:"鸡窝",cost:1,type:"skl",r:"C",fam:"chick",img:"ckm",d:u=>`往池里多放 1 只奶鸡，获得 ${U(u,7,10)} 护盾`,fx:(B,u)=>{B.poolAdd("chick");B.block(U(u,7,10))}},
+catbed:{n:"猫窝",cost:0,type:"skl",r:"C",fam:"cat",img:"ctp",d:u=>`往池里多放 1 只奶猫，回复 ${U(u,2,4)} 生命`,fx:(B,u)=>{B.poolAdd("cat");B.heal(U(u,2,4))}},
+tide:{n:"潮汐",cost:2,cu:1,type:"skl",r:"E",fam:"frog",img:"c2",d:u=>`清空池子，每清掉 1 只，对随机敌人造成 5 伤害`,fx:B=>{const n=B.poolClear();for(let i=0;i<n;i++){const t=pick(B.alive());if(t)B.hit(t,5,1,1)}}},
+fullmoon:{n:"满月之力",cost:2,cu:1,type:"pow",r:"E",fam:"cat",img:"ctf",d:u=>`本场战斗三连只需要 2 只`,fx:B=>{B.p.pw.noself=1;renderPool()}},
+insight:{n:"修炼心得",cost:1,cu:0,type:"skl",r:"C",fam:"none",img:"fj",exh:1,d:u=>`获得 3 点经验。消耗`,fx:B=>B.after.push(async()=>gainXP(3))},
+quick:{n:"速攻",cost:0,type:"atk",r:"C",fam:"horse",img:"hrt",tgt:1,d:u=>`造成 ${U(u,4,6)} 伤害，池里有奶马时抽 1 张`,fx:(B,u,t)=>{B.hit(t,U(u,4,6));if(B.poolCount("horse"))B.draw(1)}},
+woodpecker:{n:"啄木鸟",cost:1,type:"atk",r:"C",fam:"chick",img:"cks",tgt:1,d:u=>`造成 ${U(u,3,4)} 伤害 3 次，每次获得 1 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,3,4),3);B.block(3,1)}},
+catwalk:{n:"猫步",cost:1,type:"skl",r:"R",fam:"cat",img:"ctl",ret:1,d:u=>`抽 ${U(u,2,3)} 张，获得 4 护盾。保留`,fx:(B,u)=>{B.draw(U(u,2,3));B.block(4)}},
+spinchain:{n:"回旋连锁",cost:2,type:"atk",r:"E",fam:"horse",img:"hrh",d:u=>`对所有敌人造成 ${U(u,6,9)} 伤害，池里每有 1 只奶马再 +3`,fx:(B,u)=>B.hitAll(U(u,6,9)+3*B.poolCount("horse"))},
+diamond:{n:"金刚护体",cost:2,type:"skl",r:"R",fam:"chick",img:"ckg",d:u=>`获得 ${U(u,18,24)} 护盾，敏捷 +1`,fx:(B,u)=>{B.block(U(u,18,24));B.apply(B.p,"dex",1)}},
+bigtea:{n:"奶茶大补",cost:2,type:"skl",r:"R",fam:"cat",img:"ctm",exh:1,d:u=>`回复 ${U(u,12,16)} 生命，最大生命永久 +3。消耗`,fx:(B,u)=>{S.max+=3;B.heal(U(u,12,16))}},
+allfrogs:{n:"万蛙朝宗",cost:3,cu:2,type:"atk",r:"L",fam:"frog",img:"n4",tgt:1,d:u=>`造成 本场战斗消除次数 × 5 的伤害`,fx:(B,u,t)=>{B.hit(t,5*(B.elims||0));B.shake()}},
+rbridge:{n:"彩虹桥",cost:1,type:"skl",r:"E",fam:"none",img:"egh",exh:1,d:u=>`往池里放 2 只彩虹奶蛙${U(u,"。消耗","，抽 1 张。消耗")}`,fx:(B,u)=>{B.poolAdd("any");B.poolAdd("any");if(u)B.draw(1)}},
+purge:{n:"断舍离",cost:0,type:"skl",r:"C",fam:"none",img:"egs",d:u=>`清掉池里所有泥巴，抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.pool=B.pool.filter(x=>x.f!=="mud");B.poolResolve();renderPool();B.draw(U(u,1,2))}},
+momentum:{n:"一鼓作气",cost:1,type:"pow",r:"R",fam:"horse",img:"hrx",d:u=>`每次连锁，力气 +${U(u,1,2)}（本场战斗）`,fx:(B,u)=>{B.p.pw.momentum=(B.p.pw.momentum||0)+U(u,1,2)}},
+icefire:{n:"冰火两重天",cost:1,type:"skl",r:"R",fam:"chick",img:"ckb",d:u=>`敲碎池里所有的冰，每块对所有敌人造成 ${U(u,5,7)} 伤害`,fx:(B,u)=>{const n=B.poolThaw();for(let i=0;i<n;i++)B.hitAll(U(u,5,7))}},
+ninering:{n:"九连环",cost:3,cu:2,type:"pow",r:"L",fam:"cat",img:"ctar",d:u=>`每次连锁，抽 2 张并获得 1 点奶力`,fx:B=>{B.p.pw.ninering=(B.p.pw.ninering||0)+1}},
+/* 新伙伴 */
+p_snk:{n:"小蛇",cost:0,type:"atk",r:"P",fam:"pal",img:"sna",tgt:1,d:u=>`造成 ${U(u,4,6)} 伤害，虚弱 1`,fx:(B,u,t)=>{B.hit(t,U(u,4,6));B.apply(t,"weak",1)}},
+p_dga:{n:"泥巴奶狗",cost:1,type:"atk",r:"P",fam:"pal",img:"dga",tgt:1,d:u=>`造成 ${U(u,9,12)} 伤害，往池里放 1 只伙伴`,fx:(B,u,t)=>{B.hit(t,U(u,9,12));B.poolAdd("pal")}},
+p_egg:{n:"斑点奶蛋",cost:1,type:"skl",r:"P",fam:"pal",img:"egs",d:u=>`获得 ${U(u,8,11)} 护盾，下回合多抽 1 张`,fx:(B,u)=>{B.block(U(u,8,11));B.p.nextDraw=(B.p.nextDraw||0)+1}},
+p_ghost:{n:"幽灵奶猫",cost:0,type:"skl",r:"P",fam:"pal",img:"ctw",ret:1,d:u=>`抽 ${U(u,1,2)} 张。保留`,fx:(B,u)=>B.draw(U(u,1,2))},
+p_china:{n:"瓷器奶鸡",cost:1,type:"skl",r:"P",fam:"pal",img:"cki",d:u=>`获得 ${U(u,11,15)} 护盾`,fx:(B,u)=>B.block(U(u,11,15))},
+p_starsnake:{n:"星蛇",cost:1,type:"atk",r:"P",fam:"pal",img:"snf",tgt:1,d:u=>`造成 ${U(u,7,9)} 伤害 2 次`,fx:(B,u,t)=>B.hit(t,U(u,7,9),2)},
+p_aurora:{n:"极光奶蛋",cost:1,type:"skl",r:"P",fam:"pal",img:"egar",exh:1,d:u=>`获得 2 点奶力，抽 2 张。消耗`,fx:B=>{B.gainEnergy(2);B.draw(2)}},
+/* ---- 0.5：再扩充 ---- */
+frograge:{n:"蛙王之怒",cost:2,type:"atk",r:"E",fam:"frog",img:"m2",tgt:1,d:u=>`造成 ${U(u,8,11)} 伤害，池里每有 1 只奶蛙多打 1 次`,fx:(B,u,t)=>B.hit(t,U(u,8,11),1+B.poolCount("frog"))},
+dive:{n:"跳水",cost:1,type:"skl",r:"C",fam:"frog",img:"c3",d:u=>`获得 ${U(u,6,9)} 护盾，把池子最后 1 只推到最前面`,fx:(B,u)=>{B.block(U(u,6,9));B.poolNudge()}},
+resonance:{n:"蛙鸣共振",cost:1,type:"pow",r:"R",fam:"frog",img:"xch",d:u=>`每次奶蛙消除，对所有敌人造成 ${U(u,3,5)} 伤害`,fx:(B,u)=>{B.p.pw.reso=(B.p.pw.reso||0)+U(u,3,5)}},
+fistwind:{n:"拳风",cost:1,type:"atk",r:"C",fam:"frog",img:"n1",d:u=>`对所有敌人造成 ${U(u,4,5)} 伤害 2 次`,fx:(B,u)=>{B.hitAll(U(u,4,5));B.hitAll(U(u,4,5))}},
+ultimate:{n:"百蛙拳",cost:3,cu:2,type:"atk",r:"L",fam:"frog",img:"np",tgt:1,d:u=>`造成 4 伤害，次数 = 本回合出牌数 + 3`,fx:(B,u,t)=>{B.hit(t,4,B.played+3);B.shake()}},
+swim:{n:"蛙泳",cost:0,type:"skl",r:"C",fam:"frog",img:"c4",d:u=>`抽 1 张，池里奶蛙 ≥2 时再抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.draw(1);if(B.poolCount("frog")>=2)B.draw(U(u,1,2))}},
+frogeye:{n:"蛙眼",cost:0,type:"skl",r:"R",fam:"frog",img:"m5",d:u=>`本回合力气 +${U(u,2,3)}`,fx:(B,u)=>{B.p.tstr+=U(u,2,3);B.fxBuff(B.p)}},
+ironhoof:{n:"铁蹄",cost:2,type:"atk",r:"C",fam:"horse",img:"hrcc",tgt:1,d:u=>`造成 ${U(u,14,18)} 伤害，易伤 2`,fx:(B,u,t)=>{B.hit(t,U(u,14,18));B.apply(t,"vuln",2)}},
+raid:{n:"奔袭",cost:1,type:"atk",r:"C",fam:"horse",img:"hre",d:u=>`对所有敌人造成 ${U(u,5,7)} 伤害，有易伤的敌人时抽 1 张`,fx:(B,u)=>{B.hitAll(U(u,5,7));if(B.alive().some(e=>e.vuln>0))B.draw(1)}},
+herd:{n:"野马群",cost:1,cu:0,type:"skl",r:"R",fam:"horse",img:"hrg",d:u=>`往池里放 2 只奶马`,fx:B=>{B.poolAdd("horse");B.poolAdd("horse")}},
+stallion:{n:"千里马",cost:2,cu:1,type:"pow",r:"E",fam:"horse",img:"hrf",d:u=>`每回合第一张奶马牌费用为 0`,fx:B=>{B.p.pw.stallion=1;B.p.horseFree=1}},
+horseshoe:{n:"马蹄铁",cost:1,type:"skl",r:"C",fam:"horse",img:"hry",d:u=>`获得 ${U(u,7,10)} 护盾，下一张攻击牌伤害 +4`,fx:(B,u)=>{B.block(U(u,7,10));B.p.nextAtk+=4}},
+bugle:{n:"冲锋号",cost:0,type:"skl",r:"R",fam:"horse",img:"hrs",d:u=>`本回合力气 +${U(u,2,3)}，抽 1 张`,fx:(B,u)=>{B.p.tstr+=U(u,2,3);B.draw(1)}},
+pegasus:{n:"天马流星",cost:3,cu:2,type:"atk",r:"L",fam:"horse",img:"hrr",d:u=>`对所有敌人造成 8 伤害 3 次`,fx:B=>{for(let i=0;i<3;i++)B.hitAll(8);B.shake()}},
+duster:{n:"鸡毛掸子",cost:1,type:"atk",r:"C",fam:"chick",img:"cke",tgt:1,d:u=>`造成 ${U(u,6,9)} 伤害，清掉池里 1 块泥巴`,fx:(B,u,t)=>{B.hit(t,U(u,6,9));const i=B.pool.findIndex(x=>x.f==="mud");if(i>=0){B.pool.splice(i,1);B.poolResolve();renderPool()}}},
+guardegg:{n:"护蛋",cost:1,type:"skl",r:"C",fam:"chick",img:"eg",d:u=>`获得 ${U(u,9,12)} 护盾`,fx:(B,u)=>B.block(U(u,9,12))},
+hen:{n:"母鸡护雏",cost:1,type:"skl",r:"R",fam:"chick",img:"ckm",d:u=>`获得 ${U(u,6,8)} 护盾，池里每有 1 只奶鸡再 +3`,fx:(B,u)=>B.block(U(u,6,8)+3*B.poolCount("chick"))},
+icechick:{n:"冰雕鸡",cost:1,type:"skl",r:"R",fam:"chick",img:"ckt",d:u=>`获得 ${U(u,10,13)} 护盾；下雪天或池里有冰时再 +8`,fx:(B,u)=>B.block(U(u,10,13)+((B.wx==="snow"||B.pool.some(x=>x.ice))?8:0))},
+dawn:{n:"金鸡报晓",cost:1,cu:0,type:"pow",r:"E",fam:"chick",img:"ckg",d:u=>`每回合开始，所有敌人虚弱 1`,fx:B=>{B.p.pw.dawn=1}},
+counter:{n:"反击之羽",cost:1,type:"skl",r:"C",fam:"chick",img:"ckr",d:u=>`获得 ${U(u,5,7)} 护盾，荆棘 +${U(u,2,3)}`,fx:(B,u)=>{B.block(U(u,5,7));B.apply(B.p,"thorn",U(u,2,3))}},
+rebirth:{n:"凤凰涅槃",cost:3,cu:2,type:"pow",r:"L",fam:"chick",img:"ckar",d:u=>`本场战斗第一次生命归零时，回到 50% 生命`,fx:B=>{B.p.pw.rebirth=1}},
+catnip:{n:"猫薄荷",cost:1,cu:0,type:"skl",r:"C",fam:"cat",img:"ctm",d:u=>`抽 3 张，然后弃 1 张`,fx:B=>{B.draw(3);B.chooseDiscard(1)}},
+roll:{n:"猫咪打滚",cost:0,type:"skl",r:"C",fam:"cat",img:"ctp",ret:1,d:u=>`回复 ${U(u,3,5)} 生命。保留`,fx:(B,u)=>B.heal(U(u,3,5))},
+lick:{n:"舔毛",cost:1,type:"skl",r:"C",fam:"cat",img:"ctu",d:u=>`回复 ${U(u,5,7)} 生命，获得 ${U(u,3,5)} 护盾`,fx:(B,u)=>{B.heal(U(u,5,7));B.block(U(u,3,5))}},
+nightowl:{n:"夜猫子",cost:1,cu:0,type:"pow",r:"R",fam:"cat",img:"ctcc",d:u=>`每回合多抽 1 张，回合结束失去 1 生命`,fx:B=>{B.p.pw.owl=(B.p.pw.owl||0)+1}},
+clawcombo:{n:"猫爪连击",cost:1,type:"atk",r:"R",fam:"cat",img:"ctl",tgt:1,d:u=>`造成 ${U(u,2,3)} 伤害，次数 = 手牌数 + 1`,fx:(B,u,t)=>B.hit(t,U(u,2,3),B.hand.length+1)},
+hairball:{n:"毛球风暴",cost:2,type:"atk",r:"E",fam:"cat",img:"cty",d:u=>`对所有敌人造成 ${U(u,6,9)} 伤害，抽 2 张`,fx:(B,u)=>{B.hitAll(U(u,6,9));B.draw(2)}},
+meowstar:{n:"喵星人",cost:2,cu:1,type:"skl",r:"L",fam:"cat",img:"ctf",exh:1,d:u=>`本场战斗升级手里所有的牌。消耗`,fx:B=>{B.hand.forEach(c=>{if(!["cur","sts"].includes(CARDS[c.id].type))c.u=1});renderHand()}},
+icicle:{n:"冰锥",cost:1,type:"atk",r:"X",fam:"none",img:"c7",tgt:1,d:u=>`造成 ${U(u,9,12)} 伤害，虚弱 1`,fx:(B,u,t)=>{B.hit(t,U(u,9,12));B.apply(t,"weak",1)}},
+handwarmer:{n:"暖手宝",cost:1,cu:0,type:"skl",r:"X",fam:"none",img:"egx",d:u=>`敲碎池里所有的冰，每块回复 3 生命`,fx:B=>B.heal(3*B.poolThaw())},
+bellring:{n:"钟声",cost:1,type:"skl",r:"X",fam:"none",img:"egsk",exh:1,d:u=>`所有敌人易伤 ${U(u,2,3)}，抽 1 张。消耗`,fx:(B,u)=>{B.alive().forEach(e=>B.apply(e,"vuln",U(u,2,3)));B.draw(1)}},
+refill:{n:"奶茶续杯",cost:0,type:"skl",r:"X",fam:"none",img:"ctm",exh:1,d:u=>`回复 ${U(u,4,6)} 生命，下回合多 1 点奶力。消耗`,fx:(B,u)=>{B.heal(U(u,4,6));B.p.nextEnergy=(B.p.nextEnergy||0)+1}},
+grabhand:{n:"抓抓手",cost:1,cu:0,type:"skl",r:"X",fam:"none",img:"dg",exh:1,d:u=>`本场战斗可以多抓 1 只敌人，抽 1 张。消耗`,fx:B=>{B.catchLeft++;B.draw(1)}},
+lucky:{n:"幸运草",cost:0,type:"skl",r:"X",fam:"none",img:"c2",exh:1,d:u=>`随机：获得 20 金币，或抽 ${U(u,2,3)} 张。消耗`,fx:(B,u)=>{if(Math.random()<.5)B.gainGold(20);else B.draw(U(u,2,3))}},
+demonpot:{n:"大魔王的锅",cost:2,type:"atk",r:"X",fam:"none",img:"bx",d:u=>`对所有敌人造成 ${U(u,15,20)} 伤害，往自己池里丢 2 块泥巴`,fx:(B,u)=>{B.hitAll(U(u,15,20));B.poolInsert("mud");B.poolInsert("mud");B.poolResolve();B.poolOverflow();renderPool();B.shake()}},
+/* 新伙伴（第四层冰封钟楼等） */
+p_hrcc:{n:"泥巴奶马",cost:1,type:"atk",r:"P",fam:"pal",img:"hrcc",d:u=>`对所有敌人造成 ${U(u,6,8)} 伤害`,fx:(B,u)=>B.hitAll(U(u,6,8))},
+p_ckb:{n:"乌鸡",cost:1,type:"skl",r:"P",fam:"pal",img:"ckb",d:u=>`获得 ${U(u,7,10)} 护盾，敌人虚弱 1`,fx:(B,u)=>{B.block(U(u,7,10));B.alive().forEach(e=>B.apply(e,"weak",1))}},
+p_dgar:{n:"星空奶狗",cost:1,type:"atk",r:"P",fam:"pal",img:"dgar",tgt:1,d:u=>`造成 ${U(u,6,8)} 伤害 2 次，抽 1 张`,fx:(B,u,t)=>{B.hit(t,U(u,6,8),2);B.draw(1)}},
+p_hrl:{n:"冰晶奶马",cost:1,type:"atk",r:"P",fam:"pal",img:"hrl",tgt:1,d:u=>`造成 ${U(u,10,13)} 伤害，敌人虚弱 1`,fx:(B,u,t)=>{B.hit(t,U(u,10,13));B.apply(t,"weak",1)}},
+p_ckt:{n:"雪地奶鸡",cost:0,type:"skl",r:"P",fam:"pal",img:"ckt",d:u=>`获得 ${U(u,5,7)} 护盾`,fx:(B,u)=>B.block(U(u,5,7))},
+p_snl:{n:"冰蛇",cost:1,type:"atk",r:"P",fam:"pal",img:"snl",tgt:1,d:u=>`造成 ${U(u,6,8)} 伤害，易伤 2`,fx:(B,u,t)=>{B.hit(t,U(u,6,8));B.apply(t,"vuln",2)}},
+p_egl:{n:"雪蛋",cost:1,type:"skl",r:"P",fam:"pal",img:"egl",d:u=>`获得 ${U(u,8,10)} 护盾，敲碎池里的冰`,fx:(B,u)=>{B.block(U(u,8,10));B.poolThaw()}},
+p_msl:{n:"钟楼奶鼠",cost:0,type:"atk",r:"P",fam:"pal",img:"msl",tgt:1,d:u=>`造成 ${U(u,4,6)} 伤害，抽 1 张`,fx:(B,u,t)=>{B.hit(t,U(u,4,6));B.draw(1)}},
+p_ctl:{n:"冰原奶猫",cost:1,type:"skl",r:"P",fam:"pal",img:"ctl",ret:1,d:u=>`回复 ${U(u,5,7)} 生命。保留`,fx:(B,u)=>B.heal(U(u,5,7))},
+p_snn:{n:"冰龙蛇",cost:2,type:"atk",r:"P",fam:"pal",img:"snn",d:u=>`对所有敌人造成 ${U(u,10,13)} 伤害，冻住它们的气势：虚弱 2`,fx:(B,u)=>{B.hitAll(U(u,10,13));B.alive().forEach(e=>B.apply(e,"weak",2))}},
+p_ckn:{n:"冰晶卫士",cost:1,type:"skl",r:"P",fam:"pal",img:"ckn",d:u=>`获得 ${U(u,12,15)} 护盾，荆棘 +2`,fx:(B,u)=>{B.block(U(u,12,15));B.apply(B.p,"thorn",2)}},
+p_knight2:{n:"骑士长",cost:2,type:"atk",r:"P",fam:"pal",img:"np",tgt:1,d:u=>`造成 ${U(u,18,24)} 伤害，获得 8 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,18,24));B.block(8)}},
 /* ---- 诅咒 / 状态 ---- */
 mud:{n:"泥巴块",cost:1,type:"sts",r:"T",fam:"none",img:"pp",exh:1,d:u=>`在手里时，回合结束受到 2 伤害。打出后消耗`,fx:()=>{}},
 heavy:{n:"沉重",cost:-2,type:"cur",r:"K",fam:"none",img:"xsh",d:u=>`不能打出`,fx:()=>{}},
 fret:{n:"烦躁",cost:-2,type:"cur",r:"K",fam:"none",img:"xch",d:u=>`不能打出。抽到时失去 1 点奶力`,fx:()=>{}},
 frozen:{n:"冻住",cost:-2,type:"sts",r:"T",fam:"none",img:"c7",eth:1,d:u=>`不能打出。回合结束时消失`,fx:()=>{}},
 };
-const POOL_HERO=["lure","scoop","drain","rinse","pondheart","chain","cushion","reservoir","callwind","callrain","moonbow","snowball","thunderg","croak","cicada","legion","swallow","relief","bloodhorse","hatch","cockfight","rooster","scratch","stretch","ninetail","leap","jab","flurry","tongue","echo","dragon","rhythm","storm","gallop","rush","backkick","mane","trample","stampede","unicorn","peck","fluff","roost","crow","spur","wall","iron","blaze","paw","nap","purr","yarn","nine","prowl","stargaze","galaxy","fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
-const POOL_X=["devil","dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
-const POOL_PAL=["p_rat","p_ratg","p_ratb","p_poo","p_laugh","p_chick","p_snake","p_crawl","p_giant","p_bomb","p_mud"];
+const POOL_HERO=["frograge","dive","resonance","fistwind","ultimate","swim","frogeye","ironhoof","raid","herd","stallion","horseshoe","bugle","pegasus","duster","guardegg","hen","icechick","dawn","counter","rebirth","catnip","roll","lick","nightowl","clawcombo","hairball","meowstar","chainbomb","surge","rally","nest","catbed","tide","fullmoon","quick","woodpecker","catwalk","spinchain","diamond","bigtea","allfrogs","momentum","icefire","ninering","squeeze","rainbow","nudge","icebreak","lure","scoop","drain","rinse","pondheart","chain","cushion","reservoir","callwind","callrain","moonbow","snowball","thunderg","croak","cicada","legion","swallow","relief","bloodhorse","hatch","cockfight","rooster","scratch","stretch","ninetail","leap","jab","flurry","tongue","echo","dragon","rhythm","storm","gallop","rush","backkick","mane","trample","stampede","unicorn","peck","fluff","roost","crow","spur","wall","iron","blaze","paw","nap","purr","yarn","nine","prowl","stargaze","galaxy","fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
+const POOL_X=["icicle","handwarmer","bellring","refill","grabhand","lucky","demonpot","insight","rbridge","purge","stir","devil","dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
+const POOL_PAL=["p_hrcc","p_ckb","p_dgar","p_hrl","p_ckt","p_snl","p_egl","p_msl","p_ctl","p_snn","p_ckn","p_knight2","p_snk","p_dga","p_egg","p_ghost","p_china","p_starsnake","p_aurora","p_ml","p_np","p_xg","p_xb","p_hs","p_dog","p_ice","p_vp","p_nx","p_n4","p_star","p_hn","p_an","p_yjx","p_rat","p_ratg","p_ratb","p_poo","p_laugh","p_chick","p_snake","p_crawl","p_giant","p_bomb","p_mud"];
 const STARTER=["strike","strike","strike","strike","strike","guard","guard","guard","guard","fist"];
 
 /* ===================== 敌人 ===================== */
 /* intent: {k:'atk',v,x} {k:'def',v} {k:'buff',s,v} {k:'debuff',s,v} {k:'add',card,n} {k:'atkdef',v,b} {k:'steal',v,g} {k:'flee'} {k:'boom',v} {k:'summon'} {k:'cnt',v}*/
 const ENEMY={
-rat:{n:"奶鼠",pal:"p_rat",img:"ms",hp:[9,12],h:120,ai:(e,t)=>[{k:"atk",v:4},{k:"atk",v:3,x:2},{k:"def",v:5}][(t+e.seed)%3]},
-ratg:{n:"灰奶鼠",pal:"p_ratg",img:"msg",hp:[10,13],h:118,ai:(e,t)=>[{k:"atk",v:3,x:2},{k:"atk",v:5},{k:"debuff",s:"weak",v:1}][(t+e.seed)%3]},
-ratb:{n:"奶牛奶鼠",pal:"p_ratb",img:"msb",hp:[12,15],h:124,ai:(e,t)=>[{k:"def",v:6},{k:"atk",v:6}][(t+e.seed)%2]},
-poo:{n:"泥巴奶屎",pal:"p_poo",img:"pp",hp:[26,30],h:130,ai:(e,t)=>t%2===0?{k:"add",card:"mud",n:2,s:"mud",v:3}:{k:"atk",v:8}},
-laugh:{n:"狂笑奶蛙",pal:"p_laugh",img:"m3",hp:[32,36],h:170,ai:(e,t)=>[{k:"atk",v:9},{k:"atkdef",v:5,b:8},{k:"buff",s:"str",v:2},{k:"atk",v:5,x:2}][t%4]},
-chick:{n:"偷吃奶鸡",pal:"p_chick",img:"ck",hp:[22,26],h:140,ai:(e,t)=>t<2?{k:"steal",v:6,g:12}:{k:"flee"}},
-snake:{n:"泥沼奶蛇",pal:"p_snake",img:"sne",hp:[26,30],h:150,ai:(e,t)=>[{k:"atk",v:6,s:"weak",d:1},{k:"def",v:6,s2:"str",v2:2},{k:"atk",v:11}][t%3]},
-crawl:{n:"沼泽爬行奶蛙",pal:"p_crawl",img:"xcs",hp:[38,42],h:150,ai:(e,t)=>[{k:"atk",v:12},{k:"debuff",s:"vuln",v:2},{k:"atk",v:7,x:2}][t%3]},
+rat:{n:"奶鼠",pal:"p_rat",img:"e_v_ms",hp:[9,12],h:120,ai:(e,t)=>[{k:"atk",v:4},{k:"atk",v:3,x:2},{k:"def",v:5}][(t+e.seed)%3]},
+ratg:{n:"灰奶鼠",pal:"p_ratg",img:"e_msg",hp:[10,13],h:118,ai:(e,t)=>[{k:"atk",v:3,x:2},{k:"atk",v:5},{k:"debuff",s:"weak",v:1}][(t+e.seed)%3]},
+ratb:{n:"奶牛奶鼠",pal:"p_ratb",img:"e_msb",hp:[12,15],h:124,ai:(e,t)=>[{k:"def",v:6},{k:"atk",v:6}][(t+e.seed)%2]},
+poo:{n:"泥巴奶屎",pal:"p_poo",img:"e_v_pp",hp:[26,30],h:130,ai:(e,t)=>t%2===0?{k:"add",card:"mud",n:1,pool:{t:"junk",n:1}}:{k:"atk",v:8}},
+laugh:{n:"狂笑奶蛙",pal:"p_laugh",img:"e_v_m3",hp:[32,36],h:170,ai:(e,t)=>[{k:"atk",v:9},{k:"atkdef",v:5,b:8},{k:"buff",s:"str",v:2},{k:"atk",v:5,x:2}][t%4]},
+chick:{n:"偷吃奶鸡",pal:"p_chick",img:"e_v_ck",hp:[22,26],h:140,ai:(e,t)=>t<2?{k:"steal",v:6,g:12}:{k:"flee"}},
+snake:{n:"泥沼奶蛇",pal:"p_snake",img:"e_sne",hp:[26,30],h:150,ai:(e,t)=>[{k:"atk",v:6,s:"weak",d:1},{k:"def",v:6,s2:"str",v2:2},{k:"atk",v:11}][t%3]},
+crawl:{n:"沼泽爬行奶蛙",pal:"p_crawl",img:"e_xcs",hp:[38,42],h:150,ai:(e,t)=>[{k:"atk",v:12},{k:"debuff",s:"vuln",v:2},{k:"atk",v:7,x:2}][t%3]},
 /* 精英 */
-giant:{n:"巨无霸奶蛙",pal:"p_giant",img:"m4",hp:[70,74],h:250,elite:1,ai:(e,t)=>e.enraged?[{k:"atk",v:16},{k:"atk",v:5,x:3},{k:"atkdef",v:10,b:10}][t%3]:[{k:"buff",s:"str",v:2},{k:"atk",v:14},{k:"atkdef",v:8,b:10}][t%3]},
-bomb:{n:"炸弹小奶蛙",pal:"p_bomb",img:"xsr",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
-bombp:{n:"炸弹小奶蛙",pal:"p_bomb",img:"xsp",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
-bombw:{n:"炸弹小奶蛙",pal:"p_bomb",img:"xs",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
-/* 首领 */
-king:{n:"沼泽之王",img:"xsk",hp:[150,150],h:260,boss:1,ai:(e,t)=>{if(e.phase2){return[{k:"atk",v:6,x:3},{k:"add",card:"mud",n:2,s:"mud",v:3},{k:"atkdef",v:16,b:12},{k:"buff",s:"str",v:3}][t%4]}return[{k:"add",card:"mud",n:2,s:"mud",v:2},{k:"atk",v:14},{k:"def",v:12,s2:"str",v2:2},{k:"atk",v:8,x:2}][t%4]}},
-mudling:{n:"小泥怪",pal:"p_mud",img:"xc",hp:[14,16],h:105,ai:(e,t)=>[{k:"atk",v:5},{k:"debuff",s:"weak",v:1}][(t+e.seed)%2]},
+giant:{n:"巨无霸奶蛙",pal:"p_giant",img:"e_v_m4",hp:[70,74],h:250,elite:1,ai:(e,t)=>e.enraged?[{k:"atk",v:16},{k:"atk",v:5,x:3},{k:"atkdef",v:10,b:10}][t%3]:[{k:"buff",s:"str",v:2},{k:"atk",v:14},{k:"atkdef",v:8,b:10}][t%3]},
+bomb:{n:"炸弹小奶蛙",pal:"p_bomb",img:"e_xsr",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
+bombp:{n:"炸弹小奶蛙",pal:"p_bomb",img:"e_xsp",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
+bombw:{n:"炸弹小奶蛙",pal:"p_bomb",img:"e_v_xs",hp:[16,18],h:110,elite:1,ai:(e,t)=>t<2?{k:"atkcnt",v:5,c:3-t}:{k:"boom",v:12}},
+mutt:{n:"泥巴奶狗",img:"e_dga",pal:"p_dga",hp:[28,32],h:150,ai:(e,t)=>[{k:"atk",v:7,x:2},{k:"atk",v:10,pool:{t:"junk",n:1}},{k:"def",v:7}][(t+e.seed)%3]},
+spotegg:{n:"斑点奶蛋",img:"e_egs",pal:"p_egg",hp:[20,24],h:120,ai:(e,t)=>[{k:"def",v:9},{k:"atk",v:6},{k:"buff",s:"str",v:2}][(t+e.seed)%3]},
+snakelet:{n:"小蛇",img:"e_sna",pal:"p_snk",hp:[14,16],h:110,ai:(e,t)=>[{k:"atk",v:5,s:"weak",d:1},{k:"atk",v:7}][(t+e.seed)%2]},
+/* ---------- 第二层：月夜古堡 ---------- */
+ghostcat:{n:"幽灵奶猫",img:"e_ctw",pal:"p_ghost",hp:[26,30],h:140,ai:(e,t)=>[{k:"atk",v:8,pool:{t:"suck",n:1,h:3}},{k:"debuff",s:"weak",v:2},{k:"atk",v:5,x:2}][(t+e.seed)%3]},
+chinachick:{n:"瓷器奶鸡",img:"e_cki",pal:"p_china",hp:[36,40],h:150,ai:(e,t)=>[{k:"def",v:14},{k:"atk",v:12},{k:"atkdef",v:7,b:8}][(t+e.seed)%3]},
+painting:{n:"名画奶蛙",img:"e_ml",pal:"p_ml",hp:[30,34],h:150,ai:(e,t)=>[{k:"debuff",s:"weak",v:2,pool:{t:"freeze",n:1}},{k:"atk",v:10},{k:"atk",v:6,x:2}][t%3]},
+knight:{n:"拿破仑奶蛙",img:"e_np",pal:"p_np",hp:[40,44],h:170,ai:(e,t)=>[{k:"def",v:10,s2:"str",v2:2},{k:"atk",v:14},{k:"atkdef",v:9,b:8}][t%3]},
+butler:{n:"管家奶蛙",img:"e_v_xg",pal:"p_xg",hp:[28,32],h:155,ai:(e,t)=>[{k:"atk",v:7,pool:{t:"shuffle"}},{k:"atk",v:5,x:2},{k:"def",v:8,pool:{t:"junk",n:1}}][t%3]},
+bride:{n:"幽灵新娘",img:"e_xb",pal:"p_xb",hp:[30,34],h:155,ai:(e,t)=>[{k:"atk",v:6,x:2},{k:"def",v:12},{k:"atk",v:12,s:"vuln",d:1}][t%3]},
+scream:{n:"尖叫奶蛙",img:"e_hs",pal:"p_hs",hp:[24,28],h:150,ai:(e,t)=>[{k:"debuff",s:"vuln",v:2},{k:"atk",v:9},{k:"debuff",s:"weak",v:2}][(t+e.seed)%3]},
+guard1:{n:"看门奶狗",img:"e_dgcc",pal:"p_dog",hp:[46,50],h:170,elite:1,ai:(e,t)=>[{k:"atk",v:8,x:2},{k:"def",v:12,s2:"str",v2:2},{k:"atk",v:16}][(t+e.seed)%3]},
+guard2:{n:"看门奶狗",img:"e_dgsk",pal:"p_dog",hp:[46,50],h:170,elite:1,ai:(e,t)=>[{k:"atk",v:8,x:2},{k:"def",v:12,s2:"str",v2:2},{k:"atk",v:16}][(t+e.seed)%3]},
+icefrog:{n:"冰雕奶蛙",img:"e_c7",pal:"p_ice",hp:[86,90],h:240,elite:1,pd:"冻住你池子里的奶蛙，冻住的不能消除",ai:(e,t)=>[{k:"atk",v:10,pool:{t:"freeze",n:2}},{k:"def",v:16},{k:"atk",v:7,x:3,pool:{t:"freeze",n:1}}][t%3]},
+/* ---------- 第三层：星空之顶 ---------- */
+starsnake:{n:"星蛇",img:"e_snf",pal:"p_starsnake",hp:[34,38],h:150,ai:(e,t)=>[{k:"atk",v:8,x:2,s:"weak",d:1},{k:"atk",v:14,pool:{t:"freeze",n:1}}][(t+e.seed)%2]},
+auroraegg:{n:"极光奶蛋",img:"e_egar",pal:"p_aurora",hp:[30,34],h:135,ai:(e,t)=>[{k:"def",v:12,pool:{t:"shuffle"}},{k:"atk",v:13},{k:"buff",s:"str",v:3}][(t+e.seed)%3]},
+starfrog:{n:"星空奶蛙",img:"e_nx",pal:"p_nx",hp:[38,42],h:165,ai:(e,t)=>[{k:"atk",v:11,pool:{t:"freeze",n:1}},{k:"def",v:10},{k:"atk",v:7,x:2}][t%3]},
+cosmic:{n:"宇宙奶蛙",img:"e_n4",pal:"p_n4",hp:[52,56],h:190,ai:(e,t)=>[{k:"buff",s:"str",v:3},{k:"atk",v:18,pool:{t:"junk",n:2}},{k:"atk",v:9,x:2}][t%3]},
+starcat:{n:"星猫",img:"e_ctar",pal:"p_star",hp:[22,26],h:130,ai:(e,t)=>[{k:"atk",v:6,x:2},{k:"debuff",s:"weak",v:1,pool:{t:"suck",n:1,h:4}}][(t+e.seed)%2]},
+starhorse:{n:"星马",img:"e_hrar",pal:"p_star",hp:[26,30],h:140,ai:(e,t)=>[{k:"atk",v:11},{k:"atk",v:5,x:2}][(t+e.seed)%2]},
+starchick:{n:"星鸡",img:"e_ckar",pal:"p_star",hp:[22,26],h:130,ai:(e,t)=>[{k:"def",v:8},{k:"atk",v:8,pool:{t:"junk",n:1}}][(t+e.seed)%2]},
+glow:{n:"发光奶蛙",img:"e_hn",pal:"p_hn",hp:[34,38],h:160,ai:(e,t)=>[{k:"buff",s:"str",v:2},{k:"atk",v:12},{k:"atkdef",v:8,b:10}][t%3]},
+angel:{n:"堕落天使",img:"e_an",pal:"p_an",hp:[100,106],h:230,elite:1,ai:(e,t)=>[{k:"atk",v:12,x:2},{k:"def",v:20,s2:"str",v2:3},{k:"atk",v:24,pool:{t:"freeze",n:2}}][t%3]},
+isekai:{n:"异世界奶蛙",img:"e_v_yjx",pal:"p_yjx",hp:[96,100],h:220,elite:1,pd:"每回合把你的池子打乱",ai:(e,t)=>[{k:"atk",v:14,pool:{t:"shuffle"}},{k:"atk",v:8,x:2,pool:{t:"shuffle"}},{k:"buff",s:"str",v:3,pool:{t:"junk",n:2}}][t%3]},
+shadowE:{n:"影子刺客",img:"e_xsh",hp:[64,64],h:230,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:2},{k:"atk",v:9,x:2,pool:{t:"shuffle"}},{k:"atk",v:15,pool:{t:"freeze",n:1}}][t%3]},
+shadowE2:{n:"影子刺客",img:"e_xsh",hp:[96,96],h:240,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:3},{k:"atk",v:11,x:2,pool:{t:"shuffle"}},{k:"atk",v:20,pool:{t:"freeze",n:2}}][t%3]},
+demon:{n:"奶蛙大魔王",img:"e_bx",hp:[320,320],h:270,boss:1,pd:"会一口吞掉你整个池子，每吞 2 只力气 +1；还会掀锅，把池子冻住打乱",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:3,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:2,pool:{t:"eat"}},{k:"atk",v:34},{k:"atkdef",v:16,b:20,pool:{t:"freeze",n:3}}][t%4]:[{k:"atk",v:18,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:1,pool:{t:"eat"}},{k:"atk",v:8,x:3,pool:{t:"freeze",n:2}},{k:"def",v:24,pool:{t:"shuffle"}}][t%4]},
+/* ---------- 0.5 新增敌人 ---------- */
+mudhorse:{n:"泥巴奶马",img:"e_hrcc",pal:"p_hrcc",hp:[30,34],h:160,ai:(e,t)=>[{k:"atk",v:11},{k:"atk",v:6,x:2,pool:{t:"junk",n:1}},{k:"def",v:8}][(t+e.seed)%3]},
+blackchick:{n:"乌鸡",img:"e_ckb",pal:"p_ckb",hp:[28,32],h:145,ai:(e,t)=>[{k:"debuff",s:"weak",v:2},{k:"atk",v:10},{k:"atkdef",v:6,b:8}][(t+e.seed)%3]},
+knight2:{n:"拿破仑骑士长",img:"e_np",pal:"p_knight2",hp:[92,96],h:220,elite:1,ai:(e,t)=>[{k:"def",v:18,s2:"str",v2:3},{k:"atk",v:20},{k:"atk",v:8,x:3,pool:{t:"shuffle"}}][t%3]},
+stardog:{n:"星空奶狗",img:"e_dgar",pal:"p_dgar",hp:[36,40],h:160,ai:(e,t)=>[{k:"atk",v:9,x:2},{k:"atk",v:15,pool:{t:"freeze",n:1}},{k:"buff",s:"str",v:2}][(t+e.seed)%3]},
+icehorse:{n:"冰晶奶马",img:"e_hrl",pal:"p_hrl",hp:[34,38],h:160,ai:(e,t)=>[{k:"atk",v:12,pool:{t:"freeze",n:1}},{k:"atk",v:6,x:2},{k:"def",v:10}][(t+e.seed)%3]},
+snowchick:{n:"雪地奶鸡",img:"e_ckt",pal:"p_ckt",hp:[26,30],h:140,ai:(e,t)=>[{k:"def",v:10},{k:"atk",v:9,pool:{t:"freeze",n:1}}][(t+e.seed)%2]},
+icesnake:{n:"冰蛇",img:"e_snl",pal:"p_snl",hp:[30,34],h:150,ai:(e,t)=>[{k:"atk",v:7,x:2,s:"weak",d:1},{k:"atk",v:13}][(t+e.seed)%2]},
+snowegg:{n:"雪蛋",img:"e_egl",pal:"p_egl",hp:[24,28],h:130,ai:(e,t)=>[{k:"def",v:12},{k:"atk",v:8,pool:{t:"junk",n:1}},{k:"buff",s:"str",v:2}][(t+e.seed)%3]},
+bellrat:{n:"钟楼奶鼠",img:"e_msl",pal:"p_msl",hp:[16,20],h:120,ai:(e,t)=>[{k:"atk",v:5,x:2},{k:"debuff",s:"vuln",v:1},{k:"atk",v:8}][(t+e.seed)%3]},
+frostcat:{n:"冰原奶猫",img:"e_ctl",pal:"p_ctl",hp:[28,32],h:140,ai:(e,t)=>[{k:"atk",v:8,pool:{t:"suck",n:1,h:3}},{k:"atk",v:5,x:2},{k:"debuff",s:"weak",v:2}][(t+e.seed)%3]},
+icedragon:{n:"冰龙蛇",img:"e_snn",pal:"p_snn",hp:[100,104],h:240,elite:1,pd:"一口寒气，冻住你池里的奶蛙",ai:(e,t)=>[{k:"atk",v:12,x:2,pool:{t:"freeze",n:2}},{k:"def",v:16,s2:"str",v2:3},{k:"atk",v:26}][t%3]},
+iceguard:{n:"冰晶卫士",img:"e_ckn",pal:"p_ckn",hp:[54,58],h:180,elite:1,ai:(e,t)=>[{k:"atkdef",v:10,b:12},{k:"atk",v:7,x:2,pool:{t:"freeze",n:1}},{k:"def",v:16,s2:"str",v2:2}][(t+e.seed)%3]},
+iceking:{n:"冰封奶蛙王",img:"e_c7",hp:[250,250],h:280,boss:1,pd:"每回合都会冻住你池里的奶蛙，冰会越积越多",ai:(e,t)=>e.phase2?[{k:"atk",v:10,x:3,pool:{t:"freeze",n:3}},{k:"atkdef",v:18,b:20},{k:"buff",s:"str",v:3,pool:{t:"freeze",n:2}},{k:"atk",v:30}][t%4]:[{k:"atk",v:14,pool:{t:"freeze",n:2}},{k:"def",v:22,pool:{t:"freeze",n:1}},{k:"atk",v:7,x:3},{k:"atk",v:18,pool:{t:"freeze",n:2}}][t%4]},
+snowking:{n:"雪球大王",img:"e_egsk",hp:[240,240],h:270,boss:1,pd:"越滚越大：每回合往你池里滚进雪块（泥巴），血量过半叫来雪蛋",ai:(e,t)=>e.phase2?[{k:"atk",v:13,x:2,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:3},{k:"atk",v:28,pool:{t:"junk",n:1}},{k:"atkdef",v:12,b:18}][t%4]:[{k:"atk",v:12,pool:{t:"junk",n:2}},{k:"def",v:18},{k:"atk",v:8,x:2,pool:{t:"junk",n:1}},{k:"buff",s:"str",v:2,pool:{t:"shuffle"}}][t%4]},
+/* 首领（每层随机两选一） */
+snakeking:{n:"泥沼蛇王",img:"e_snb",hp:[160,160],h:280,boss:1,pd:"缠住你的池子：吸走奶蛙、丢泥巴；血量过半会叫来小蛇",ai:(e,t)=>e.phase2?[{k:"atk",v:7,x:3,pool:{t:"suck",n:1,h:4}},{k:"atk",v:16,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:3},{k:"atkdef",v:10,b:12}][t%4]:[{k:"atk",v:12,pool:{t:"suck",n:1,h:4}},{k:"def",v:12,pool:{t:"junk",n:1}},{k:"atk",v:6,x:2,s:"weak",d:1},{k:"atk",v:15}][t%4]},
+buddha:{n:"金身奶蛙",img:"e_hg",hp:[230,230],h:280,boss:1,pd:"金身不坏：护盾很厚，还会把你的池子冻成石头",ai:(e,t)=>e.phase2?[{k:"atkdef",v:14,b:20,pool:{t:"freeze",n:2}},{k:"atk",v:9,x:3},{k:"buff",s:"str",v:3,pool:{t:"freeze",n:2}},{k:"atk",v:26}][t%4]:[{k:"def",v:28,pool:{t:"freeze",n:2}},{k:"atk",v:16},{k:"atkdef",v:10,b:16},{k:"atk",v:6,x:3,pool:{t:"freeze",n:1}}][t%4]},
+cosmicegg:{n:"宇宙巨蛋",img:"e_egf",hp:[270,270],h:270,boss:1,pd:"一颗会孵化的蛋：血量过半时孵出星鸡帮手，自己也变强",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:2,pool:{t:"shuffle"}},{k:"atk",v:28},{k:"buff",s:"str",v:3,pool:{t:"junk",n:2}},{k:"atkdef",v:14,b:18}][t%4]:[{k:"def",v:24},{k:"atk",v:14,pool:{t:"junk",n:2}},{k:"atk",v:8,x:2},{k:"def",v:16,pool:{t:"shuffle"}}][t%4]},
+count:{n:"月夜伯爵",img:"e_vp",hp:[210,210],h:270,boss:1,pd:"从你的池子里吸走奶蛙，每只给它回 5 血",ai:(e,t)=>e.phase2?[{k:"atk",v:10,x:2,pool:{t:"suck",n:2,h:5}},{k:"atk",v:22},{k:"atkdef",v:12,b:14,pool:{t:"suck",n:1,h:5}},{k:"buff",s:"str",v:3}][t%4]:[{k:"atk",v:12,pool:{t:"suck",n:2,h:5}},{k:"def",v:16,s2:"str",v2:2},{k:"atk",v:7,x:3},{k:"atk",v:16,pool:{t:"suck",n:1,h:5}}][t%4]},
+shadow:{n:"影子刺客",img:"e_xsh",hp:[280,280],h:280,boss:1,pd:"会模仿你的消除：你每消除一次，它就打你一下；还会冻住池子",ai:(e,t)=>e.phase2?[{k:"atk",v:14,x:2,pool:{t:"freeze",n:2}},{k:"buff",s:"mirror",v:3},{k:"atk",v:30},{k:"atk",v:8,x:3,pool:{t:"junk",n:2}}][t%4]:[{k:"buff",s:"mirror",v:4},{k:"atk",v:16,pool:{t:"freeze",n:2}},{k:"atk",v:9,x:2},{k:"atkdef",v:14,b:16,pool:{t:"shuffle"}}][t%4]},
+
+king:{n:"沼泽之王",img:"e_xsk",pd:"往你的池子里随机位置丢泥巴，把同家族隔开",hp:[150,150],h:260,boss:1,ai:(e,t)=>{if(e.phase2){return[{k:"atk",v:6,x:3},{k:"add",card:"mud",n:2,pool:{t:"junk",n:2}},{k:"atkdef",v:16,b:12},{k:"buff",s:"str",v:3}][t%4]}return[{k:"atk",v:8,pool:{t:"junk",n:2}},{k:"atk",v:14},{k:"def",v:12,s2:"str",v2:2},{k:"atk",v:8,x:2}][t%4]}},
+mudling:{n:"小泥怪",pal:"p_mud",img:"e_v_xc",hp:[14,16],h:105,ai:(e,t)=>[{k:"atk",v:5},{k:"debuff",s:"weak",v:1}][(t+e.seed)%2]},
 };
-const ENC={
-easy:[["rat","ratg"],["poo"],["chick"],["snake"]],
-normal:[["rat","ratg","ratb"],["laugh"],["poo","rat"],["crawl"],["snake","rat"],["chick","poo"]],
-elite:[["giant"],["bomb","bombp","bombw"]],
-boss:[["king"]]};
+const ENCS=[
+{easy:[["rat","ratg"],["poo"],["chick"],["snake"]],normal:[["rat","ratg","ratb"],["laugh"],["poo","rat"],["crawl"],["snake","rat"],["chick","poo"],["mutt","spotegg"],["spotegg","spotegg","rat"],["mudhorse","rat"]],elite:[["giant"],["bomb","bombp","bombw"],["shadowE"]],boss:["king"],bosses:[["king"],["snakeking"]]},
+{easy:[["butler"],["scream","scream"]],normal:[["painting","scream"],["knight"],["butler","bride"],["bride","scream"],["knight","butler"],["ghostcat","chinachick"],["ghostcat","ghostcat"],["blackchick","butler"]],elite:[["guard1","guard2"],["knight2"],["shadowE2"]],boss:["count"],bosses:[["count"],["buddha"]]},
+{easy:[["bellrat","bellrat"],["snowegg","snowchick"]],normal:[["icehorse","bellrat"],["icesnake","snowchick"],["frostcat","snowegg"],["icehorse","icesnake"],["bellrat","bellrat","snowegg"],["frostcat","snowchick","bellrat"]],elite:[["icedragon"],["iceguard","iceguard"],["icefrog"]],boss:["iceking"],bosses:[["iceking"],["snowking"]]},
+{easy:[["starcat","starchick"]],normal:[["starfrog","starcat"],["cosmic"],["starhorse","starchick","starcat"],["glow","starhorse"],["starfrog","glow"],["starsnake","auroraegg"],["auroraegg","starcat"],["stardog","starcat"]],elite:[["angel"],["isekai"]],boss:["shadow"],bosses:[["shadow"],["cosmicegg"]]}];
+const ACTS=[{n:"泥沼回廊",bgs:["swamp","reed","ruin"],boss:"king"},{n:"月夜古堡",bgs:["castle","gate","castle"],boss:"count"},{n:"冰封钟楼",bgs:["snowfield","belltower","snowfield"],boss:"iceking"},{n:"星空之顶",bgs:["cosmos","summit","cosmos"],boss:"shadow"}];
+
 
 /* ===================== 遗物 ===================== */
 const RELICS={
@@ -184,6 +332,28 @@ mirror:{n:"双子镜",img:"xg",r:"E",d:"每场战斗打出的第一张牌，效�
 sand:{n:"时之沙",img:"xsw",r:"C",d:"每场战斗第一回合，多抽 2 张"},
 star:{n:"流派之星",img:"n4",r:"R",d:"每场战斗开始，力气 +1"},
 belt:{n:"药水腰带",img:"ega",r:"C",d:"药水栏 +1 格"},
+warmscarf:{n:"暖围巾",img:"egx",r:"R",d:"池里被冻住的奶蛙也能参与消除"},
+belltoken:{n:"钟楼铃铛",img:"egsk",r:"C",d:"每过 3 回合，所有敌人虚弱 2"},
+frogcrown:{n:"蛙王冠",img:"xsk",r:"E",d:"奶蛙爆发伤害翻倍"},
+stablekey:{n:"马厩钥匙",img:"hrcc",r:"C",d:"每场战斗第一张奶马牌费用为 0"},
+eggbasket:{n:"鸡蛋篮",img:"eg",r:"C",d:"每场战斗开始，池里先放 1 只奶鸡，获得 5 护盾"},
+fullbonus:{n:"猫铃铛",img:"ctw",r:"C",d:"战斗结束时如果是满血，获得 15 金币"},
+palcollar:{n:"伙伴项圈",img:"dga",r:"R",d:"每打出一张伙伴卡，抽 1 张"},
+snowglobe:{n:"雪花水晶球",img:"egl",r:"R",d:"每场战斗都是下雪天（奶鸡牌多 3 护盾）"},
+shadowcloak:{n:"影子斗篷",img:"xsh",r:"E",d:"每次连锁，对所有敌人造成 6 伤害"},
+milktank:{n:"奶茶罐",img:"ctm",r:"C",d:"拿到时最大生命 +12"},
+snakeskin:{n:"蛇蜕",img:"sna",r:"C",d:"每场战斗开始，敏捷 +1"},
+goldegg:{n:"金蛋",img:"egj",r:"C",d:"每场战斗结束，额外获得 10 金币"},
+combo:{n:"连招卷轴",img:"hrx",r:"R",d:"每回合第一次消除时，抽 1 张"},
+piggy:{n:"存钱罐",img:"egq",r:"C",d:"每次进入商店，获得 30 金币"},
+trophy:{n:"奖杯",img:"hg",r:"E",d:"每击败一个精英或首领，最大生命 +5"},
+tidecharm:{n:"潮汐护符",img:"c6",r:"R",d:"池子溢出时不再受伤"},
+chainbell:{n:"连锁铃",img:"c5",r:"R",d:"每次连锁，获得 6 护盾"},
+rbegg:{n:"彩虹蛋",img:"egh",r:"R",d:"每场战斗开始，池里先放 1 只彩虹奶蛙"},
+xpbook:{n:"修行笔记",img:"np",r:"C",d:"获得的经验 +50%"},
+goldpot:{n:"金饭碗",img:"hg",r:"C",d:"每次消除获得 2 金币"},
+icepick:{n:"冰镐",img:"c7",r:"C",d:"池里被冻住的奶蛙 1 回合就化开"},
+vipcard:{n:"会员卡",img:"xg",r:"C",d:"商店的升级、复制、服务价格减半"},
 net:{n:"大网兜",img:"cks",r:"R",d:"每场战斗可以多抓 1 只敌人"},
 pondstone:{n:"池塘石",img:"c3",r:"C",d:"奶蛙池多 1 格"},
 moonmirror:{n:"月光镜",img:"nx",r:"E",d:"每层都当作满月（三连只需要 2 个）"},
@@ -204,18 +374,35 @@ pice:{n:"冰冻药水",c:"#bfefff",d:"所有敌人虚弱 3",fx:B=>B.enemies.forE
 };
 
 /* ===================== 状态 ===================== */
-const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"},thorn:{n:"荆棘",c:"#4fa86a",d:"被攻击时，对攻击者造成等量伤害"}};
+const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"},thorn:{n:"荆棘",c:"#4fa86a",d:"被攻击时，对攻击者造成等量伤害"},mirror:{n:"模仿",c:"#5a4b7a",d:"你每消除一次，它对你造成等量伤害（连锁越多越疼）"}};
 
 /* ===================== 剧情 ===================== */
 const STORY={
-intro:[["fj","奶蛙长老","满月又升起来了。尖塔……也跟着回来了。"],["n1","功夫奶蛙","长老，村里的奶茶泉，这几天又浅了一截。"],["fj","奶蛙长老","是那个影子。大魔王倒下以后，它的影子钻进了塔里，一点点把泉水往上吸。"],["fj","奶蛙长老","塔每次出现，里面的路都不一样。你得一层层往上爬，见招拆招。"],["n1","功夫奶蛙","我练了这么多年拳，就是为了这一天。"],["fj","奶蛙长老","记住：同一种家族的招式连出三次，会生出意想不到的力量。去吧。"]],
-boss:[["xsk","沼泽之王","呱……呱……谁……谁在踩我的泥巴……"],["n1","功夫奶蛙","沼泽之王？你的眼睛……怎么是黑的？"],["xsk","沼泽之王","影子大人说……谁往上走……就把谁……埋进泥里！"]],
-win:[["xsk","沼泽之王","呱……头好晕。我刚才……是不是做了什么坏事？"],["n1","功夫奶蛙","你被影子控制了。现在没事了。"],["xsk","沼泽之王","那个影子……往上跑了。上面是月夜古堡，住着一个很饿很饿的家伙……你要小心。"],["fj","奶蛙长老","第一层，你守住了。可是塔还很高。"]],
+intro:[["fj","奶蛙长老","满月又升起来了。奶蛙之塔……也跟着回来了。"],["n1","功夫奶蛙","长老，村里的奶茶泉，这几天又浅了一截。"],["fj","奶蛙长老","是那个影子。它钻进了塔里，一点点把泉水往上吸。"],["fj","奶蛙长老","塔一共四层：泥沼回廊、月夜古堡、冰封钟楼、星空之顶。影子就在最顶上。"],["n1","功夫奶蛙","我练了这么多年拳，就是为了这一天。"],["fj","奶蛙长老","记住：打出的招式会落进你心里的奶蛙池。同家族的凑在一起，就会一串一串地爆开。去吧。"]],
+boss0:[["xsk","沼泽之王","呱……呱……谁……谁在踩我的泥巴……"],["n1","功夫奶蛙","沼泽之王？你的眼睛……怎么是黑的？"],["xsk","沼泽之王","影子大人说……谁往上走……就把谁的池子……全塞满泥巴！"]],
+win0:[["xsk","沼泽之王","呱……头好晕。我刚才……是不是做了什么坏事？"],["n1","功夫奶蛙","你被影子控制了。现在没事了。"],["xsk","沼泽之王","影子往上跑了。上面是月夜古堡，住着一个很饿很饿的家伙……你要小心。"]],
+act1:[["n1","功夫奶蛙","这里……好冷。墙上的画像在看我。"],["fj","奶蛙长老","（远远传来的声音）月夜古堡的主人，最喜欢吸别人池子里的东西。别让他吸饱了。"]],
+boss1:[["vp","月夜伯爵","哦？一只带着满满一池子奶蛙的小家伙。"],["vp","月夜伯爵","正好，我饿了很久了。"],["n1","功夫奶蛙","想吃我的奶蛙，先过我这一关！"]],
+win1:[["vp","月夜伯爵","咳……好久没吃得这么饱……也好久没输得这么痛快了。"],["vp","月夜伯爵","影子答应我，帮它守门就有吃不完的奶茶。看来它骗了我。"],["vp","月夜伯爵","再往上是冰封钟楼，钟楼顶上，才是星空之顶。"]],
+act3:[["n1","功夫奶蛙","脚下……是星星？"],["fj","奶蛙长老","（声音越来越近）孩子，影子会学你的招式。你越厉害，它就越厉害。"]],
+boss3:[["xsh","影子刺客","你终于爬上来了。前面三层，我都在暗处看着你。"],["n1","功夫奶蛙","你就是吸走泉水的影子？"],["xsh","影子刺客","我只是大魔王的影子。你每一招，我都会。"]],
+boss0b:[["snb","泥沼蛇王","嘶——嘶——又一个想往上爬的小家伙。"],["n1","功夫奶蛙","你的眼睛也被影子染黑了。"],["snb","泥沼蛇王","我会把你的池子缠得死死的，一只奶蛙都别想消掉！"]],
+win0b:[["snb","泥沼蛇王","嘶……我的尾巴打结了……"],["snb","泥沼蛇王","往上走吧，月夜古堡的主人在等你。"]],
+boss1b:[["hg","金身奶蛙","……（金光闪闪，一动不动）"],["n1","功夫奶蛙","这……是一尊佛像？"],["hg","金身奶蛙","金身不坏，万招不侵。你的奶蛙池，在我面前只会变成石头。"]],
+win1b:[["hg","金身奶蛙","金身……裂了。好久没有这么轻松过。"],["hg","金身奶蛙","再往上是冰封钟楼。钟声响的时候，要小心你的池子。"]],
+boss3b:[["egf","宇宙巨蛋","（巨蛋里传出咚、咚、咚的心跳声）"],["n1","功夫奶蛙","这颗蛋……在吸星星的光？"],["xsh","影子刺客","（从蛋的影子里走出来）我在里面养了一个大家伙。你来得正好。"]],
+act2:[["n1","功夫奶蛙","好冷……这里的钟，怎么一直在响？"],["fj","奶蛙长老","（声音穿过风雪）冰封钟楼。这里的冰会封住你的奶蛙池，记得随时敲碎它们。"]],
+boss2:[["c7","冰封奶蛙王","叮——当——又一个闯进钟楼的小东西。"],["n1","功夫奶蛙","你也是被影子派来守门的？"],["c7","冰封奶蛙王","我只喜欢安静。你池子里那些吵吵闹闹的奶蛙，我全都要冻起来。"]],
+win2:[["c7","冰封奶蛙王","冰……化了。好暖和。"],["c7","冰封奶蛙王","上面就是星空之顶。影子……在星星中间等你。"]],
+boss2b:[["egsk","雪球大王","滚——滚——滚——！谁也别想挡住我滚下山！"],["n1","功夫奶蛙","一颗……超大的雪球？"],["egsk","雪球大王","我会把你的池子塞满雪块，让你一只奶蛙都消不掉！"]],
+win2b:[["egsk","雪球大王","呼……滚累了。"],["egsk","雪球大王","往上走吧，星空之顶就在钟楼顶上。"]],
+demon:[["xsh","影子刺客","……主人，我撑不住了。"],["bx","奶蛙大魔王","哈——哈——哈！没用的影子，回到我身上来！"],["n1","功夫奶蛙","大魔王？你不是早就倒下了吗！"],["bx","奶蛙大魔王","倒下？我只是睡了个午觉！你那一池子奶蛙，我要一口吞掉！"]],
+win3:[["bx","奶蛙大魔王","呜哇……我的锅……我的池子……"],["bx","奶蛙大魔王","好吧好吧，泉水还给你们。我只是……一个人在塔顶太无聊了。"],["n1","功夫奶蛙","无聊就下来村里玩嘛，奶茶管够。"],["fj","奶蛙长老","（长老走了出来）奶茶泉满了。孩子，你登顶了。"],["bx","奶蛙大魔王","……下次我还会回来的！（然后真的跟着下山去喝奶茶了）"]],
 };
-const ELDER_TALES=["很久很久以前，奶茶泉旁边住着一只总是一个人修行的奶蛙。","它太专心了，专心到连自己的影子都忘了。","影子一个人待在黑暗里，越来越大，越来越饿。","长老说到这里停了下来：「剩下的，等你爬得更高再告诉你。」"];
+const ELDER_TALES=["很久很久以前，奶茶泉旁边住着一只总是一个人修行的奶蛙。","它太专心了，专心到连自己的影子都忘了。","影子一个人待在黑暗里，越来越大，越来越饿。","有一天，影子学会了那只奶蛙所有的招式。","长老说到这里停了下来：「那只奶蛙，就是年轻时的我。」"];
 
 /* ===================== 月相 / 天气 ===================== */
 const MOON={new:{n:"新月",d:"池子少 1 格，但每次消除多 1 点奶力"},wax:{n:"上弦月",d:"攻击牌伤害 +1"},full:{n:"满月",d:"三连只需要 2 个"},wane:{n:"下弦月",d:"护盾牌多 2 护盾"}};
 const MOON_CYCLE=["new","wax","full","wane"];
-const WX={clear:{n:"晴",d:"没有特别的事"},rain:{n:"下雨",d:"泥巴伤害翻倍；奶蛙牌伤害 +2"},wind:{n:"大风",d:"每回合风会吹走 1 张手牌，再补 1 张；奶马牌伤害 +3"},snow:{n:"下雪",d:"回合开始护盾只消一半；奶鸡牌多 3 护盾"},fog:{n:"大雾",d:"看不清敌人的伤害数字；每回合第一张奶猫牌抽 1 张"},storm:{n:"雷雨",d:"每回合开始，闪电随机劈中一个角色，造成 5 伤害"}};
+const WX={clear:{n:"晴",d:"没有特别的事"},rain:{n:"下雨",d:"泥巴伤害翻倍；奶蛙牌伤害 +2"},wind:{n:"大风",d:"每回合开始，风把池子吹乱重排（可能直接连锁！）；奶马牌伤害 +3"},snow:{n:"下雪",d:"回合开始护盾只消一半；奶鸡牌多 3 护盾"},fog:{n:"大雾",d:"看不清敌人的伤害数字；每回合第一张奶猫牌抽 1 张"},storm:{n:"雷雨",d:"每回合开始，闪电随机劈中一个角色，造成 5 伤害"}};
 const WX_POOL=["clear","clear","rain","wind","snow","fog","storm"];

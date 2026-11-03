@@ -9,13 +9,21 @@ dev = "--dev" in sys.argv
 texts = "".join(open(os.path.join(SRC, f), encoding="utf8").read() for f in ["data.js", "game.js", "ui.js", "index.html"])
 allimg = json.load(open(os.path.join(ROOT, "assets/_all.json")))
 keys = set(re.findall(r'img:"(\w+)"', texts)) | set(re.findall(r'IMG\("(\w+)"\)', texts)) | set(re.findall(r'\["(\w+)","[^"]*",', texts)) | set(re.findall(r'ic:"(\w+)"', texts))
-keys = sorted(k for k in keys if k in allimg)
+keys = sorted(k for k in keys if k in allimg or k.startswith("e_"))
 print("images:", len(keys))
 sys.path.insert(0, ROOT); import procimg
 from PIL import Image
 cache_p = os.path.join(ROOT, "assets/_proc2.json")
 cache = json.load(open(cache_p)) if os.path.exists(cache_p) else {}
+import recolor
+for vk,(src,hh,sm,vm) in recolor.VAR.items():
+    vp=os.path.join(ROOT,"sr/out",vk+".png")
+    if not os.path.exists(vp): recolor.recolor(Image.open(os.path.join(ROOT,"sr/out",src+".png")),hh,sm,vm).save(vp)
 for k in keys:
+    if k.startswith("e_"):
+        srp = os.path.join(ROOT, "sr/out", k[2:] + ".png")
+        if k not in cache: cache[k] = [True, procimg.to_uri(procimg.proc(None, src=Image.open(srp), ol=((150,60,190,255),(30,10,40,255))))]
+        continue
     srp = os.path.join(ROOT, "sr/out", k + ".png")
     if k in cache and cache[k][0] == os.path.exists(srp): continue
     if os.path.exists(srp): cache[k] = [True, procimg.to_uri(procimg.proc(None, src=Image.open(srp)))]
