@@ -751,3 +751,16 @@ img{-webkit-user-drag:none;pointer-events:none}
 .bcxHint{opacity:.6;margin-top:30px;font:600 16px var(--body)}
 .bcx .ovFoot{position:absolute;left:0;right:0;bottom:26px;text-align:center}
 .bcxD{overflow:auto}
+
+/* 首领：更大、更有压迫感 */
+#battle.bossFight::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 60% 45%,transparent 45%,rgba(20,0,20,.55) 100%)}
+.en.bossEn{z-index:2}
+.en.bossEn .body img{animation:bossBreath 3.6s ease-in-out infinite;transform-origin:50% 100%;filter:drop-shadow(0 0 14px rgba(200,30,60,.55)) drop-shadow(0 10px 0 rgba(10,0,20,.55))}
+@keyframes bossBreath{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.975) translateY(2px)}}
+.en.bossEn .plat{width:120%;height:60px;bottom:-24px}
+.en.bossEn .plat::before{background:#3a2a4a;box-shadow:inset 0 -10px 0 #261a32,0 0 40px 10px rgba(120,0,40,.45),0 6px 0 rgba(20,10,30,.6)}
+.en.bossEn .ename{font-size:22px;padding:3px 16px;background:#5a1428;color:#ffd8d8;border-color:var(--ink)}
+.en.bossEn.hit .body img,.en.bossEn .body img.hitting{animation:hitA .35s!important}
+.en.bossEn .itw{position:absolute;left:-46px;top:34%;z-index:3}
+.en.bossEn .itw .intent{animation:none}
+.en.bossEn{transform:translateY(38px)}
