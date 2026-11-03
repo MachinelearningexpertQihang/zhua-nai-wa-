@@ -132,17 +132,16 @@ function talk(lines){return new Promise(res=>{const T=$("#talk");let i=0;const L
 
 /* ===================== 标题 ===================== */
 function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("title");const sv=loadRun();
- $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map(c=>`<span>${c}</span>`).join("")}</h1><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div>
- <div class="tmenu">${sv?`<button class="btn" id="tCont">继续冒险<small style="font-size:16px;letter-spacing:0;opacity:.7">　第 ${sv.row+1} 层</small></button>`:""}<button class="btn ${sv?"ghost":""}" id="tNew">${sv?"重新开始":"开始冒险"}</button><div class="sub"><button class="btn sm ghost" id="tCodex">卡牌图鉴</button><button class="btn sm ghost" id="tSet">${A.music?"♪ 音乐开":"♪ 音乐关"}</button></div></div>
+ $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map(c=>`<span data-c="${c}">${c}</span>`).join("")}</h1><div class="tsub"><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div></div>
+ <div class="tmenu">${sv?`<button class="gbtn" id="tCont"><i class="pl"></i><b>继续冒险</b><small>第 ${(sv.act||0)+1} 层 · ${HEROES.find(h=>h.id===sv.hero)?.n||"奶蛙"}</small></button>`:""}<button class="gbtn ${sv?"alt":""}" id="tNew"><i class="pl"></i><b>${sv?"重新开始":"开始冒险"}</b></button><div class="sub"><button class="gbtn sm" id="tCodex"><b>卡牌图鉴</b></button><button class="gbtn sm" id="tSet"><b>${A.music?"♪ 音乐开":"♪ 音乐关"}</b></button></div></div>
  <div class="thero"><img src="${IMG(HI())}"><i class="plat"></i></div><div class="telder"><img src="${IMG("m6")}"><i class="plat stone"></i></div>
- <div class="tmeta"><span>通关 ${M.wins} 次</span><span>记忆碎片 ${M.shards}</span></div>
- <div class="tfoot">打出的牌会落进奶蛙池，同家族凑齐 3 只就消除爆发；残血的敌人可以抓回来当伙伴</div>`;
+ <div class="tmeta"><span>通关 <b>${M.wins}</b> 次</span><span>记忆碎片 <b>${M.shards}</b></span></div>`;
  const c=$("#tCont");if(c)c.onclick=()=>{S=sv;resume()};
  $("#tNew").onclick=()=>{if(sv)confirmBox("重新开始？","现在的存档会被覆盖。",()=>{closeOv();heroSelect()});else heroSelect()};
  $("#tCodex").onclick=codex;$("#tSet").onclick=()=>{A.music=!A.music;audioSave();titleScreen()}}
 
-const HEROES=[{id:"naiwa",n:"奶蛙",img:"nw",tag:"一号主角 · 厚肚皮",d:"奶茶泉边最普通的一只奶蛙，肚皮又软又厚。每场战斗开局自带 6 点护盾，稳稳当当。",hp:80,on:1},{id:"kungfu",n:"功夫奶蛙",img:"n1",tag:"二号主角 · 快手连击",d:"在竹林里练了很多年拳。每场战斗第一回合多抽 2 张，起手就是一整套。初始牌组多一张「奶蛙拳」。",hp:70,on:1},{id:"angel",n:"天使奶蛙",img:"an",tag:"护盾 · 回复",d:"翅膀一扇，伤口就好了一半。",hp:66},{id:"vamp",n:"吸血鬼奶蛙",img:"vp",tag:"吸血 · 牺牲",d:"古堡里那位很饿的家伙，好像也想爬塔？",hp:80}];
-const HI=()=>S&&S.hero==="kungfu"?"n1":"nw",HN=()=>S&&S.hero==="kungfu"?"功夫奶蛙":"奶蛙";
+const HEROES=[{id:"naiwa",n:"奶蛙",img:"nw",tag:"一号主角 · 厚肚皮",d:"奶茶泉边最普通的一只奶蛙，肚皮又软又厚。每场战斗开局自带 6 点护盾，稳稳当当。",hp:80,on:1},{id:"kungfu",n:"功夫奶蛙",img:"n1",tag:"二号主角 · 快手连击",d:"在竹林里练了很多年拳。每场战斗第一回合多抽 2 张，起手就是一整套。初始牌组多一张「奶蛙拳」。",hp:70,on:1},{id:"knight",n:"骑士奶蛙",img:"kn",tag:"三号主角 · 铁甲",d:"穿着一身亮闪闪的铁甲。回合开始时护盾只掉一半，越守越厚。初始牌组多一张「抱紧」。",hp:76,on:1},{id:"angel",n:"天使奶蛙",img:"an",tag:"护盾 · 回复",d:"翅膀一扇，伤口就好了一半。",hp:66},{id:"vamp",n:"吸血鬼奶蛙",img:"vp",tag:"吸血 · 牺牲",d:"古堡里那位很饿的家伙，好像也想爬塔？",hp:80}];
+const HERO=()=>HEROES.find(h=>h.id===(S&&S.hero))||HEROES[0],HI=()=>HERO().img,HN=()=>HERO().n;
 function heroSelect(){show("heroSel");setBg("title");let cur=0;
  $("#heroSel").innerHTML=`<div class="hsTitle"><span class="ribbon b">选择你的奶蛙</span></div><div class="hsRow">${HEROES.map((h,i)=>`<div class="hcard ${h.on?"":"lock"} ${i===0?"on":""}"><div class="pic"><img src="${IMG(h.img)}"></div>${h.on?"":`<span class="lk">敬请期待</span>`}<h3>${h.n}</h3><div class="tag">${h.tag}</div><p>${h.on?h.d:"之后的版本开放"}</p>${h.on?`<div class="hst"><span>${ICON.heart}${h.hp}</span><span>${ICON.coin}99</span><span>茶杯</span></div>`:""}</div>`).join("")}</div><div class="hsGo"><button class="btn ghost" id="hsB">返回</button><button class="btn" id="hsGo">出发！</button></div>`;
  $$(".hcard").forEach((e,i)=>e.onclick=()=>{if(!HEROES[i].on){toast(`${HEROES[i].n}还在路上，<b>之后的版本</b>开放`);return}cur=i;sfx("click");$$(".hcard").forEach((x,j)=>x.classList.toggle("on",j===i))});
@@ -151,9 +150,9 @@ function heroSelect(){show("heroSel");setBg("title");let cur=0;
 /* ===================== 新冒险 ===================== */
 async function newRun(hero){const seed=(Math.random()*2**31)|0;
  S={v:2,seed,rs:seed,uid:0,hp:72,max:72,gold:99,deck:[],relics:["cup"],pots:[],potSlots:2,row:-1,col:-1,path:[],combats:0,elites:0,removeCost:75,stats:{kills:0,played:0,dmg:0,tri:0,gold:0},flags:{},evSeen:[],atBoss:false,cur:null};
- S.hero=hero==="kungfu"?"kungfu":"naiwa";{const H=HEROES.find(h=>h.id===S.hero);S.hp=S.max=H.hp}
+ S.hero=["kungfu","knight"].includes(hero)?hero:"naiwa";{const H=HEROES.find(h=>h.id===S.hero);S.hp=S.max=H.hp}
  S.mod=pick(Object.keys(MODS));if(S.mod==="xp"){S.max-=10;S.hp-=10}
- S.act=0;S.actCombats=0;S.lv=1;S.xp=0;S.perks={};S.deck=(S.hero==="kungfu"?[...STARTER,"fist"]:STARTER).map(id=>mk(id));S.map=genMap();S.sky=genSky();pickBoss();S.pals={};S.stats.caught=0;S.stats.gold2=0;M.runs++;saveMeta();
+ S.act=0;S.actCombats=0;S.lv=1;S.xp=0;S.perks={};S.deck=(S.hero==="kungfu"?[...STARTER,"fist"]:S.hero==="knight"?[...STARTER,"guard"]:STARTER).map(id=>mk(id));S.map=genMap();S.sky=genSky();pickBoss();S.pals={};S.stats.caught=0;S.stats.gold2=0;M.runs++;saveMeta();
  show("none");setBg("title");playMusic("space");
  await talk(STORY.intro);await modIntro();await blessing()}
 async function blessing(){const opts=shuffle([
@@ -230,8 +229,8 @@ function startCombat(kind){if(kind==="m"&&(S.actCombats||0)>=2&&rnd()<(S.mod==="
  setTimeout(async()=>{if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();if(rnd()<.3)heroSay(pick(HERO_LINE.start));startTurn()},300)}
 function tutorial(){return new Promise(res=>{ov(`<div class="modal" style="max-width:820px;text-align:left"><h3 style="text-align:center">奶蛙池怎么玩</h3><p>1. 打出的每张家族牌，都会往上方的<b>奶蛙池</b>里放一只奶蛙，它会自动排到同家族旁边。</p><p>2. <b>3 只相邻的同家族</b>就会消除：这张牌效果翻倍，再触发一次<b>家族爆发</b>。</p><p>3. 消除后后面的奶蛙会往前补位，补位又凑成 3 只就继续消，这就是<b>连锁</b>。每多一环，爆发翻一倍，还多给 1 点奶力。</p><p>4. 敌人会往池里<b>丢泥巴</b>把你的奶蛙隔开、<b>冻住</b>奶蛙、甚至<b>吸走</b>奶蛙。泥巴凑够 3 块也会消掉，常常能顺势连锁。池子满 7 格会溢出受伤。</p><p>5. 敌人血量低于 35% 时可以<b>抓</b>回去当伙伴卡；每层的<b>月相天气</b>在左上角；集齐 3 张同名牌会合成<b>金卡</b>。</p><div class="row"><button class="btn" id="tutOk">开打！</button></div></div>`);$("#tutOk").onclick=()=>{closeOv();res()}})}
 function relicPulse(id){const e=$(`#top .rl[data-rl="${id}"]`);if(e){e.classList.remove("pulse");void e.offsetWidth;e.classList.add("pulse")}}
-async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
- B.horseN=0;B.fogUsed=0;B.chainsTurn=0;B.comboUsed=0;{let th=0;B.pool.forEach(x=>{if(x.ice){x.ice--;if(!x.ice)th++}});if(th){toast(`池里有 ${th} 只奶蛙解冻了`);B.poolResolve()}}p.noOverflow=0;if(!p.retain&&!p.pw.iron)p.block=B.wx==="snow"?Math.floor(p.block/2):0;p.retain=0;
+async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.hitStreak=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
+ B.horseN=0;B.fogUsed=0;B.chainsTurn=0;B.comboUsed=0;{let th=0;B.pool.forEach(x=>{if(x.ice){x.ice--;if(!x.ice)th++}});if(th){toast(`池里有 ${th} 只奶蛙解冻了`);B.poolResolve()}}p.noOverflow=0;if(!p.retain&&!p.pw.iron)p.block=(B.wx==="snow"||S.hero==="knight")?Math.floor(p.block/2):0;if(B.turn===1&&S.hero==="naiwa")p.block+=6;p.retain=0;
  banner("你的回合");sfx("turn");
  if(B.wxShift&&B.turn===B.wxShift.turn){weatherShift();await sleep(600)}
  if(p.mud>0){dmgPlayer(p.mud*(B.wx==="rain"?2:1),null,true);p.mud--;sfx("mud");if(S.hp<=0)return lose()}
@@ -332,6 +331,21 @@ function stageShake(){const s=$("#stage");s.classList.remove("shake");void s.off
 function fnum(x,y,t,cls="",delay=0){setTimeout(()=>{const d=document.createElement("div");d.className="fnum "+cls;d.textContent=t;d.style.left=x+"px";d.style.top=y+"px";$("#fx").appendChild(d);setTimeout(()=>d.remove(),950)},delay)}
 function fxAt(el,cls,delay=0,html=""){if(!el)return;setTimeout(()=>{const c=center(el);const d=document.createElement("div");d.className=cls;d.innerHTML=html;d.style.left=c.x+"px";d.style.top=c.y+"px";$("#fx").appendChild(d);setTimeout(()=>d.remove(),900)},delay)}
 function sparks(x,y,col,n=14){for(let i=0;i<n;i++){const d=document.createElement("i");d.className="spark";const a=Math.random()*Math.PI*2,r=60+Math.random()*90;d.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r}px;--c:${col}`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),850)}}
+function hitFx(x,y,big,blocked,fam){const F=$("#fx");
+ if(B&&B.curType){B.hitStreak=(B.hitStreak||0)+1;if(B.hitStreak>=2){let cb=$("#comboCt");if(!cb){cb=document.createElement("div");cb.id="comboCt";F.appendChild(cb)}cb.innerHTML=`<b>${B.hitStreak}</b><small>连击</small>`;cb.style.setProperty("--k",Math.min(1.6,1+B.hitStreak*.06));cb.classList.remove("pop");void cb.offsetWidth;cb.classList.add("pop");clearTimeout(cb._t);cb._t=setTimeout(()=>cb.remove(),1400)}}
+ {const o=document.createElement("div");o.className="ono"+(big?" big":"")+(blocked?" blk":"");o.textContent=blocked?pick(["叮！","铛！"]):big?pick(["砰！！","轰！！","嘭！！"]):pick(["啪！","咚！","嘿！","哒！"]);o.style.cssText=`left:${x+(Math.random()*80-40)}px;top:${y-70-Math.random()*30}px;--r:${Math.random()*24-12}deg`;F.appendChild(o);setTimeout(()=>o.remove(),620)}
+ if(big&&!blocked){const fl=document.createElement("div");fl.className="flashW";F.appendChild(fl);setTimeout(()=>fl.remove(),220);const ar=$("#arena");if(ar){ar.classList.remove("punch");void ar.offsetWidth;ar.classList.add("punch")}}const add=(cls,html,st,ms)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html||"";d.style.cssText=`left:${x}px;top:${y}px;${st||""}`;F.appendChild(d);setTimeout(()=>d.remove(),ms)};
+ const rot=-40+Math.random()*30;const col=blocked?"#8fd4ff":big?"#ffd23f":"#fff6d8";
+ add("slash2",`<svg viewBox="0 0 300 80" width="${big?340:270}" height="80"><path d="M6 64 Q150 -14 294 22" fill="none" stroke="#2a1a33" stroke-width="22" stroke-linecap="round"/><path d="M6 64 Q150 -14 294 22" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round"/><path d="M40 52 Q150 0 260 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`,`--r:${rot}deg`,320);
+ add("burst"+(big?" big":""),`<svg viewBox="-50 -50 100 100" width="${big?190:130}" height="${big?190:130}"><path d="M0 -46 L10 -14 L44 -18 L16 2 L34 34 L0 16 L-34 34 L-16 2 L-44 -18 L-10 -14 Z" fill="${col}" stroke="#2a1a33" stroke-width="5" stroke-linejoin="round"/><circle r="11" fill="#fff"/></svg>`,"",340);
+ const n=big?10:6;for(let k=0;k<n;k++){const ang=Math.random()*Math.PI*2,dist=(big?110:70)+Math.random()*50;add("shard",`<i style="background:${k%3?col:"#fff"}"></i>`,`--dx:${Math.cos(ang)*dist}px;--dy:${Math.sin(ang)*dist-20}px;--s:${.6+Math.random()*.8}`,520)}
+ if(big){add("ring","","",420)}
+ if(blocked)return;
+ if(fam==="cat")add("claw",`<svg viewBox="0 0 160 160" width="170" height="170">${[0,1,2].map(k=>`<path d="M${30+k*34} 20 Q${50+k*34} 80 ${40+k*34} 145" fill="none" stroke="#2a1a33" stroke-width="15" stroke-linecap="round"/><path d="M${30+k*34} 20 Q${50+k*34} 80 ${40+k*34} 145" fill="none" stroke="#ff8fb1" stroke-width="8" stroke-linecap="round"/>`).join("")}</svg>`,"",420);
+ if(fam==="chick")for(let k=0;k<6;k++)add("fth",`<i></i>`,`--dx:${Math.random()*160-80}px;--dy:${40+Math.random()*80}px;--r:${Math.random()*360}deg;animation-delay:${k*30}ms`,900);
+ if(fam==="horse")for(let k=0;k<5;k++)add("dust",`<i></i>`,`--dx:${(k-2)*40}px;--s:${.7+Math.random()*.7}`,620);
+ if(fam==="frog")for(let k=0;k<7;k++){const a=-Math.PI/2+(Math.random()-.5)*2.2;add("drop",`<i></i>`,`--dx:${Math.cos(a)*90}px;--dy:${Math.sin(a)*90}px`,600)}
+ if(fam==="pal")add("star5",`<svg viewBox="-50 -50 100 100" width="120" height="120"><path d="M0 -44 L12 -14 L44 -12 L18 8 L28 40 L0 22 L-28 40 L-18 8 L-44 -12 L-12 -14 Z" fill="#b392ff" stroke="#2a1a33" stroke-width="5"/></svg>`,"",500)}
 function anim(el,cls){if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),500)}
 const enEl=e=>$(`.en[data-k="${e.k}"]`);
 function say(el,t,cls){if(!el||!t)return;const c=center(el);const d=document.createElement("div");d.className="bubble "+(cls||"");d.textContent=t;let x=c.x-40;x=Math.max(10,Math.min(1280-d.textContent.length*21-40,x));d.style.left=x+"px";d.style.top=Math.max(70,c.top-56)+"px";$("#fx").appendChild(d);setTimeout(()=>d.remove(),2500)}
@@ -415,7 +429,7 @@ const API={
 function dealEnemy(t,d,i=0){const blk=Math.min(t.block,d);t.block-=blk;const loss=d-blk;t.hp=Math.max(0,t.hp-loss);S.stats.dmg+=loss;if(t.thorn&&B.curType==="atk"&&loss>=0&&!B.thornLock){B.thornLock=1;setTimeout(()=>{if(B){B.thornLock=0;dmgPlayer(t.thorn,null,true);if(S.hp<=0)lose()}},120)}
  if(t.af==="split"&&!t.splitDone&&t.hp>0&&t.hp<=t.max/2){t.splitDone=1;setTimeout(()=>{if(!B||B.over||B.alive().length>=4)return;const m=mkEnemy(t.id,9);m.n="分身·"+ENEMY[t.id].n;m.max=Math.ceil(t.max*.4);m.hp=m.max;m.intent=ENEMY[t.id].ai(m,0);B.enemies.push(m);const el2=enEl(t);if(el2)say(el2.querySelector(".body"),"分身术！");renderBattle()},400)}
  if(t.hp>0&&!t.lowSaid&&t.hp<=t.max*.3){t.lowSaid=1;setTimeout(()=>{const el2=enEl(t);if(el2&&t.hp>0)say(el2.querySelector(".body"),eLine(t,"l"))},350)}
- const el=enEl(t);if(el){const c=center(el.querySelector(".body"));setTimeout(()=>{anim(el,"hit");sfx(d>=18?"bighit":"hit");const s=document.createElement("div");s.className="slash";s.style.left=c.x+"px";s.style.top=c.y+"px";$("#fx").appendChild(s);setTimeout(()=>s.remove(),300)},i*120);fnum(c.x+(i%2?18:-18),c.top+30,loss?loss:"格挡",loss?"":"blk",i*120);if(d>=18)setTimeout(stageShake,i*120)}
+ const el=enEl(t);if(el){const c=center(el.querySelector(".body"));setTimeout(()=>{anim(el,"hit");sfx(d>=18?"bighit":"hit");hitFx(c.x+(Math.random()*30-15),c.y+(Math.random()*30-15),d>=18,!loss,B&&B.curType?B.curFam:null)},i*120);fnum(c.x+(i%2?18:-18),c.top+30,loss?loss:"格挡",loss?"":"blk",i*120);if(d>=18)setTimeout(stageShake,i*120)}
  if(t.id==="giant"&&!t.enraged&&t.hp>0&&t.hp<=t.max/2){t.enraged=1;t.turn=0;t.intent=ENEMY.giant.ai(t,0);setTimeout(()=>el&&bubble(el,"你惹我生气了！"),300)}
 if((ENEMY[t.id].flee||t.timid)&&t.hp>0&&t.hp<=t.max/2){t.fled=1;t.hp=0;if(t.timid)B.lootRelic=1;setTimeout(()=>{if(el)bubble(el,t.timid?"我、我把宝贝留下，饶了我吧！":"不错嘛……我们塔顶见。");renderBattle();if(B&&!B.alive().length)win()},200);return}
  if(ENEMY[t.id].boss&&t.id!=="king"&&!t.phase2&&t.hp>0&&t.hp<=t.max/2){t.phase2=1;t.turn=0;t.intent=ENEMY[t.id].ai(t,0);t.block+=15;{const sm={snakeking:["snakelet","snakelet"],cosmicegg:["starchick","starchick"],pearlqueen:["teacup","teacup"]}[t.id];if(sm)setTimeout(()=>{sm.forEach((id,j)=>{if(B.alive().length>=4)return;const m=mkEnemy(id,j);m.intent=ENEMY[id].ai(m,0);B.enemies.unshift(m)});renderBattle()},500)}setTimeout(()=>el&&bubble(el,({count:"我的血……还不够！",snakeking:"孩子们，出来咬他！",buddha:"金身……开光！",cosmicegg:"咔嚓——要孵出来了！",pearlqueen:"满上！一口气倒两杯！",lavagiant:"火——给我烧得更旺！"}[t.id]||"现在，轮到我了。")),300)}
