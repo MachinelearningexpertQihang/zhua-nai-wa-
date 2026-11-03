@@ -529,3 +529,38 @@ img{-webkit-user-drag:none;pointer-events:none}
 .mapHead{top:auto;bottom:22px;left:24px}
 .mapHead small{display:none}
 #mapTip{left:auto;right:520px;bottom:30px;max-width:420px;text-align:right;font-size:15px}
+
+/* ===== 0.4 连锁 ===== */
+.tok.ice::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,rgba(220,245,255,.85),rgba(140,200,255,.55));box-shadow:inset 0 0 0 3px #bfe6ff}
+.tok.ice i{position:absolute;right:2px;bottom:0;z-index:2;font:800 13px var(--num);color:#1a4a8a;font-style:normal;-webkit-text-stroke:3px #fff;paint-order:stroke}
+.tok.anyt{background:conic-gradient(#ff8fb1,#ffd23f,#7ad0ff,#b392ff,#ff8fb1)}
+#pool .prule{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font-size:13px;color:var(--milk);background:var(--ink);padding:0 10px;border-radius:8px;white-space:nowrap}
+.intent .pIc{display:inline-block;width:28px;height:28px;margin-left:2px;padding:2px;border-radius:50%;background:#e9dcff;border:2px solid var(--ink)}
+.intent .pIc .ico{width:100%;height:100%}
+.triBan.chain b{font-size:120px;color:#ff9aa2}
+.scene .batf{animation:batf 7s ease-in-out infinite alternate}
+@keyframes batf{0%{transform:translate(0,0)}50%{transform:translate(60px,-30px)}100%{transform:translate(120px,10px)}}
+.scene .shoot{animation:shoot 6s linear infinite;opacity:0}
+@keyframes shoot{0%{transform:translate(1100px,40px);opacity:0}3%{opacity:1}12%{transform:translate(700px,190px);opacity:0}100%{opacity:0}}
+
+/* ===== 0.4 等级 ===== */
+.lvB{position:relative;width:64px;height:26px;margin-left:-14px;border-radius:0 13px 13px 0;background:#3b2d74;border:3px solid var(--ink);overflow:hidden;z-index:0}
+.lvB b{position:relative;z-index:1;display:block;text-align:center;font:800 14px/20px var(--num);color:#fff;-webkit-text-stroke:3px var(--ink);paint-order:stroke}
+.lvB i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#9af0a0 0 50%,#3cc35f 50%)}
+.lvUp{position:absolute;top:40px;left:0;right:0;text-align:center}
+.lvUp b{display:block;font-weight:400;font-size:84px;color:var(--gold);-webkit-text-stroke:10px var(--ink);paint-order:stroke;text-shadow:0 8px 0 var(--ink);animation:mgIn .5s cubic-bezier(.3,1.6,.5,1)}
+.lvUp small{display:inline-block;margin-top:8px;font-size:20px;color:var(--milk);background:var(--ink);padding:3px 16px;border-radius:10px}
+.perkRow{position:absolute;top:240px;left:0;right:0;display:flex;justify-content:center;gap:34px}
+.perk{width:250px;height:290px;border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--milk);border:4px solid var(--ink);box-shadow:0 7px 0 var(--ink),inset 0 0 0 5px #fffaf0,inset 0 0 0 8px var(--gold);color:var(--ink);animation:dealIn .45s backwards;transition:transform .1s}
+.perk:nth-child(2){animation-delay:.08s}.perk:nth-child(3){animation-delay:.16s}
+.perk:active{transform:translateY(4px)}
+.perk .pi{width:80px;height:80px;padding:10px;border-radius:50%;background:#ffe9b0;border:3px solid var(--ink)}
+.perk b{font-weight:400;font-size:30px;letter-spacing:3px}
+.perk p{font:700 17px/1.45 var(--body);color:#5a3d2a;flex:1}
+.perk small{font-size:15px;color:#8a6438}
+.chestBig{width:120px;height:120px;margin:4px auto 0}
+.chestBig.t1{filter:hue-rotate(160deg) saturate(1.3)}
+.chestBig.t2{animation:triP 1s infinite}
+.chestBig.t2 .ico{filter:drop-shadow(0 0 0 #fff) saturate(1.6) brightness(1.15)}
+.rmv{width:116px;height:104px;font-size:17px}
+.rmv small{font-size:12px;color:var(--milk);opacity:.8}
