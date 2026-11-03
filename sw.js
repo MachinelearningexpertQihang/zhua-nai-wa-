@@ -1,8 +1,10 @@
-const V='naiwa-safe-202610301700';
+const V='naiwa-safe-202611031850';
 const CORE=['three.min.js','cannon.min.js','qrcode.min.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(V).then(c=>Promise.all(CORE.map(u=>c.add(u).catch(()=>{})))))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
+  // 奶蛙之塔：不缓存，永远走网络，保证拿到最新版
+  if(u.pathname.includes('/tower/'))return;
   const page=r.mode==='navigate'||/\.html$/.test(u.pathname)||u.pathname.endsWith('/');
   if(page){
     // pages: try the network for 4s so updates arrive, otherwise use the saved copy

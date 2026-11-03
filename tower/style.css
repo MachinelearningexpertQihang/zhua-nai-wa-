@@ -709,3 +709,45 @@ img{-webkit-user-drag:none;pointer-events:none}
 .dust i{position:absolute;left:-18px;top:30px;width:36px;height:36px;border-radius:50%;background:#c8a070;border:3px solid var(--ink);animation:dust .6s ease-out forwards}
 @keyframes dust{from{transform:translate(0,0) scale(.3)}to{transform:translate(var(--dx),-30px) scale(var(--s));opacity:0}}
 .drop i{position:absolute;left:-7px;top:-7px;width:14px;height:18px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#fff3b0;border:2.5px solid var(--ink);animation:shd .6s cubic-bezier(.1,.7,.3,1) forwards;--s:1}
+
+/* 选牌瞄准时：敌人浮到手牌上面，被牌挡住也能点到 */
+#battle.aim #arena{z-index:20;pointer-events:none}
+#battle.aim #arena .en{pointer-events:auto}
+#battle.aim #hand .card:not(.sel){opacity:.92}
+
+.ascSel{display:flex;align-items:center;gap:8px;margin-right:18px;padding:6px 10px;border-radius:16px;background:rgba(20,12,40,.85);border:3px solid var(--ink);box-shadow:inset 0 0 0 2px #6a52c0;color:#fff}
+.ascSel button{font:inherit;font-size:20px;width:38px;height:38px;border-radius:50%;border:3px solid var(--ink);background:var(--gold);color:var(--ink);cursor:pointer}
+.ascSel button:disabled{opacity:.3;cursor:default}
+.ascSel div{display:flex;flex-direction:column;align-items:center;min-width:220px;max-width:420px}
+.ascSel b{font-weight:400;font-size:22px;color:#ffd23f;letter-spacing:2px}
+.ascSel small{font:600 12px/1.4 var(--body);opacity:.85;text-align:center}
+.ascUp{font-size:22px;color:#ff9a7a!important}
+.hsGo{align-items:center}
+
+.intent.chg{background:#ff5a5a;color:#fff;animation:chgP .6s ease-in-out infinite alternate}
+@keyframes chgP{to{transform:scale(1.12);box-shadow:0 0 18px #ff5a5a}}
+.intent.ult{background:#ffdf6a;box-shadow:0 0 0 3px #ff5a5a,0 0 22px #ff7a3a;animation:chgP .5s ease-in-out infinite alternate}
+.intent.prc{box-shadow:0 0 0 3px #7ad0ff}
+.intent .ultN{display:block;position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font-size:14px;padding:1px 8px;border-radius:8px;background:#d8383f;color:#fff;border:2px solid var(--ink)}
+.intent.prc .ultN{background:#2a7ac8}
+
+.btrait{margin:3px auto 0;width:max-content;padding:1px 10px;font-size:14px;color:#fff;background:#7a2a8a;border:2px solid var(--ink);border-radius:8px}
+.eCnt{display:inline-block;padding:1px 8px;margin-left:4px;font-size:14px;color:#fff;background:#d8383f;border:2px solid var(--ink);border-radius:8px;animation:chgP .7s ease-in-out infinite alternate}
+.bcx{position:absolute;inset:0}
+.bcxRow{position:absolute;left:60px;right:60px;top:118px;bottom:100px;display:flex;gap:18px}
+.bcxGrid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:min-content;gap:12px;flex:1.3;overflow:auto}
+.bcxC{font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:14px;background:#2f2466;border:3px solid var(--ink);color:#fff;box-shadow:0 4px 0 var(--ink)}
+.bcxC img{width:84px;height:84px;object-fit:contain}
+.bcxC span{font-size:15px;margin-top:2px}
+.bcxC.lock img{filter:brightness(0) opacity(.6)}
+.bcxC.on{background:#fff0c8;color:var(--ink)}
+.bcxD{flex:1;min-height:420px;padding:16px;border-radius:16px;background:#fff6e0;border:4px solid var(--ink);color:var(--ink);display:flex;flex-direction:column;align-items:center;text-align:center}
+.bcxD img{width:150px;height:150px;object-fit:contain}.bcxD img.sil{filter:brightness(0) opacity(.5)}
+.bcxD h3{font-weight:400;font-size:30px;margin:4px 0}
+.bcxD .bt{font:600 15px/1.5 var(--body);padding:6px 12px;border-radius:10px;background:#efe0ff;border:2px solid var(--ink)}
+.bcxD .bt b{display:block;font:400 19px "ZCOOL KuaiLe";color:#7a2a8a}
+.bcxD .lore{margin-top:12px;font:600 16px/1.8 var(--body)}
+.bcxD small{margin-top:auto;opacity:.6}
+.bcxHint{opacity:.6;margin-top:30px;font:600 16px var(--body)}
+.bcx .ovFoot{position:absolute;left:0;right:0;bottom:26px;text-align:center}
+.bcxD{overflow:auto}
