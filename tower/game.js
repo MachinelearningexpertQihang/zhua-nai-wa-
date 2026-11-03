@@ -176,21 +176,22 @@ async function blessing(){const opts=shuffle([
 function resume(){if(S.act==null)S.act=0;if(!S.boss)pickBoss();if(!S.sky)S.sky=genSky();if(!S.pals)S.pals={};setBg("swamp");if(S.cur){const c=S.cur;S.cur=null;enterNode(c.t,true,c)}else openMap()}
 
 /* ===================== 地图 ===================== */
-const ROWS=9,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);S.boss=pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count"};
+const ROWS=9,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);S.boss=pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count";{const gl=(ENCS[S.act||0].guards||ENCS[S.act||0].bosses.map(x=>x[0])).filter(b=>b!==S.boss);S.guard=pick(gl)}};
 function genMap(){const g=[...Array(ROWS)].map(()=>Array(COLS).fill(null));const edges=new Set();const starts=[];
  for(let i=0;i<5;i++){let c=ri(COLS);if(i<2)while(starts.includes(c))c=ri(COLS);starts.push(c)}
  for(const s of starts){let c=s;for(let r=0;r<ROWS;r++){g[r][c]=g[r][c]||{r,c,t:null,nx:[],jx:ri(16)-8,jy:ri(16)-8};if(r===ROWS-1)break;
   let o=[c-1,c,c+1].filter(x=>x>=0&&x<COLS&&!(x!==c&&edges.has(`${r},${x},${c}`)));const n=pick(o);if(!g[r][c].nx.includes(n))g[r][c].nx.push(n);edges.add(`${r},${c},${n}`);c=n}}
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const n=g[r][c];if(!n)continue;
   const par=r?g[r-1].filter(p=>p&&p.nx.includes(c)):[];
-  if(r===0)n.t="m";else if(r===4)n.t="t";else if(r===ROWS-1)n.t="r";else{
+  if(r===0)n.t="m";else if(r===2)n.t="t";else if(r===ROWS-1)n.t="r";else{
    for(let k=0;k<20;k++){const w=[["m",36],["q",27],["E",r>=2?12:0],["r",(r===3||r===6)?14:0],["s",r>=1?12:0],["t",r>=1&&r!==3?8:0]];let tot=w.reduce((a,b)=>a+b[1],0),x=rnd()*tot,t="m";for(const[k2,v]of w){if((x-=v)<0){t=k2;break}}
     if(["E","r","s","t"].includes(t)&&par.some(p=>p.t===t))continue;if(r===ROWS-2&&t==="r")continue;n.t=t;break}
    if(!n.t)n.t="m"}}
+ {const G4=g[4].filter(Boolean);if(G4.length){const nx=[...new Set(G4.flatMap(n=>n.nx))];const mc=Math.floor(COLS/2);g[4]=Array(COLS).fill(null);g[4][mc]={r:4,c:mc,t:"K",nx,jx:0,jy:0};g[3].forEach(n=>{if(n)n.nx=[mc]})}}
  {const all=g.flat().filter(Boolean);if(!all.some(n=>n.t==="s")){const c=all.filter(n=>n.r===2||n.r===6);if(c.length)pick(c).t="s"}}
  return g}
 function genSky(){const off=ri(4);const fm=S.mod==="full",rn=S.mod==="rain";const bs=[{moon:"full",wx:"rain"},{moon:"wane",wx:"storm"},{moon:"new",wx:"snow"},{moon:"wax",wx:"fog"},{moon:"full",wx:"clear"}][S.act||0];const wxp=S.act===2?["snow","snow","snow","fog","clear","storm"]:S.act===3?["fog","fog","clear","rain","storm"]:WX_POOL;return[...Array(ROWS+1)].map((_,r)=>{const k=r===ROWS?{...bs}:{moon:MOON_CYCLE[(r+off)%4],wx:r===0?(S.act===2?"snow":"clear"):pick(wxp)};if(fm)k.moon="full";if(rn)k.wx="rain";return k})}
-const NODE={m:{n:"小怪",ic:"e_v_ms"},E:{n:"精英",ic:"e_v_m4"},q:{n:"事件",e:"q"},r:{n:"休息",e:"fire"},s:{n:"商店",e:"bag"},t:{n:"宝箱",e:"chest"}};
+const NODE={m:{n:"小怪",ic:"e_v_ms"},E:{n:"精英",ic:"e_v_m4"},q:{n:"事件",e:"q"},r:{n:"休息",e:"fire"},s:{n:"商店",e:"bag"},t:{n:"宝箱",e:"chest"},K:{n:"守关首领",e:"skull"}};
 const mx=r=>140+r*Math.round(900/(ROWS-1)),my=c=>172+c*70;
 function availNodes(){if(S.atBoss)return[];if(S.row<0)return S.map[0].filter(Boolean);if(S.row===ROWS-1)return"boss";const n=S.map[S.row][S.col];return n.nx.map(c=>S.map[S.row+1][c])}
 function openMap(){B=null;show("map");setBg("map");renderTop();playMusic("swing");S.cur=null;saveRun();
@@ -207,29 +208,33 @@ function openMap(){B=null;show("map");setBg("map");renderTop();playMusic("swing"
  $("#mapNodes").innerHTML=h;$("#map").style.setProperty("--hero",`url(${IMG(HI())})`);
  $$(".mn.av").forEach(e=>e.onclick=()=>{sfx("click");if(e.id==="bossNode"){S.atBoss=true;enterNode("B")}else{const r=+e.dataset.r,c=+e.dataset.c;S.row=r;S.col=c;S.path.push([r,c]);enterNode(S.map[r][c].t)}});
  $$(".skyCol").forEach(e=>e.onclick=()=>{const k=S.sky[+e.dataset.r];tipAt(e,`<b>${MOON[k.moon].n} · ${WX[k.wx].n}</b><p>${MOON[k.moon].d}</p><p>${WX[k.wx].d}</p>`)});
- $("#mapTip").textContent=S.row<0?"从最左边开始，一路往右爬到首领。每一列顶上是那一层的月相和天气。":"点顶上的月亮可以查看那一层的月相和天气。"}
+ $("#mapTip").textContent=S.row<0?"往右一路爬到首领，中途要过守关首领。顶上是每一步的月相和天气。":"点顶上的月亮可以查看那一层的月相和天气。"}
 
 /* ===================== 进入房间 ===================== */
 function enterNode(t,resumed,cur){S.cur=cur||{t,rs:S.rs};if(resumed&&cur){S.rs=cur.rs;if(cur.snap){S.hp=cur.snap.hp;S.gold=cur.snap.gold;S.pots=[...cur.snap.pots];S.uid=cur.snap.uid}}saveRun();
- if(t==="m")startCombat("m");else if(t==="E")startCombat("E");else if(t==="B")bossIntro();else if(t==="F")startCombat("F");else if(t==="r")restSite();else if(t==="s")shopScreen();else if(t==="t")treasure();else if(t==="q"){const r=rnd();if(r<.1)startCombat("m");else if(r<.2)shopScreen("caravan");else eventScreen()}}
-async function bossIntro(){setBg(battleBg("B"));show("battle");$("#hand").innerHTML="";$("#enemies").innerHTML="";playMusic("boss");const bid=curBoss(),L0=STORY["bs_"+bid]||STORY["boss"+S.act+(bossAlt()?"b":"")];const met=(M.boss||{})[bid];const extra=met&&met.k?[[L0[0][0],ENEMY[bid].n,pick(["又是你。上次你也是这么说的。","我们见过吧？你的脸好熟。","你又来了。这次能走多远？","你还记得上次的事吗？我记得。"])]]:[];await talk([...L0,...extra]);toast(`首领特性 <b>${(BOSS_LORE[bid]||{}).t||""}</b>：${(BOSS_LORE[bid]||{}).td||""}`);startCombat("B")}
+ if(t==="m")startCombat("m");else if(t==="E")startCombat("E");else if(t==="B")bossIntro();else if(t==="K")guardIntro();else if(t==="F")startCombat("F");else if(t==="r")restSite();else if(t==="s")shopScreen();else if(t==="t")treasure();else if(t==="q"){const r=rnd();if(r<.1)startCombat("m");else if(r<.2)shopScreen("caravan");else eventScreen()}}
+const OLDS={king:"boss0",snakeking:"boss0b",count:"boss1",buddha:"boss1b",iceking:"boss2",snowking:"boss2b",lavagiant:"boss3",pearlqueen:"boss3b",shadow:"boss4",cosmicegg:"boss4b"},OLDW={king:"win0",snakeking:"win0b",count:"win1",buddha:"win1b",iceking:"win2",snowking:"win2b",lavagiant:"win3",pearlqueen:"win3b"};
+function bossLines(id,w){return(w?STORY["bw_"+id]||STORY[OLDW[id]]:STORY["bs_"+id]||STORY[OLDS[id]])||[]}
+async function guardIntro(){if(!S.guard){const gl=(ENCS[S.act||0].guards||ENCS[S.act||0].bosses.map(x=>x[0])).filter(b=>b!==S.boss);S.guard=pick(gl);saveRun()}const gid=S.guard;setBg(battleBg("B"));show("battle");$("#hand").innerHTML="";$("#enemies").innerHTML="";playMusic("boss");banner("守关首领",1);await sleep(600);const L=bossLines(gid);if(L.length)await talk(L);const Lr=BOSS_LORE[gid]||{};toast(`守关首领 <b>${ENEMY[gid].n}</b>　<b>${Lr.t||""}</b>：${Lr.td||""}`);startCombat("K")}
+async function bossIntro(){setBg(battleBg("B"));show("battle");$("#hand").innerHTML="";$("#enemies").innerHTML="";playMusic("final");const bid=curBoss(),L0=STORY["bs_"+bid]||STORY["boss"+S.act+(bossAlt()?"b":"")];const met=(M.boss||{})[bid];const extra=met&&met.k?[[L0[0][0],ENEMY[bid].n,pick(["又是你。上次你也是这么说的。","我们见过吧？你的脸好熟。","你又来了。这次能走多远？","你还记得上次的事吗？我记得。"])]]:[];await talk([...L0,...extra]);toast(`首领特性 <b>${(BOSS_LORE[bid]||{}).t||""}</b>：${(BOSS_LORE[bid]||{}).td||""}`);startCombat("B")}
 
 /* ===================== 战斗 ===================== */
-function mkEnemy(id,i){const E=ENEMY[id];let hp=E.hp[0]+ri(E.hp[1]-E.hp[0]+1);if(id==="mimic"||id==="goldfrog")hp+=(S.act||0)*22;if(!S.act&&(S.combats||0)<=2&&!E.boss&&!E.elite)hp=Math.round(hp*.85);hp=Math.round(hp*(1+.07*(S.act||0))*(E.elite?1.15:1)*(E.boss?1.32:1));if(asc()>=1)hp=Math.round(hp*1.1);if(asc()>=2&&(E.boss||E.elite))hp=Math.round(hp*1.12);if(S.mod==="fat")hp=Math.round(hp*1.25);if(S.mod==="chain")hp=Math.round(hp*1.1);return{id,n:E.n,hp,max:hp,block:0,str:(S.mod==="full"?1:0)+(asc()>=3?1:0)+((S.act||0)>=4?2:(S.act||0)>=2?1:0)+(id==="mimic"?(S.act||0)*2:0),vuln:0,weak:0,mud:0,turn:0,seed:i,k:"e"+(++S.uid),stolen:0}}
-function battleBg(kind){const a=S.act||0;if(kind==="F")return"demon";if(kind==="B")return["boss","boss1","bossice","bossfac","boss2"][a];if(kind==="E")return["elite","gate","bellE","pipes","summit"][a];return actN().bgs[(S.row+3)%3]}
-function startCombat(kind){{const bt=$("#battle");bt.classList.toggle("bossFight",kind==="B"||kind==="F");if(kind==="B"||kind==="F")setTimeout(()=>{stageShake();sfx("boom")},700)}if(kind==="m"&&(S.actCombats||0)>=2&&rnd()<(S.mod==="gold"?.2:.07))kind="G";if(S.cur){if(!S.cur.snap)S.cur.snap={hp:S.hp,gold:S.gold,pots:[...S.pots],uid:S.uid};saveRun()}let list;if(kind==="F")list=["demon"];else if(kind==="M")list=["mimic"];else if(kind==="G")list=["goldfrog"];else if(kind==="B")list=[curBoss()];else if(kind==="E")list=pick(ENCS[S.act].elite);else list=(S.actCombats||0)<(S.act?1:2)?pick(ENCS[S.act].easy):pick(ENCS[S.act].normal);S.actCombats=(S.actCombats||0)+(kind==="m"?1:0);
+function mkEnemy(id,i){const E=ENEMY[id];let hp=E.hp[0]+ri(E.hp[1]-E.hp[0]+1);if(id==="mimic"||id==="goldfrog")hp+=(S.act||0)*22;if(!S.act&&(S.combats||0)<=2&&!E.boss&&!E.elite)hp=Math.round(hp*.85);hp=Math.round(hp*(1+.12*(S.act||0))*(1+.025*Math.max(0,S.row||0))*(E.elite?1.15:1)*(E.boss?1.32:1));if(asc()>=1)hp=Math.round(hp*1.1);if(asc()>=2&&(E.boss||E.elite))hp=Math.round(hp*1.12);if(S.mod==="fat")hp=Math.round(hp*1.25);if(S.mod==="chain")hp=Math.round(hp*1.1);return{id,n:E.n,hp,max:hp,block:0,str:(S.mod==="full"?1:0)+(asc()>=3?1:0)+[0,1,2,3,6][S.act||0]+((S.row||0)>=ROWS-2&&!E.boss?1:0)+(id==="mimic"?(S.act||0)*2:0),vuln:0,weak:0,mud:0,turn:0,seed:i,k:"e"+(++S.uid),stolen:0}}
+function battleBg(kind){const a=S.act||0;if(kind==="F")return"demon";if(kind==="B"||kind==="K")return["boss","boss1","bossice","bossfac","boss2"][a];if(kind==="E")return["elite","gate","bellE","pipes","summit"][a];return actN().bgs[(S.row+3)%3]}
+function startCombat(kind){{const bt=$("#battle");bt.classList.toggle("bossFight",kind==="B"||kind==="F"||kind==="K");bt.classList.toggle("finalFight",kind==="B"||kind==="F");if(kind==="B"||kind==="F"||kind==="K")setTimeout(()=>{stageShake();sfx("boom")},700)}if(kind==="m"&&(S.actCombats||0)>=2&&rnd()<(S.mod==="gold"?.2:.07))kind="G";if(S.cur){if(!S.cur.snap)S.cur.snap={hp:S.hp,gold:S.gold,pots:[...S.pots],uid:S.uid};saveRun()}let list;if(kind==="F")list=["demon"];else if(kind==="M")list=["mimic"];else if(kind==="G")list=["goldfrog"];else if(kind==="B")list=[curBoss()];else if(kind==="K")list=[S.guard||curBoss()];else if(kind==="E")list=pick(ENCS[S.act].elite);else list=(S.actCombats||0)<(S.act?1:2)?pick(ENCS[S.act].easy):pick(ENCS[S.act].normal);S.actCombats=(S.actCombats||0)+(kind==="m"?1:0);
  if(kind!=="B")S.combats++;
  B={kind,enemies:list.map(mkEnemy),p:{block:0,energy:0,str:has("star")?1:0,tstr:0,dex:0,vuln:0,weak:0,mud:0,nextAtk:0,borrow:0,retain:0,drawMinus:0,free:0,pw:{}},
   dp:shuffle(S.deck.map(c=>({...c}))),hand:[],disc:[],exh:[],turn:0,combo:0,played:0,fam:{},pool:[],poolCap:7,catchLeft:1+(has("net")?1:0),caught:[],badge:0,extraGold:0,mirror:has("mirror"),over:0,after:[],sel:null,myTurn:false,totalPlayed:0};
+ if(kind==="K")B.enemies.forEach(e=>{e.max=e.hp=Math.round(e.max*.7);e.guard=1});
  Object.assign(B,API);{const k=S.sky[S.atBoss?ROWS:Math.max(0,S.row)];B.moon=k.moon;B.wx=k.wx;if(has("moonmirror"))B.moon="full";B.poolCap+=perk("cap");if(has("snakeskin"))B.p.dex+=1;B.p.str+=perk("str");for(let i=0;i<perk("rb")+(has("rbegg")?1:0);i++)B.pool.push({f:"any",ice:0});if(S.mod==="tiny")B.poolCap=5+perk("cap")+(has("pondstone")?1:0);if(S.mod==="pal")B.catchLeft++;if(S.mod==="calm")B.p.block+=5;if(B.moon==="new")B.poolCap--;if(has("snowglobe"))B.wx="snow";if(has("stablekey"))B.p.horseFree=1;if(has("eggbasket")){B.pool.push({f:"chick",ice:0});B.p.block+=5};if(has("pondstone"))B.poolCap++}
- setBg(battleBg(kind),B.moon);renderSky();show("battle");renderTop();if(kind==="F")playMusic("boss");else if(kind!=="B")playMusic(kind==="E"?"elite":"battle");
+ setBg(battleBg(kind),B.moon);renderSky();show("battle");renderTop();if(kind==="F"||kind==="B")playMusic("final");else if(kind==="K")playMusic("boss");else playMusic(kind==="E"?"elite":"battle");
  {const f=S.flags,E0=B.enemies[0];
   if(f.pupFriend&&!f.pupPaid&&S.act>=2&&(kind==="m"||kind==="E")){f.pupPaid=1;B.dogPack=2;B.introTalk=[["dg","小奶狗","汪汪！是你！上次的恩情，我带朋友们来还了！"],["n1","功夫奶蛙","是那只小奶狗！还带来了一整群！"]]}
   if(kind==="B"&&E0.id==="count"&&f.vampTea){E0.waitTurns=3;B.introTalk=[["vp","月夜伯爵","咦？你是，上次请我喝奶茶的那个小家伙？"],["vp","月夜伯爵","我这个人恩怨分明。先让你三回合，我把这杯茶喝完。"]]}
   else if(kind==="B"&&E0.id==="count"&&f.vampBit){E0.str+=2;B.introTalk=[["vp","月夜伯爵","你的血，我还记得那个味道。"],["vp","月夜伯爵","这一次，我要喝个够。（力气 +2）"]]}
   if(kind==="B"&&S.act===ACTS.length-1&&f.snowFriend){B.introTalk=(B.introTalk||[]).concat([["egl","雪人","（从星星中间滚了过来）上次你扶我站起来，这次换我来挡一下！"]]);B.introFx=()=>{B.block(25,1)}}
   if(kind==="F"&&f.kingFriend){B.introTalk=[["xsk","沼泽之王","呱！"+HN()+"，我来还人情了！看我的泥巴大炮！"]];B.introFx=()=>{B.apply(E0,"mud",12);B.apply(E0,"weak",2);sfx("mud")}}}
- if(kind==="E"){const af=pick(Object.keys(AFFIX));if((asc()>=6||rnd()<.85))B.enemies.forEach(e=>applyAffix(e,af));if(kind==="E"&&has("eyepatch"))B.enemies.forEach(e=>e.vuln=(e.vuln||0)+2)}
+ if(kind==="E"){const af=pick(Object.keys(AFFIX));if((asc()>=6||rnd()<.7+.075*(S.act||0)))B.enemies.forEach(e=>applyAffix(e,af));if(kind==="E"&&has("eyepatch"))B.enemies.forEach(e=>e.vuln=(e.vuln||0)+2)}
  if(!has("snowglobe")&&S.mod!=="calm"&&kind!=="F"&&rnd()<.3)B.wxShift={turn:2+ri(2),to:pick(Object.keys(WX).filter(w=>w!==B.wx))};
  if(kind==="G")B.introTalk=[["n1","功夫奶蛙","那、那是，金色的奶蛙？！"],["n1","功夫奶蛙","传说三回合内打倒它，就能拿到一大笔金币！"]];
  B.enemies.forEach(e=>e.intent=e.waitTurns>0?{k:"wait"}:ENEMY[e.id].ai(e,0));
@@ -289,7 +294,7 @@ function renderBattle(first){if(!B)return;const p=B.p;
  pl.className="fighter";pl.querySelector(".hpw").innerHTML=hpHTML(S.hp,S.max,p.block);pl.querySelector(".sts").innerHTML=stsHTML(p);
  const en=$("#enemies");if(first)en.innerHTML="";
  B.enemies.forEach(e=>{let el=en.querySelector(`[data-k="${e.k}"]`);const E=ENEMY[e.id];
-  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn":"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.44,386/E.h):1))}px;height:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.44,386/E.h):1))}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
+  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn"+(e.guard?" guardEn":" finalEn"):"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${Math.round(E.h*(e.big?1.15:1)*(E.boss?(e.guard?Math.min(1.2,320/E.h):Math.min(1.5,398/E.h)):1))}px;height:${Math.round(E.h*(e.big?1.15:1)*(E.boss?(e.guard?Math.min(1.2,320/E.h):Math.min(1.5,398/E.h)):1))}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
    el.onclick=()=>clickEnemy(e);const cb=document.createElement("button");cb.className="catchBtn";cb.innerHTML=`${ICON.net}<span>抓</span>`;cb.onclick=ev=>{ev.stopPropagation();catchEnemy(e)};el.querySelector(".body").appendChild(cb)}
   el.classList.toggle("canCatch",canCatch(e));el.classList.toggle("hasAf",!!e.af);el.classList.toggle("goldf",e.id==="goldfrog");
   if(e.hp<=0&&!el.classList.contains("dead"))el.classList.add(e.fled?"fled":"dead");
@@ -452,7 +457,7 @@ function bossAfterHit(t,d,loss){const id=t.id;
  if(id==="demon"&&t.hp<=0&&!t.revived){t.revived=1;t.hp=Math.round(t.max*.35);t.block=0;setTimeout(()=>{const el=enEl(t);banner("还没完",1);stageShake();if(el)say(el.querySelector(".body"),"塔顶不能没有人。");renderBattle()},400)}}
 function dealEnemy(t,d,i=0){if(ENEMY[t.id].boss&&has("bossbane")&&B.curType)d=Math.round(d*1.25);if(ENEMY[t.id].boss)d=bossGuard(t,d);if(has("lavastone")&&B.curType==="atk"&&t.hp>0)t.burn=(t.burn||0)+1;const blk=Math.min(t.block,d);t.block-=blk;const loss=d-blk;t.hp=Math.max(0,t.hp-loss);S.stats.dmg+=loss;if(ENEMY[t.id].boss)bossAfterHit(t,d,loss);if(t.thorn&&B.curType==="atk"&&loss>=0&&!B.thornLock){B.thornLock=1;setTimeout(()=>{if(B){B.thornLock=0;dmgPlayer(t.thorn,null,true);if(S.hp<=0)lose()}},120)}
  if(t.af==="split"&&!t.splitDone&&t.hp>0&&t.hp<=t.max/2){t.splitDone=1;setTimeout(()=>{if(!B||B.over||B.alive().length>=4)return;const m=mkEnemy(t.id,9);m.n="分身·"+ENEMY[t.id].n;m.max=Math.ceil(t.max*.4);m.hp=m.max;m.intent=ENEMY[t.id].ai(m,0);B.enemies.push(m);const el2=enEl(t);if(el2)say(el2.querySelector(".body"),"分身术！");renderBattle()},400)}
- if(ENEMY[t.id].boss&&t.hp>0&&!t.rage&&t.hp<=t.max*.25){t.rage=1;t.str=(t.str||0)+3;setTimeout(()=>{const el2=enEl(t);if(el2){say(el2.querySelector(".body"),"我，生气了！！");anim(el2,"buffA")}toast(`${t.n}<b>狂暴了</b>：力气 +3`)},500)}
+ if(ENEMY[t.id].boss&&!t.guard&&t.hp>0&&!t.rage&&t.hp<=t.max*.25){t.rage=1;t.str=(t.str||0)+3;setTimeout(()=>{const el2=enEl(t);if(el2){say(el2.querySelector(".body"),"我，生气了！！");anim(el2,"buffA")}toast(`${t.n}<b>狂暴了</b>：力气 +3`)},500)}
  if(t.hp>0&&!t.lowSaid&&t.hp<=t.max*.3){t.lowSaid=1;setTimeout(()=>{const el2=enEl(t);if(el2&&t.hp>0)say(el2.querySelector(".body"),eLine(t,"l"))},350)}
  const el=enEl(t);if(el){const c=center(el.querySelector(".body"));setTimeout(()=>{anim(el,"hit");sfx(d>=18?"bighit":"hit");hitFx(c.x+(Math.random()*30-15),c.y+(Math.random()*30-15),d>=18,!loss,B&&B.curType?B.curFam:null)},i*120);fnum(c.x+(i%2?18:-18),c.top+30,loss?loss:"格挡",loss?"":"blk",i*120);if(d>=18)setTimeout(stageShake,i*120)}
  if(t.id==="giant"&&!t.enraged&&t.hp>0&&t.hp<=t.max/2){t.enraged=1;t.turn=0;t.intent=ENEMY.giant.ai(t,0);setTimeout(()=>el&&bubble(el,"你惹我生气了！"),300)}
@@ -479,7 +484,7 @@ function PW(B,k,v){B.p.pw2=B.p.pw2||{};B.p.pw2[k]=(B.p.pw2[k]||0)+v}
 function nextIntent(e,t){const E=ENEMY[e.id];if(e.waitTurns>0)return{k:"wait"};if(e.intent&&e.intent.k==="stun"&&e.stunCD===3){e.stunCD=2;return{k:"stun"}}if(!E.boss)return E.ai(e,t);
  if(e.charging){e.charging=0;e.sinceUlt=0;const u=ULT[e.id]||ULT._;return{k:"atk",v:Math.round(maxAtk(e)*u.m),x:u.x||1,ult:u.n,pierce:u.p,s:u.s,d:u.d}}
  e.sinceUlt=(e.sinceUlt||0)+1;
- if(t>=2&&e.sinceUlt>=3&&rnd()<.6){e.charging=1;return{k:"charge"}}
+ if(!e.guard&&t>=2&&e.sinceUlt>=3&&rnd()<.6){e.charging=1;return{k:"charge"}}
  if(B&&B.p.block>=14&&rnd()<.5)return{k:"atk",v:Math.round(maxAtk(e)*.75),pierce:1};
  if(rnd()<.16)return pick([{k:"debuff",s:"vuln",v:2},{k:"debuff",s:"weak",v:2},{k:"debuff",s:"burn",v:4}]);
  let I,n=0;do{I=E.ai(e,t+Math.floor(rnd()*8))}while(n++<6&&e.lastI&&JSON.stringify(I)===e.lastI);e.lastI=JSON.stringify(I);return I}
@@ -591,10 +596,11 @@ async function win(){if(B.over)return;B.over=1;busy=true;B.myTurn=false;$("#endB
  let gold=0;if(has("ring"))gold+=8;if(has("goldegg"))gold+=10;if(has("fullbonus")&&S.hp>=S.max)gold+=15;
  renderTop();
  for(const id of B.caught)addCard(mk(id));
- {const xp=({m:1,E:3,B:4,F:0,M:3,G:2}[B.kind]||0)+B.caught.length;if(xp){toast(`获得 <b>${xp}</b> 点经验`);await gainXP(xp)}}
+ {const xp=({m:1,E:3,B:4,F:0,M:3,G:2,K:4}[B.kind]||0)+B.caught.length;if(xp){toast(`获得 <b>${xp}</b> 点经验`);await gainXP(xp)}}
  if(B.kind==="B"&&curBoss()==="king")S.flags.kingFriend=1;
  if(B.kind==="B"&&S.act===ACTS.length-1){await sleep(400);await talk(STORY.demon);S.hp=Math.min(S.max,S.hp+20);toast("不知道谁在台阶上放了一杯奶茶：回复 <b>20</b> 生命");S.cur={t:"F",rs:S.rs};saveRun();return startCombat("F")}
  if(B.kind==="B"||B.kind==="F"){await sleep(400);{const bw=B.kind==="B"&&STORY["bw_"+curBoss()];await talk(bw||STORY["win"+S.act+(B.kind==="B"&&bossAlt()?"b":"")])}return actClear()}
+ if(B.kind==="K"){const wl=bossLines(S.guard,1);if(wl.length){await sleep(300);await talk(wl)}const h=Math.round(S.max*.2);S.hp=Math.min(S.max,S.hp+h);toast(`守关首领倒下了：回复 <b>${h}</b> 生命`)}
  if(B.kind==="E")S.elites++;
  rewardScreen(B.kind,gold+B.extraGold,B.caught)}
 async function lose(){if(B&&B.over===2)return;if(B)B.over=2;busy=true;sfx("lose");await sleep(900);gameOver(false)}
@@ -655,13 +661,13 @@ function gainRelic(id){if(!id){S.gold+=50;toast("遗物都拿光了，换成 <b>
 const randPot=()=>pick(Object.keys(POTIONS));
 function givePot(id){if(S.pots.length>=S.potSlots){toast("药水栏满了");return false}S.pots.push(id);renderTop();return true}
 function rewardScreen(kind,extraGold,caught=[]){show("reward");setBg(actN().bgs[0]);playMusic("swing");
- const items=[];const gold=Math.round((has("goldtooth")&&kind==="E"?1.4:1)*(((kind==="E"||kind==="M")?25+ri(11):10+ri(11))*(kind==="M"?2:1)+extraGold+(B&&B.goldKill?90+S.act*30:0))*(1+.4*perk("gold"))*(S.mod==="fat"?2:1));items.push({t:"gold",v:gold});
+ const items=[];const gold=Math.round((has("goldtooth")&&kind==="E"?1.4:1)*(((kind==="E"||kind==="M"||kind==="K")?25+ri(11):10+ri(11))*(kind==="M"?2:kind==="K"?1.6:1)+extraGold+(B&&B.goldKill?90+S.act*30:0))*(1+.4*perk("gold"))*(S.mod==="fat"?2:1));items.push({t:"gold",v:gold});
  if(kind==="M"||rnd()<(kind==="E"?.6:.4))items.push({t:"pot",v:randPot()});
 caught.forEach(id=>items.push({t:"pal",v:id,done:0,auto:1}));
- items.push({t:"card",v:offerCards(has("clover")?4:3,(kind==="E"||kind==="M"||S.combats<=1)?"E":"C",0,S.combats<=1||B&&B.shinyLoot)});
- if(kind==="E"||kind==="M")items.push({t:"relic",v:randRelic()});if(kind==="M")items.push({t:"relic",v:randRelic("R")});if(B&&B.lootRelic)items.push({t:"relic",v:randRelic()});
+ items.push({t:"card",v:offerCards(has("clover")?4:3,(kind==="E"||kind==="M"||kind==="K"||S.combats<=1)?"E":"C",0,S.combats<=1||B&&B.shinyLoot)});
+ if(kind==="E"||kind==="M"||kind==="K")items.push({t:"relic",v:randRelic(kind==="K"?"R":undefined)});if(kind==="M")items.push({t:"relic",v:randRelic("R")});if(B&&B.lootRelic)items.push({t:"relic",v:randRelic()});
  S.cur=null;saveRun();
- const draw=()=>{$("#reward").innerHTML=`<div class="panel"><div class="phead"><span class="ribbon">胜利！</span></div><div class="psub">${kind==="E"?"精英被打倒了，掉了好东西":"拿上战利品继续前进"}</div><div class="rwList">${items.map((it,i)=>{let ic="",tx="",sm="";
+ const draw=()=>{$("#reward").innerHTML=`<div class="panel"><div class="phead"><span class="ribbon">胜利！</span></div><div class="psub">${kind==="K"?"守关首领倒下了，前面的路开了":kind==="E"?"精英被打倒了，掉了好东西":"拿上战利品继续前进"}</div><div class="rwList">${items.map((it,i)=>{let ic="",tx="",sm="";
    if(it.t==="gold"){ic=ICON.coin;tx=`${it.v} 金币`}
    if(it.t==="pot"){ic=potHTML(it.v);tx=POTIONS[it.v].n;sm=POTIONS[it.v].d}
    if(it.t==="card"){ic=ICON.deck;tx="选一张卡牌";sm="三选一，也可以跳过"}
@@ -678,7 +684,7 @@ caught.forEach(id=>items.push({t:"pal",v:id,done:0,auto:1}));
  draw();renderTop()}
 
 /* ===================== 休息 ===================== */
-function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math.floor(S.max*(.25+(has("oldmap")?.15:0))*(asc()>=8?2/3:1))+(has("pot")?10:0);
+function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math.floor(S.max*(.27-.025*(S.act||0)+(has("oldmap")?.15:0))*(asc()>=8?2/3:1))+(has("pot")?10:0);
  const canUp=S.deck.some(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type));
  $("#rest").innerHTML=`<div class="pickHead"><span class="ribbon b">休息点</span><small>篝火噼啪作响，难得能歇一会儿</small></div><div class="restScene"><img src="${IMG(HI())}" style="transform:scaleX(-1)"><div class="camp"><i class="fl"></i><i class="fl b"></i><i class="logs"></i></div><img src="${IMG("m6")}" style="width:180px;height:200px"></div>
  <div class="restOpts"><button class="ropt" id="rHeal"><span class="ic">${ICON.star}</span><b>休息</b><small>回复 ${heal} 生命</small></button><button class="ropt" id="rUp" ${canUp?"":"disabled"}><span class="ic">${ICON.up}</span><b>修炼</b><small>升级一张牌</small></button><button class="ropt" id="rTalk"><span class="ic">${ICON.heart}</span><b>和长老聊天</b><small>听一段往事，回复 ${Math.floor(heal/2)} 生命</small></button></div>`;

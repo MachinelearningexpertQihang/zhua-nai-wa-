@@ -766,3 +766,13 @@ img{-webkit-user-drag:none;pointer-events:none}
 .en.bossEn{transform:translateY(26px)}
 .en.bossEn .btrait{position:absolute;left:-46px;top:calc(34% - 34px);z-index:3}
 .en.bossEn .sts{position:absolute;left:-60px;top:calc(34% + 54px);z-index:3;flex-direction:column;align-items:flex-start;width:max-content}
+.mn.t-K{width:78px;height:78px;margin:-39px 0 0 -39px;background:#7a2a8a;border-width:4px;box-shadow:0 5px 0 var(--ink),inset 0 0 0 5px #a85ab8,0 0 22px rgba(200,60,120,.6)}
+.mn.t-K svg,.mn.t-K .ico{width:44px;height:44px;color:#fff;fill:#fff}
+
+/* 层末首领：更大、更暗、红色脉动；守关首领小一号 */
+.en.guardEn{transform:translateY(20px)}
+.en.finalEn{transform:translateY(20px)}
+.en.finalEn .body img{filter:drop-shadow(0 0 22px rgba(220,20,50,.75)) drop-shadow(0 12px 0 rgba(10,0,20,.6));animation:bossBreath 3s ease-in-out infinite}
+.en.finalEn .plat::before{box-shadow:inset 0 -10px 0 #261a32,0 0 60px 18px rgba(160,0,40,.6),0 6px 0 rgba(20,10,30,.6)}
+#battle.finalFight::before{background:radial-gradient(ellipse 70% 65% at 60% 45%,transparent 38%,rgba(40,0,10,.75) 100%);animation:finPulse 4s ease-in-out infinite}
+@keyframes finPulse{50%{opacity:.75}}

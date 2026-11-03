@@ -659,3 +659,5 @@ pearlqueen:{t:"杯杯护主",td:"场上还有奶茶杯时，它受到的伤害�
 shadow:{t:"影步",td:"每次被攻击有 25% 几率闪开",lore:["一只修行奶蛙的影子。","那只奶蛙下山的时候，没有回头。","影子在塔顶学会了很多招式，没有一招是自己的。"]},
 cosmicegg:{t:"孵化倒计时",td:"倒计时归零时孵化爆发，造成大量伤害，然后重新倒数",lore:["塔顶的一颗蛋。","它听得见每一个爬上来的心跳。","等它孵出来，塔就会有新的主人。"]},
 demon:{t:"塔顶不能没有人",td:"第一次被打倒时，会以 35% 生命站起来",lore:["第一只爬上塔顶的奶蛙。","上来以后，他发现塔顶不能空着。","他在上面等了很久，等下一个上来的。"]}};
+/* 每层：层末首领（最有压迫感的两个）与守关首领 */
+[[["rockfrog","king"],["fogwhite","snakeking"]],[["fallen","count"],["witch","buddha","fogwhite","snakeking"]],[["thunderking","iceking"],["bloodbeast","snowking"]],[["fourhead","boilerdragon"],["lavagiant","pearlqueen"]],[["abyssdragon","shadow"],["tophat","cosmicegg"]]].forEach(([f,gd],i)=>{ENCS[i].bosses=f.map(x=>[x]);ENCS[i].guards=gd});
