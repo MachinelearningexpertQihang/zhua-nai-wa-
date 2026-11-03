@@ -84,7 +84,7 @@ function seeCard(id){if(!M.seen[id]){M.seen[id]=1;saveMeta()}}
 
 /* ---------- 顶栏 ---------- */
 function renderTop(){if(!S)return;const t=$("#top");const fl=S.row<0?0:S.row+1;
- t.innerHTML=`<div class="face"><img src="${IMG(HI())}"></div><div class="lvB" id="lvB"><b>Lv.${S.lv||1}</b><i style="width:${S.lv>=LV_XP.length-1?100:Math.min(100,((S.xp||0)-LV_XP[S.lv||1])/(LV_XP[(S.lv||1)+1]-LV_XP[S.lv||1])*100)}%"></i></div><span class="hpIco">${ICON.heart}</span><div class="hpPill"><i style="width:${S.hp/S.max*100}%"></i><span>${S.hp}/${S.max}</span></div><div class="goldBox">${ICON.coin}${S.gold}</div><div class="pots">${[...Array(S.potSlots)].map((_,i)=>potHTML(S.pots[i])).join("")}</div><div class="relics">${S.relics.map(r=>relicHTML(r)).join("")}</div><div class="floor">${actN().n}<b>${S.atBoss?"首领":fl?fl+"/7":"入口"}</b></div>${S.mod&&MODS[S.mod]?`<button class="tbtn modChip" id="modBtn">${MODS[S.mod].n}</button>`:""}<button class="tbtn" id="deckBtn">${ICON.deck}${S.deck.length}</button><button class="tbtn" id="setBtn">${ICON.gear}</button>`;
+ t.innerHTML=`<div class="face"><img src="${IMG(HI())}"></div><div class="lvB" id="lvB"><b>Lv.${S.lv||1}</b><i style="width:${S.lv>=LV_XP.length-1?100:Math.min(100,((S.xp||0)-LV_XP[S.lv||1])/(LV_XP[(S.lv||1)+1]-LV_XP[S.lv||1])*100)}%"></i></div><span class="hpIco">${ICON.heart}</span><div class="hpPill"><i style="width:${S.hp/S.max*100}%"></i><span>${S.hp}/${S.max}</span></div><div class="goldBox">${ICON.coin}${S.gold}</div><div class="pots">${[...Array(S.potSlots)].map((_,i)=>potHTML(S.pots[i])).join("")}</div><div class="relics">${S.relics.map(r=>relicHTML(r)).join("")}</div><div class="floor">${actN().n}<b>${S.atBoss?"首领":fl?fl+"/"+ROWS:"入口"}</b></div>${S.mod&&MODS[S.mod]?`<button class="tbtn modChip" id="modBtn">${MODS[S.mod].n}</button>`:""}<button class="tbtn" id="deckBtn">${ICON.deck}${S.deck.length}</button><button class="tbtn" id="setBtn">${ICON.gear}</button>`;
  $$("#top .rl").forEach(e=>e.onclick=ev=>{ev.stopPropagation();const R=RELICS[e.dataset.rl];tipAt(e,`<b>${R.n}</b><p>${R.d}</p>`)});
  $$("#top .pot.full").forEach((e,i)=>e.onclick=ev=>{ev.stopPropagation();potMenu(e,[...$$("#top .pot")].indexOf(e))});
  {const mb=$("#modBtn");if(mb)mb.onclick=ev=>{ev.stopPropagation();tipAt(mb,`<b>今日塔况：${MODS[S.mod].n}</b><p>${MODS[S.mod].d}</p>`)}}
@@ -176,22 +176,22 @@ async function blessing(){const opts=shuffle([
 function resume(){if(S.act==null)S.act=0;if(!S.boss)pickBoss();if(!S.sky)S.sky=genSky();if(!S.pals)S.pals={};setBg("swamp");if(S.cur){const c=S.cur;S.cur=null;enterNode(c.t,true,c)}else openMap()}
 
 /* ===================== 地图 ===================== */
-const ROWS=7,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);S.boss=pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count"};
+const ROWS=9,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);S.boss=pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count"};
 function genMap(){const g=[...Array(ROWS)].map(()=>Array(COLS).fill(null));const edges=new Set();const starts=[];
  for(let i=0;i<5;i++){let c=ri(COLS);if(i<2)while(starts.includes(c))c=ri(COLS);starts.push(c)}
  for(const s of starts){let c=s;for(let r=0;r<ROWS;r++){g[r][c]=g[r][c]||{r,c,t:null,nx:[],jx:ri(16)-8,jy:ri(16)-8};if(r===ROWS-1)break;
   let o=[c-1,c,c+1].filter(x=>x>=0&&x<COLS&&!(x!==c&&edges.has(`${r},${x},${c}`)));const n=pick(o);if(!g[r][c].nx.includes(n))g[r][c].nx.push(n);edges.add(`${r},${c},${n}`);c=n}}
  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const n=g[r][c];if(!n)continue;
   const par=r?g[r-1].filter(p=>p&&p.nx.includes(c)):[];
-  if(r===0)n.t="m";else if(r===3)n.t="t";else if(r===ROWS-1)n.t="r";else{
-   for(let k=0;k<20;k++){const w=[["m",36],["q",27],["E",r>=2?12:0],["r",r===4?14:0],["s",r>=1?12:0],["t",r>=1&&r!==3?8:0]];let tot=w.reduce((a,b)=>a+b[1],0),x=rnd()*tot,t="m";for(const[k2,v]of w){if((x-=v)<0){t=k2;break}}
+  if(r===0)n.t="m";else if(r===4)n.t="t";else if(r===ROWS-1)n.t="r";else{
+   for(let k=0;k<20;k++){const w=[["m",36],["q",27],["E",r>=2?12:0],["r",(r===3||r===6)?14:0],["s",r>=1?12:0],["t",r>=1&&r!==3?8:0]];let tot=w.reduce((a,b)=>a+b[1],0),x=rnd()*tot,t="m";for(const[k2,v]of w){if((x-=v)<0){t=k2;break}}
     if(["E","r","s","t"].includes(t)&&par.some(p=>p.t===t))continue;if(r===ROWS-2&&t==="r")continue;n.t=t;break}
    if(!n.t)n.t="m"}}
- {const all=g.flat().filter(Boolean);if(!all.some(n=>n.t==="s")){const c=all.filter(n=>n.r===2||n.r===5);if(c.length)pick(c).t="s"}}
+ {const all=g.flat().filter(Boolean);if(!all.some(n=>n.t==="s")){const c=all.filter(n=>n.r===2||n.r===6);if(c.length)pick(c).t="s"}}
  return g}
 function genSky(){const off=ri(4);const fm=S.mod==="full",rn=S.mod==="rain";const bs=[{moon:"full",wx:"rain"},{moon:"wane",wx:"storm"},{moon:"new",wx:"snow"},{moon:"wax",wx:"fog"},{moon:"full",wx:"clear"}][S.act||0];const wxp=S.act===2?["snow","snow","snow","fog","clear","storm"]:S.act===3?["fog","fog","clear","rain","storm"]:WX_POOL;return[...Array(ROWS+1)].map((_,r)=>{const k=r===ROWS?{...bs}:{moon:MOON_CYCLE[(r+off)%4],wx:r===0?(S.act===2?"snow":"clear"):pick(wxp)};if(fm)k.moon="full";if(rn)k.wx="rain";return k})}
 const NODE={m:{n:"小怪",ic:"e_v_ms"},E:{n:"精英",ic:"e_v_m4"},q:{n:"事件",e:"q"},r:{n:"休息",e:"fire"},s:{n:"商店",e:"bag"},t:{n:"宝箱",e:"chest"}};
-const mx=r=>150+r*136,my=c=>172+c*70;
+const mx=r=>140+r*Math.round(900/(ROWS-1)),my=c=>172+c*70;
 function availNodes(){if(S.atBoss)return[];if(S.row<0)return S.map[0].filter(Boolean);if(S.row===ROWS-1)return"boss";const n=S.map[S.row][S.col];return n.nx.map(c=>S.map[S.row+1][c])}
 function openMap(){B=null;show("map");setBg("map");renderTop();playMusic("swing");S.cur=null;saveRun();
  const av=availNodes();const svg=$("#mapSvg");let p="";
@@ -212,7 +212,7 @@ function openMap(){B=null;show("map");setBg("map");renderTop();playMusic("swing"
 /* ===================== 进入房间 ===================== */
 function enterNode(t,resumed,cur){S.cur=cur||{t,rs:S.rs};if(resumed&&cur){S.rs=cur.rs;if(cur.snap){S.hp=cur.snap.hp;S.gold=cur.snap.gold;S.pots=[...cur.snap.pots];S.uid=cur.snap.uid}}saveRun();
  if(t==="m")startCombat("m");else if(t==="E")startCombat("E");else if(t==="B")bossIntro();else if(t==="F")startCombat("F");else if(t==="r")restSite();else if(t==="s")shopScreen();else if(t==="t")treasure();else if(t==="q"){const r=rnd();if(r<.1)startCombat("m");else if(r<.2)shopScreen("caravan");else eventScreen()}}
-async function bossIntro(){setBg(battleBg("B"));show("battle");$("#hand").innerHTML="";$("#enemies").innerHTML="";playMusic("boss");const bid=curBoss(),L0=STORY["boss"+S.act+(bossAlt()?"b":"")];const met=(M.boss||{})[bid];const extra=met&&met.k?[[L0[0][0],ENEMY[bid].n,pick(["又是你。上次你也是这么说的。","我们见过吧？你的脸好熟。","你又来了。这次能走多远？","你还记得上次的事吗？我记得。"])]]:[];await talk([...L0,...extra]);toast(`首领特性 <b>${(BOSS_LORE[bid]||{}).t||""}</b>：${(BOSS_LORE[bid]||{}).td||""}`);startCombat("B")}
+async function bossIntro(){setBg(battleBg("B"));show("battle");$("#hand").innerHTML="";$("#enemies").innerHTML="";playMusic("boss");const bid=curBoss(),L0=STORY["bs_"+bid]||STORY["boss"+S.act+(bossAlt()?"b":"")];const met=(M.boss||{})[bid];const extra=met&&met.k?[[L0[0][0],ENEMY[bid].n,pick(["又是你。上次你也是这么说的。","我们见过吧？你的脸好熟。","你又来了。这次能走多远？","你还记得上次的事吗？我记得。"])]]:[];await talk([...L0,...extra]);toast(`首领特性 <b>${(BOSS_LORE[bid]||{}).t||""}</b>：${(BOSS_LORE[bid]||{}).td||""}`);startCombat("B")}
 
 /* ===================== 战斗 ===================== */
 function mkEnemy(id,i){const E=ENEMY[id];let hp=E.hp[0]+ri(E.hp[1]-E.hp[0]+1);if(id==="mimic"||id==="goldfrog")hp+=(S.act||0)*22;if(!S.act&&(S.combats||0)<=2&&!E.boss&&!E.elite)hp=Math.round(hp*.85);hp=Math.round(hp*(1+.07*(S.act||0))*(E.elite?1.15:1)*(E.boss?1.1:1));if(asc()>=1)hp=Math.round(hp*1.1);if(asc()>=2&&(E.boss||E.elite))hp=Math.round(hp*1.12);if(S.mod==="fat")hp=Math.round(hp*1.25);if(S.mod==="chain")hp=Math.round(hp*1.1);return{id,n:E.n,hp,max:hp,block:0,str:(S.mod==="full"?1:0)+(asc()>=3?1:0)+((S.act||0)>=4?2:(S.act||0)>=2?1:0)+(id==="mimic"?(S.act||0)*2:0),vuln:0,weak:0,mud:0,turn:0,seed:i,k:"e"+(++S.uid),stolen:0}}
@@ -229,36 +229,36 @@ function startCombat(kind){if(kind==="m"&&(S.actCombats||0)>=2&&rnd()<(S.mod==="
   else if(kind==="B"&&E0.id==="count"&&f.vampBit){E0.str+=2;B.introTalk=[["vp","月夜伯爵","你的血，我还记得那个味道。"],["vp","月夜伯爵","这一次，我要喝个够。（力气 +2）"]]}
   if(kind==="B"&&S.act===ACTS.length-1&&f.snowFriend){B.introTalk=(B.introTalk||[]).concat([["egl","雪人","（从星星中间滚了过来）上次你扶我站起来，这次换我来挡一下！"]]);B.introFx=()=>{B.block(25,1)}}
   if(kind==="F"&&f.kingFriend){B.introTalk=[["xsk","沼泽之王","呱！"+HN()+"，我来还人情了！看我的泥巴大炮！"]];B.introFx=()=>{B.apply(E0,"mud",12);B.apply(E0,"weak",2);sfx("mud")}}}
- if(kind==="E"){const af=pick(Object.keys(AFFIX));if((asc()>=6||rnd()<.85))B.enemies.forEach(e=>applyAffix(e,af))}
+ if(kind==="E"){const af=pick(Object.keys(AFFIX));if((asc()>=6||rnd()<.85))B.enemies.forEach(e=>applyAffix(e,af));if(kind==="E"&&has("eyepatch"))B.enemies.forEach(e=>e.vuln=(e.vuln||0)+2)}
  if(!has("snowglobe")&&S.mod!=="calm"&&kind!=="F"&&rnd()<.3)B.wxShift={turn:2+ri(2),to:pick(Object.keys(WX).filter(w=>w!==B.wx))};
  if(kind==="G")B.introTalk=[["n1","功夫奶蛙","那、那是，金色的奶蛙？！"],["n1","功夫奶蛙","传说三回合内打倒它，就能拿到一大笔金币！"]];
  B.enemies.forEach(e=>e.intent=e.waitTurns>0?{k:"wait"}:ENEMY[e.id].ai(e,0));
  renderBattle(true);
  if(has("feather"))B.block(8,1);
- setTimeout(async()=>{if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();if(rnd()<.3)heroSay(pick(HERO_LINE.start));startTurn()},300)}
+ setTimeout(async()=>{if(!B)return;if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(!B)return;if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();if(rnd()<.3)heroSay(pick(HERO_LINE.start));startTurn()},300)}
 function tutorial(){return new Promise(res=>{ov(`<div class="modal" style="max-width:820px;text-align:left"><h3 style="text-align:center">奶蛙池怎么玩</h3><p>1. 打出的每张家族牌，都会往上方的<b>奶蛙池</b>里放一只奶蛙，它会自动排到同家族旁边。</p><p>2. <b>3 只相邻的同家族</b>就会消除：这张牌效果翻倍，再触发一次<b>家族爆发</b>。</p><p>3. 消除后后面的奶蛙会往前补位，补位又凑成 3 只就继续消，这就是<b>连锁</b>。每多一环，爆发翻一倍，还多给 1 点奶力。</p><p>4. 敌人会往池里<b>丢泥巴</b>把你的奶蛙隔开、<b>冻住</b>奶蛙、甚至<b>吸走</b>奶蛙。泥巴凑够 3 块也会消掉，常常能顺势连锁。池子满 7 格会溢出受伤。</p><p>5. 敌人血量低于 35% 时可以<b>抓</b>回去当伙伴卡；每层的<b>月相天气</b>在左上角；集齐 3 张同名牌会合成<b>金卡</b>。</p><div class="row"><button class="btn" id="tutOk">开打！</button></div></div>`);$("#tutOk").onclick=()=>{closeOv();res()}})}
 function relicPulse(id){const e=$(`#top .rl[data-rl="${id}"]`);if(e){e.classList.remove("pulse");void e.offsetWidth;e.classList.add("pulse")}}
 async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.hitStreak=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
- B.horseN=0;B.fogUsed=0;B.chainsTurn=0;B.comboUsed=0;{let th=0;B.pool.forEach(x=>{if(x.ice){x.ice--;if(!x.ice)th++}});if(th){toast(`池里有 ${th} 只奶蛙解冻了`);B.poolResolve()}}p.noOverflow=0;if(!p.retain&&!p.pw.iron)p.block=(B.wx==="snow"||S.hero==="knight")?Math.floor(p.block/2):0;if(B.turn===1&&S.hero==="naiwa")p.block+=6;if(B.turn===1&&has("spikeshell")){p.block+=8;relicPulse("spikeshell")};p.retain=0;
+ B.horseN=0;B.fogUsed=0;B.chainsTurn=0;B.comboUsed=0;{let th=0;B.pool.forEach(x=>{if(x.ice){x.ice--;if(!x.ice)th++}});if(th){toast(`池里有 ${th} 只奶蛙解冻了`);B.poolResolve()}}p.noOverflow=0;if(!p.retain&&!p.pw.iron)p.block=(B.wx==="snow"||S.hero==="knight")?Math.floor(p.block/2):0;if(B.turn===1&&S.hero==="naiwa")p.block+=6;if(B.turn===1&&has("spikeshell")){p.block+=8;relicPulse("spikeshell")}if(B.turn===1){if(has("ironpot"))p.str=(p.str||0)+1;if(has("frogcharm")){B.poolInsert("frog");B.poolInsert("frog");B.poolResolve()}}if(has("bigspoon")&&!p.block)p.block+=4;if(has("snowglobe"))B.pool.forEach(x=>x.ice=0);if(has("darkmirror")){S.hp=Math.max(1,S.hp-1);p.tstr=(p.tstr||0)+2}B.horseRope=0;B.catBell=0;B.played5=0;{const W=p.pw2||{};if(W.shield)B.block(W.shield);if(W.tstr)p.tstr=(p.tstr||0)+W.tstr;if(W.heal)B.heal(W.heal);if(W.frogwall){for(let i=0;i<W.frogwall;i++)B.poolInsert("frog");B.poolResolve();B.poolOverflow()}if(W.vuln){const al=B.alive();if(al.length)B.apply(pick(al),"vuln",W.vuln)}};p.retain=0;
  banner("你的回合");sfx("turn");
- if(B.wxShift&&B.turn===B.wxShift.turn){weatherShift();await sleep(600)}
+ if(B.wxShift&&B.turn===B.wxShift.turn){weatherShift();await sleep(600);if(!B||B.over)return}
  if(p.mud>0){dmgPlayer(p.mud*(B.wx==="rain"?2:1),null,true);p.mud--;sfx("mud");if(S.hp<=0)return lose()}
  if(p.burn>0){const bd=p.burn*(B.wx==="rain"?1:1);dmgPlayer(bd,null,true);toast(`烫伤发作，受到 <b>${bd}</b> 伤害`);p.burn--;sfx("hit");if(S.hp<=0)return lose()}
  p.energy=3+(B.turn===1?perk("en"):0)+(p.nextEnergy||0)+(p.pw.galaxy||0)+(B.turn===1&&has("lantern")?1:0)+(B.turn===1&&has("warhorn")?1:0)+(has("moon")&&B.turn%3===0?1:0);if(B.turn%3===0&&has("moon"))relicPulse("moon");
- let n=5+(B.turn===1?perk("dr"):0)-p.drawMinus+(p.nextDraw||0)+(p.pw.galaxy||0)+(B.turn===1&&has("sand")?2:0)+(B.turn===1&&S.hero==="kungfu"?2:0);p.drawMinus=0;p.nextEnergy=0;p.nextDraw=0;
+ let n=5+(B.turn===1?perk("dr"):0)-p.drawMinus+(p.nextDraw||0)+(p.pw.galaxy||0)+(B.turn===1&&has("sand")?2:0)+(B.turn===1&&S.hero==="kungfu"?2:0)+((p.pw2||{}).draw||0)+(B.turn===1&&has("littlecrown")?2:0);p.drawMinus=0;p.nextEnergy=0;p.nextDraw=0;
  if(p.nextBlock){B.block(p.nextBlock,1);p.nextBlock=0}
  if(p.pw.rooster)B.block(p.pw.rooster,1);
- if(B.wx==="storm"){const al=[null,...B.alive()],t=pick(al);setTimeout(()=>{if(B.over)return;lightning();if(t){dealEnemy(t,5);renderBattle();if(!B.alive().length)win()}else{dmgPlayer(5,null,true);if(S.hp<=0)lose()}},700)}
+ if(B.wx==="storm"){const al=[null,...B.alive()],t=pick(al);setTimeout(()=>{if(!B||B.over)return;lightning();if(t){dealEnemy(t,5);renderBattle();if(!B.alive().length)win()}else{dmgPlayer(5,null,true);if(S.hp<=0)lose()}},700)}
  if(p.pw.nine&&S.hp<S.max)B.heal(p.pw.nine);
  if(p.pw.stampede){const v=p.pw.stampede;setTimeout(()=>{B.alive().forEach(e=>B.hit(e,v,1,1));afterAction()},500)}
  if(B.dogPack>0){B.dogPack--;setTimeout(()=>{if(!B||B.over)return;toast("奶狗群冲了上来！");say($("#player .body"),"汪汪汪！","hero");B.alive().forEach(e=>B.hit(e,8,1,1));sfx("bighit");afterAction()},800)}
- if(B.turn===1&&has("pup")){const t=pick(B.alive());if(t){relicPulse("pup");setTimeout(()=>{B.hit(t,6,1,1);afterAction()},600)}}
- await sleep(350);B.draw(n);
+ if(B.turn===1&&has("pup")){const t=pick(B.alive());if(t){relicPulse("pup");setTimeout(()=>{if(!B||B.over)return;B.hit(t,6,1,1);afterAction()},600)}}
+ await sleep(350);if(!B||B.over)return;B.draw(n);
  if(p.pw.stallion)p.horseFree=1;
  if(p.pw.dawn)B.alive().forEach(e=>B.apply(e,"weak",1));
  if(has("belltoken")&&B.turn%3===0){relicPulse("belltoken");B.alive().forEach(e=>B.apply(e,"weak",2))}
  if(p.pw.owl)B.draw(p.pw.owl);
- if(B.wx==="wind"&&B.pool.length>1){await sleep(300);toast("一阵大风把池子吹乱了！");B.poolShuffle()}
+ if(B.wx==="wind"&&B.pool.length>1){await sleep(300);if(!B||B.over)return;toast("一阵大风把池子吹乱了！");B.poolShuffle()}
  busy=false;renderBattle();$("#endBtn").classList.remove("wait")}
 function lightning(){const d=document.createElement("div");d.className="flash";$("#fx").appendChild(d);setTimeout(()=>d.remove(),600);sfx("bighit");stageShake()}
 function banner(t,en){const b=$("#turnBan");b.innerHTML=`<span>${t}</span>`;b.className="";void b.offsetWidth;b.className="on"+(en?" en":"")}
@@ -266,7 +266,7 @@ function hint(t){const h=$("#hint");if(t){h.textContent=t;h.classList.add("on")}
 
 /* ---- 战斗渲染 ---- */
 function intentHTML(e){const I=e.intent;if(!I||e.hp<=0)return"";const ph=I.pool?`<span class="pIc">${{junk:ICON.mud,freeze:WXICON.snow,suck:ICON.grab,shuffle:WXICON.wind,eat:ICON.boom,boil:WXICON.storm}[I.pool.t]}</span>`:"";return intentHTML0(e,I).replace(/<\/div>$/,ph+"</div>")}
-function intentHTML0(e,I){const dmg=v=>{if(B.wx==="fog")return"?";let d=v+e.str;if(e.weak>0)d*=.75;if(B.p.vuln>0)d*=1.5;return Math.max(0,Math.floor(d))};
+function intentHTML0(e,I){const dmg=v=>{if(B.wx==="fog"||e.fogged)return"?";let d=v+e.str;if(e.weak>0)d*=.75;if(B.p.vuln>0)d*=1.5;return Math.max(0,Math.floor(d))};
  const ic=k=>ICON[k],x=I.x?`<small>×${I.x}</small>`:"";
  switch(I.k){case"stun":return`<div class="intent">${ic("swirl")}<small>晕了</small></div>`;case"charge":return`<div class="intent chg">${ic("up")}<small>蓄力！</small></div>`;case"atk":return`<div class="intent atk ${I.ult?"ult":""}${I.pierce?" prc":""}">${ic("sword")}${dmg(I.v)}${x}${I.s?ic("swirl"):""}${I.ult?`<small class="ultN">${I.ult}</small>`:I.pierce?`<small class="ultN">破防</small>`:""}</div>`;
  case"def":return`<div class="intent">${ic("shield")}${I.v}${I.s2?ic("up"):""}</div>`;
@@ -293,7 +293,7 @@ function renderBattle(first){if(!B)return;const p=B.p;
    el.onclick=()=>clickEnemy(e);const cb=document.createElement("button");cb.className="catchBtn";cb.innerHTML=`${ICON.net}<span>抓</span>`;cb.onclick=ev=>{ev.stopPropagation();catchEnemy(e)};el.querySelector(".body").appendChild(cb)}
   el.classList.toggle("canCatch",canCatch(e));el.classList.toggle("hasAf",!!e.af);el.classList.toggle("goldf",e.id==="goldfrog");
   if(e.hp<=0&&!el.classList.contains("dead"))el.classList.add(e.fled?"fled":"dead");
-  el.querySelector(".itw").innerHTML=intentHTML(e);el.querySelector(".hpw").innerHTML=hpHTML(e.hp,e.max,e.block);el.querySelector(".sts").innerHTML=stsHTML(e)+(e.id==="cosmicegg"?`<span class="eCnt">孵化 ${e.cnt==null?6:e.cnt}</span>`:"");
+  el.querySelector(".itw").innerHTML=intentHTML(e);el.querySelector(".hpw").innerHTML=hpHTML(e.hp,e.max,e.block);el.querySelector(".sts").innerHTML=stsHTML(e)+(e.id==="cosmicegg"?`<span class="eCnt">孵化 ${e.cnt==null?6:e.cnt}</span>`:"")+(e.id==="boilerdragon"?`<span class="eCnt">热度 ${e.heat||0}/3</span>`:"")+(e.fogged?`<span class="eCnt">雾中</span>`:"")+(e.id==="rockfrog"?`<span class="eCnt">岩甲 ${e.armor==null?6:e.armor}</span>`:"")+(e.id==="fallen"&&e.mode?`<span class="eCnt">${e.mode==="holy"?"圣光":"魔焰"}</span>`:"")+(e.id==="fourhead"?`<span class="eCnt">醒着 ${Math.max(1,Math.ceil(e.hp/e.max*4))} 个头</span>`:"");
   el.classList.toggle("tg",!!B.sel&&e.hp>0&&(B.sel.pot!=null||CARDS[(B.hand.find(c=>c.k===B.sel.k)||{id:"strike"}).id].tgt))});
  const eb=$("#energy");eb.innerHTML=`<i class="liq" style="height:${Math.min(1,p.energy/3)*100}%"></i><b>${p.energy}<small>/3</small></b>`;
  $("#drawPile b").textContent=B.dp.length;$("#discPile b").textContent=B.disc.length;$("#exhPile b").textContent=B.exh.length;$("#exhPile").style.display=B.exh.length?"":"none";
@@ -410,7 +410,7 @@ const API={
  poolThaw(){let n=0;this.pool.forEach(x=>{if(x.ice){x.ice=0;n++}});this.poolResolve();renderPool();return n},
  poolCleanse(){this.pool=this.pool.filter(x=>x.f!=="mud");this.pool.forEach(x=>x.ice=0);this.poolResolve();renderPool()},
  poolEnemy(P,e){const el=enEl(e);
-  if(P.t==="junk"){for(let i=0;i<P.n+(S.mod==="mud"&&!e.af?1:0);i++)this.poolInsert("mud");toast(`${e.n}往你的池子里丢了 <b>${P.n} 块泥巴</b>`);sfx("mud");this.poolResolve();this.poolOverflow()}
+  if(P.t==="junk"){if(has("mudboots"))this.block(4,1);for(let i=0;i<P.n+(S.mod==="mud"&&!e.af?1:0);i++)this.poolInsert("mud");toast(`${e.n}往你的池子里丢了 <b>${P.n} 块泥巴</b>`);sfx("mud");this.poolResolve();this.poolOverflow()}
   else if(P.t==="boil"){const l=shuffle(this.pool.filter(x=>!x.ice&&x.f!=="mud")).slice(0,P.n);l.forEach(x=>x.f="mud");if(l.length){toast(`${e.n}把池里的 <b>${l.length} 只</b>奶蛙煮成了泥巴！`);sfx("mud");this.poolResolve()}}
   else if(P.t==="freeze"){const l=shuffle(this.pool.filter(x=>!x.ice&&x.f!=="mud")).slice(0,P.n);l.forEach(x=>x.ice=has("icepick")?1:2);if(l.length)toast(`${e.n}冻住了池里的 <b>${l.length} 只</b>奶蛙（2 回合）`);sfx("debuff")}
   else if(P.t==="suck"){let k=0;for(let i=0;i<P.n&&this.pool.length;i++){const idx=Math.floor(this.pool.length/2);this.pool.splice(idx,1);k++}if(k){e.hp=Math.min(e.max,e.hp+P.h*k);toast(`${e.n}吸走了池里的 <b>${k} 只</b>奶蛙，回复了 ${P.h*k} 生命`);if(el){const c=center(el.querySelector(".body"));fnum(c.x,c.top+20,"+"+P.h*k,"heal")}sfx("heal");this.poolResolve()}}
@@ -440,6 +440,8 @@ function bossGuard(t,d){const id=t.id;
  if(id==="king"){const m=B.pool.filter(x=>x.f==="mud").length;if(m)d=Math.max(0,d-2*m)}
  if(id==="buddha"&&d<=5){fxSay(t,"金身！");return 0}
  if(id==="pearlqueen"&&B.alive().some(x=>x.id==="teacup"))d=Math.ceil(d/2);
+ if(id==="fogwhite"&&t.fogged)d=Math.ceil(d/2);
+ if(id==="rockfrog"){if(t.armor==null)t.armor=6;if(t.armor>0&&d>0){d=Math.max(0,d-4);t.armor--;if(!t.armor)setTimeout(()=>{const el=enEl(t);if(el)say(el.querySelector(".body"),"石甲全碎了")},200)}}
  if(id==="shadow"&&rnd()<.25){fxSay(t,"闪开了");return 0}
  if(id==="lavagiant"&&B.curType==="atk"&&B.lavaLock!==B.cardSeq){B.lavaLock=B.cardSeq;setTimeout(()=>{if(B&&!B.over){B.apply(B.p,"burn",1)}},150)}
  return d}
@@ -448,7 +450,7 @@ function bossAfterHit(t,d,loss){const id=t.id;
  if(id==="snakeking"&&t.hp>0){t.shed=(t.shed||0)+loss;if(t.shed>=40){t.shed-=40;t.weak=0;t.vuln=0;t.mud=0;t.burn=0;t.block+=15;setTimeout(()=>{const el=enEl(t);if(el)say(el.querySelector(".body"),"蜕皮");renderBattle()},300)}}
  if(id==="buddha"&&d>=20&&t.hp>0&&!(t.stunCD>0)){t.stunCD=3;t.intent={k:"stun"};setTimeout(()=>{const el=enEl(t);if(el)say(el.querySelector(".body"),"金身裂了一道缝");renderBattle()},300)}
  if(id==="demon"&&t.hp<=0&&!t.revived){t.revived=1;t.hp=Math.round(t.max*.35);t.block=0;setTimeout(()=>{const el=enEl(t);banner("还没完",1);stageShake();if(el)say(el.querySelector(".body"),"塔顶不能没有人。");renderBattle()},400)}}
-function dealEnemy(t,d,i=0){if(ENEMY[t.id].boss)d=bossGuard(t,d);const blk=Math.min(t.block,d);t.block-=blk;const loss=d-blk;t.hp=Math.max(0,t.hp-loss);S.stats.dmg+=loss;if(ENEMY[t.id].boss)bossAfterHit(t,d,loss);if(t.thorn&&B.curType==="atk"&&loss>=0&&!B.thornLock){B.thornLock=1;setTimeout(()=>{if(B){B.thornLock=0;dmgPlayer(t.thorn,null,true);if(S.hp<=0)lose()}},120)}
+function dealEnemy(t,d,i=0){if(ENEMY[t.id].boss&&has("bossbane")&&B.curType)d=Math.round(d*1.25);if(ENEMY[t.id].boss)d=bossGuard(t,d);if(has("lavastone")&&B.curType==="atk"&&t.hp>0)t.burn=(t.burn||0)+1;const blk=Math.min(t.block,d);t.block-=blk;const loss=d-blk;t.hp=Math.max(0,t.hp-loss);S.stats.dmg+=loss;if(ENEMY[t.id].boss)bossAfterHit(t,d,loss);if(t.thorn&&B.curType==="atk"&&loss>=0&&!B.thornLock){B.thornLock=1;setTimeout(()=>{if(B){B.thornLock=0;dmgPlayer(t.thorn,null,true);if(S.hp<=0)lose()}},120)}
  if(t.af==="split"&&!t.splitDone&&t.hp>0&&t.hp<=t.max/2){t.splitDone=1;setTimeout(()=>{if(!B||B.over||B.alive().length>=4)return;const m=mkEnemy(t.id,9);m.n="分身·"+ENEMY[t.id].n;m.max=Math.ceil(t.max*.4);m.hp=m.max;m.intent=ENEMY[t.id].ai(m,0);B.enemies.push(m);const el2=enEl(t);if(el2)say(el2.querySelector(".body"),"分身术！");renderBattle()},400)}
  if(ENEMY[t.id].boss&&t.hp>0&&!t.rage&&t.hp<=t.max*.25){t.rage=1;t.str=(t.str||0)+3;setTimeout(()=>{const el2=enEl(t);if(el2){say(el2.querySelector(".body"),"我，生气了！！");anim(el2,"buffA")}toast(`${t.n}<b>狂暴了</b>：力气 +3`)},500)}
  if(t.hp>0&&!t.lowSaid&&t.hp<=t.max*.3){t.lowSaid=1;setTimeout(()=>{const el2=enEl(t);if(el2&&t.hp>0)say(el2.querySelector(".body"),eLine(t,"l"))},350)}
@@ -468,11 +470,12 @@ async function catchEnemy(e){if(!canCatch(e))return;const cc=S.mod==="pal"?0:1;i
  if(e.stolen){S.gold+=e.stolen;toast(`拿回了 <b>${e.stolen}</b> 金币`);e.stolen=0}
  toast(`抓到了 <b>${e.n}</b>！战斗结束后，伙伴卡「${CARDS[pal].n}」会加入牌组`);
  await sleep(500);busy=false;afterAction()}
-function killEnemy(t){S.stats.kills++;if(ENEMY[t.id].boss&&BOSS_LORE[t.id]){M.boss=M.boss||{};const r=M.boss[t.id]=M.boss[t.id]||{};r.k=(r.k||0)+1;saveMeta()}if(has("pearlbag"))B.extraGold+=8;if(t.af==="rich"){B.extraGold+=60;toast("富有的敌人掉了 <b>60</b> 金币")}if(t.af==="glitter")B.shinyLoot=1;if(t.id==="goldfrog"){B.goldKill=1;toast("打倒了<b>金色奶蛙</b>！金币哗啦啦地掉了一地")}B.alive().forEach(a=>{if(a.af==="vengeful"&&a!==t){a.str+=3;const el2=enEl(a);if(el2)say(el2.querySelector(".body"),"你竟敢！（力气 +3）")}});if(rnd()<.3)setTimeout(()=>heroSay(pick(HERO_LINE.kill)),500);if(t.stolen){S.gold+=t.stolen;toast(`抢回了 <b>${t.stolen}</b> 金币`);t.stolen=0}
+function killEnemy(t){S.stats.kills++;if(has("vampfang"))S.hp=Math.min(S.max,S.hp+4);if(ENEMY[t.id].boss&&BOSS_LORE[t.id]){M.boss=M.boss||{};const r=M.boss[t.id]=M.boss[t.id]||{};r.k=(r.k||0)+1;saveMeta()}if(has("pearlbag"))B.extraGold+=8;if(t.af==="rich"){B.extraGold+=60;toast("富有的敌人掉了 <b>60</b> 金币")}if(t.af==="glitter")B.shinyLoot=1;if(t.id==="goldfrog"){B.goldKill=1;toast("打倒了<b>金色奶蛙</b>！金币哗啦啦地掉了一地")}B.alive().forEach(a=>{if(a.af==="vengeful"&&a!==t){a.str+=3;const el2=enEl(a);if(el2)say(el2.querySelector(".body"),"你竟敢！（力气 +3）")}});if(rnd()<.3)setTimeout(()=>heroSay(pick(HERO_LINE.kill)),500);if(t.stolen){S.gold+=t.stolen;toast(`抢回了 <b>${t.stolen}</b> 金币`);t.stolen=0}
  if(has("cape")){relicPulse("cape");setTimeout(()=>B&&B.heal(3),300)}
  if(t.id==="king")B.enemies.forEach(e=>{if(e.hp>0){e.hp=0}})}
-const ULT={king:{n:"泥巴海啸",m:1.5,s:"mud",d:4},snakeking:{n:"万蛇噬咬",m:.5,x:4},count:{n:"血月之吻",m:1.7,s:"weak",d:2},buddha:{n:"金刚掌",m:1.6,p:1},iceking:{n:"冰河时代",m:1.5,s:"weak",d:2},snowking:{n:"超级雪球",m:2},lavagiant:{n:"火山爆发",m:1.5,s:"burn",d:5},pearlqueen:{n:"滚烫满壶",m:.6,x:3,s:"burn",d:3},shadow:{n:"影分身连斩",m:.45,x:5},cosmicegg:{n:"超新星",m:2.2},demon:{n:"大魔王之锅",m:2,p:1},_:{n:"全力一击",m:1.8}};
+const ULT={king:{n:"泥巴海啸",m:1.5,s:"mud",d:4},snakeking:{n:"万蛇噬咬",m:.5,x:4},count:{n:"血月之吻",m:1.7,s:"weak",d:2},buddha:{n:"金刚掌",m:1.6,p:1},iceking:{n:"冰河时代",m:1.5,s:"weak",d:2},snowking:{n:"超级雪球",m:2},lavagiant:{n:"火山爆发",m:1.5,s:"burn",d:5},pearlqueen:{n:"滚烫满壶",m:.6,x:3,s:"burn",d:3},shadow:{n:"影分身连斩",m:.45,x:5},cosmicegg:{n:"超新星",m:2.2},rockfrog:{n:"落石",m:1.6},fallen:{n:"审判之光",m:1.5,s:"weak",d:2},thunderking:{n:"天雷",m:1.7,p:1},fourhead:{n:"四重奏",m:.4,x:4},abyssdragon:{n:"深渊之口",m:1.8,s:"vuln",d:2},fogwhite:{n:"白雾吞没",m:1.6,s:"weak",d:2},witch:{n:"厄运诅咒",m:1.4,s:"vuln",d:3},bloodbeast:{n:"撕咬",m:.55,x:4},boilerdragon:{n:"锅炉爆燃",m:1.6,s:"burn",d:6},tophat:{n:"最后的魔术",m:2,p:1},demon:{n:"大魔王之锅",m:2,p:1},_:{n:"全力一击",m:1.8}};
 function maxAtk(e){let m=10;for(let i=0;i<8;i++){const I=ENEMY[e.id].ai(e,i);if(I&&(I.k==="atk"||I.k==="atkdef"))m=Math.max(m,I.v)}return m}
+function PW(B,k,v){B.p.pw2=B.p.pw2||{};B.p.pw2[k]=(B.p.pw2[k]||0)+v}
 function nextIntent(e,t){const E=ENEMY[e.id];if(e.waitTurns>0)return{k:"wait"};if(e.intent&&e.intent.k==="stun"&&e.stunCD===3){e.stunCD=2;return{k:"stun"}}if(!E.boss)return E.ai(e,t);
  if(e.charging){e.charging=0;e.sinceUlt=0;const u=ULT[e.id]||ULT._;return{k:"atk",v:Math.round(maxAtk(e)*u.m),x:u.x||1,ult:u.n,pierce:u.p,s:u.s,d:u.d}}
  e.sinceUlt=(e.sinceUlt||0)+1;
@@ -481,7 +484,7 @@ function nextIntent(e,t){const E=ENEMY[e.id];if(e.waitTurns>0)return{k:"wait"};i
  if(rnd()<.16)return pick([{k:"debuff",s:"vuln",v:2},{k:"debuff",s:"weak",v:2},{k:"debuff",s:"burn",v:4}]);
  let I,n=0;do{I=E.ai(e,t+Math.floor(rnd()*8))}while(n++<6&&e.lastI&&JSON.stringify(I)===e.lastI);e.lastI=JSON.stringify(I);return I}
 function dmgPlayer(v,src,raw){const p=B.p;let d=v;if(!raw){if(src){d+=src.str;if(src.weak>0)d*=.75}if(p.vuln>0)d*=1.5}d=Math.max(0,Math.floor(d));
- const blk=raw?0:B._pierce?0:Math.min(p.block,d);B._lastSrc=src;if(B._pierce&&p.block){p.block=0;toast("护盾被打穿了！")}p.block-=blk;const loss=d-blk;S.hp=Math.max(0,S.hp-loss);if(src&&src.id==="count"&&loss>0&&src.hp>0){src.hp=Math.min(src.max,src.hp+loss)}
+ const blk=raw?0:B._pierce?0:Math.min(p.block,d);B._lastSrc=src;if(B._pierce&&p.block){p.block=0;toast("护盾被打穿了！")}p.block-=blk;const loss=d-blk;S.hp=Math.max(0,S.hp-loss);if(src&&has("thornvest")&&src.hp>0&&!raw){setTimeout(()=>{if(B&&!B.over&&src.hp>0)dealEnemy(src,3)},80)}if(loss>0&&B)B.enemies.forEach(x=>{if(x.id==="bloodbeast"&&x.hp>0)x.str=(x.str||0)+1});if(src&&src.id==="count"&&loss>0&&src.hp>0){src.hp=Math.min(src.max,src.hp+loss)}
  const el=$("#player");const c=center(el.querySelector(".body"));anim(el,"hit");sfx(loss?"hurt":"block");fnum(c.x,c.top+30,loss||"格挡",loss?"":"blk");if(loss>=12)stageShake();
  if(S.hp<=0&&B.p.pw.rebirth&&!B.rebirthUsed){B.rebirthUsed=1;S.hp=Math.ceil(S.max*.5);toast("<b>凤凰涅槃</b>！你从火里站了起来");sfx("relic")}
  if(S.hp<=0&&has("phoenix")&&!S.flags.phoenix){S.flags.phoenix=1;S.hp=Math.ceil(S.max*.3);relicPulse("phoenix");toast("<b>不死羽</b>燃烧了！你又站了起来");sfx("relic")}
@@ -499,7 +502,7 @@ async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=cu
  busy=true;B.sel=null;hint();B.p.energy-=cost;B.hand.splice(B.hand.indexOf(c),1);
  // 飞出动画
  const el=$(`#hand .card[data-k="${c.k}"]`);if(el){el.classList.add("fly");const tx=target?center(enEl(target)).x-75:560;el.style.transform=`translate(${tx}px,-300px) scale(.6) rotate(0deg)`;el.style.opacity="0";setTimeout(()=>el.remove(),340)}
- sfx("card");S.stats.played++;if(has("bellclock")&&B.played===2){relicPulse("bellclock");B.after.push(async()=>B.draw(1))}seeCard(c.id);
+ sfx("card");S.stats.played++;if(has("horserope")&&D.fam==="horse"&&!B.horseRope){B.horseRope=1;B.after.push(async()=>B.draw(1))}if(has("catbell")&&D.fam==="cat"&&!B.catBell){B.catBell=1;const al=B.alive();if(al.length)B.apply(pick(al),"vuln",1)}if(has("duster")&&D.fam==="chick"){S.dust=(S.dust||0)+1;if(S.dust%3===0)B.heal(3)}if(has("metronome")&&B.played===4)B.gainEnergy(1);if(has("bellclock")&&B.played===2){relicPulse("bellclock");B.after.push(async()=>B.draw(1))}seeCard(c.id);
  B.bonus=0;if(D.type==="atk"){B.bonus=B.p.nextAtk;B.p.nextAtk=0}
  B.cardSeq=(B.cardSeq||0)+1;B.curFam=D.fam;B.curType=D.type;B.shinyPow=c.sh==="pow"?4:0;if(c.sh==="draw")B.after.push(async()=>B.draw(1));if(D.fam==="horse"&&B.p.horseFree)B.p.horseFree=0;
  if(D.fam==="horse"&&B.p.pw.blood){B.p.tstr+=B.p.pw.blood}
@@ -533,6 +536,7 @@ $("#discPile").onclick=()=>B&&viewCards(B.disc,"弃牌堆",`${B.disc.length} 张
 $("#exhPile").onclick=()=>B&&viewCards(B.exh,"消耗的牌",`本场战斗不会再回来`,false);
 $("#battle").addEventListener("click",e=>{if(B&&B.sel&&!e.target.closest(".card")&&!e.target.closest(".en")){const c=B.hand.find(x=>x.k===B.sel.k);if(c&&!CARDS[c.id].tgt&&e.target.closest("#arena")){playCard(c);return}B.sel=null;hint();renderBattle()}});
 async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;busy=true;B.myTurn=false;B.sel=null;hint();$("#endBtn").classList.add("wait");
+ if(has("sugarcube")&&B.p.energy>0){B.p.block+=B.p.energy*3}
  const p=B.p;let mud=B.hand.filter(c=>c.id==="mud").length*(B.wx==="rain"?2:1);if(mud){dmgPlayer(mud*2,null,true);toast(`手里的泥巴块弄脏了你，受到 <b>${mud*2}</b> 伤害`);if(S.hp<=0)return lose()}
  const keep=[];for(const c of B.hand){delete c.tmp;if(CARDS[c.id].ret||c.sh==="ret")keep.push(c);else if(CARDS[c.id].eth)B.exh.push(c);else B.disc.push(c)}B.hand=keep;
  if(p.pw.owl){dmgPlayer(p.pw.owl,null,true);if(S.hp<=0)return lose()}
@@ -544,8 +548,16 @@ async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;busy=true;B.myTur
   if(e.id==="snowking"){e.str=(e.str||0)+1;e.grow=(e.grow||0)+1;const el=enEl(e);if(el){const im=el.querySelector(".body img");im.style.transform=`scale(${Math.min(1.45,1+e.grow*.05)})`;im.style.transformOrigin="50% 100%"}}
   if(e.id==="iceking"){const l=B.pool.filter(x=>!x.ice&&x.f!=="mud");if(l.length){pick(l).ice=2;renderPool()}}
   if(e.id==="buddha"&&e.stunCD>0)e.stunCD--;
+  if(e.id==="fallen"){e.mode=e.mode==="holy"?"dark":"holy";const el=enEl(e);if(e.mode==="holy"){e.hp=Math.min(e.max,e.hp+Math.round(e.max*.06));B.apply(B.p,"weak",1);if(el)say(el.querySelector(".body"),"愿你平安")}else{e.str=(e.str||0)+2;if(el)say(el.querySelector(".body"),"（翅膀张开了）")}renderBattle();await sleep(250)}
+  if(e.id==="thunderking"){lightning();dmgPlayer(5,null,true);toast("落雷：受到 <b>5</b> 伤害");renderBattle();await sleep(350);if(S.hp<=0)return lose()}
+  if(e.id==="abyssdragon"&&B.disc.length){const c=B.disc.pop();B.exh.push(c);e.hp=Math.min(e.max,e.hp+6);toast(`${e.n}吞掉了你的「${cname(c)}」`);renderBattle();await sleep(250)}
+  if(e.id==="fogwhite"){e.fogged=e.turn%2===1;if(e.fogged)say(enEl(e).querySelector(".body"),"（躲进了雾里）")}
+  if(e.id==="witch"){B.dp.splice(ri(B.dp.length+1),0,mk("heavy"));toast(`${e.n}往你的抽牌堆塞了一张<b>诅咒</b>`)}
+  if(e.id==="tophat"&&B.dp.length){const i=ri(B.dp.length),c=B.dp.splice(i,1)[0];B.exh.push(c);toast(`${e.n}把你的「${cname(c)}」<b>变没了</b>`)}
+  if(e.id==="boilerdragon"){e.heat=(e.heat||0)+1;if(e.heat>=3){e.heat=0;banner("喷火",1);B.apply(B.p,"burn",6);await sleep(400)}}
   if(e.id==="cosmicegg"){e.cnt=(e.cnt==null?6:e.cnt)-1;if(e.cnt<=0){e.cnt=6;banner("孵化爆发",1);stageShake();await sleep(400);dmgPlayer(26+(S.act||0)*4,e);renderBattle();await sleep(500);if(S.hp<=0)return lose()}}
   await enemyAct(e);renderBattle();await sleep(420);
+  if(e.id==="fourhead"&&e.hp>0&&S.hp>0){const heads=Math.max(1,Math.ceil(e.hp/e.max*4));for(let k=1;k<heads&&e.hp>0&&S.hp>0;k++){e.intent=ENEMY.fourhead.ai(e,e.turn+k*2+1);await enemyAct(e);renderBattle();await sleep(380)}if(S.hp<=0)return lose()}
   if(e.af==="swift"&&e.turn===0&&e.hp>0&&S.hp>0){say(enEl(e).querySelector(".body"),"再来一次！");e.intent=ENEMY[e.id].ai(e,1);await enemyAct(e);renderBattle();await sleep(420)}
   if(e.hp>0&&S.hp>0&&e.af){const P={sticky:{t:"junk",n:1},greedy:{t:"suck",n:1,h:6},frosty:{t:"freeze",n:1}}[e.af];if(P){B.poolEnemy(P,e);await sleep(250)}if(e.af==="mocking"){B.apply(B.p,"weak",1);await sleep(200)}}
   if(e.vuln)e.vuln--;if(e.weak)e.weak--;e.turn++;
@@ -573,7 +585,7 @@ async function enemyAct(e){const I=e.intent,el=enEl(e);if(!I)return;{const sp=!!
 /* ---- 胜负 ---- */
 async function win(){if(B.over)return;B.over=1;busy=true;B.myTurn=false;$("#endBtn").classList.add("wait");sfx("win");
  await sleep(700);
- if(has("cup")){relicPulse("cup");const h=Math.min(6,S.max-S.hp);S.hp+=h}
+ if(has("cup")){relicPulse("cup");const h=Math.min(6,S.max-S.hp);S.hp+=h}if(has("teacan"))S.hp=Math.min(S.max,S.hp+4);
  if(perk("regen"))S.hp=Math.min(S.max,S.hp+4*perk("regen"));
  if(has("trophy")&&B.kind!=="m"){S.max+=5;S.hp+=5;relicPulse("trophy")}
  let gold=0;if(has("ring"))gold+=8;if(has("goldegg"))gold+=10;if(has("fullbonus")&&S.hp>=S.max)gold+=15;
@@ -582,12 +594,12 @@ async function win(){if(B.over)return;B.over=1;busy=true;B.myTurn=false;$("#endB
  {const xp=({m:1,E:3,B:4,F:0,M:3,G:2}[B.kind]||0)+B.caught.length;if(xp){toast(`获得 <b>${xp}</b> 点经验`);await gainXP(xp)}}
  if(B.kind==="B"&&curBoss()==="king")S.flags.kingFriend=1;
  if(B.kind==="B"&&S.act===ACTS.length-1){await sleep(400);await talk(STORY.demon);S.hp=Math.min(S.max,S.hp+20);toast("不知道谁在台阶上放了一杯奶茶：回复 <b>20</b> 生命");S.cur={t:"F",rs:S.rs};saveRun();return startCombat("F")}
- if(B.kind==="B"||B.kind==="F"){await sleep(400);await talk(STORY["win"+S.act+(B.kind==="B"&&bossAlt()?"b":"")]);return actClear()}
+ if(B.kind==="B"||B.kind==="F"){await sleep(400);{const bw=B.kind==="B"&&STORY["bw_"+curBoss()];await talk(bw||STORY["win"+S.act+(B.kind==="B"&&bossAlt()?"b":"")])}return actClear()}
  if(B.kind==="E")S.elites++;
  rewardScreen(B.kind,gold+B.extraGold,B.caught)}
 async function lose(){if(B&&B.over===2)return;if(B)B.over=2;busy=true;sfx("lose");await sleep(900);gameOver(false)}
-function gameOver(quit){const fl=(S.act||0)*8+S.row+1+(S.atBoss?1:0);M.best=Math.max(M.best,fl);saveMeta();const st=S.stats;const roast=quit?[]:elderRoast(st,{gold:S.gold,deck:S.deck.length,golds:S.deck.filter(c=>c.g).length,pots:S.pots.length,killer:st.killer,rooms:fl});S=null;saveRun();B=null;show("ending");setBg("title");playMusic("space");
- $("#ending").innerHTML=`<div class="endBox lose"><div class="endImg"><img src="${IMG("hs")}"></div><h1>${quit?"下次再来":"倒下了"}</h1><p>${quit?"塔还在那里，随时可以再爬。":HN()+"被抬回了村里。长老什么也没问。"}</p>${roast.length?`<div class="roast"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>`:""}<div class="endStats"><div><b>${fl}/40</b><small>走过的房间</small></div><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>消除次数</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div></div><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div>`;
+function gameOver(quit){const fl=(S.act||0)*(ROWS+1)+S.row+1+(S.atBoss?1:0);M.best=Math.max(M.best,fl);saveMeta();const st=S.stats;const roast=quit?[]:elderRoast(st,{gold:S.gold,deck:S.deck.length,golds:S.deck.filter(c=>c.g).length,pots:S.pots.length,killer:st.killer,rooms:fl});S=null;saveRun();B=null;show("ending");setBg("title");playMusic("space");
+ $("#ending").innerHTML=`<div class="endBox lose"><div class="endImg"><img src="${IMG("hs")}"></div><h1>${quit?"下次再来":"倒下了"}</h1><p>${quit?"塔还在那里，随时可以再爬。":HN()+"被抬回了村里。长老什么也没问。"}</p>${roast.length?`<div class="roast"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>`:""}<div class="endStats"><div><b>${fl}/${ACTS.length*(ROWS+1)}</b><small>走过的房间</small></div><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>消除次数</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div></div><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div>`;
  $("#eAgain").onclick=heroSelect;$("#eHome").onclick=titleScreen}
 async function actClear(){if((S.act||0)<ACTS.length-1){const a=S.act,ob=curBoss();S.act++;pickBoss();S.row=-1;S.col=-1;S.path=[];S.atBoss=false;S.actCombats=0;S.cur=null;S.map=genMap();S.sky=genSky();
   const heal=Math.floor((S.max-S.hp)*.5);S.hp+=heal;saveRun();B=null;show("ending");setBg(["castle","snowfield","factory","cosmos"][a]);playMusic("title");
@@ -626,7 +638,7 @@ function levelUp(title){return new Promise(res=>{sfx("win");const ids=shuffle(Ob
 
 /* ===================== 奖励 ===================== */
 function rollRar(kind){const r=rnd();if(kind==="E")return r<.03?"L":r<.15?"E":r<.55?"R":"C";if(kind==="R")return r<.04?"L":r<.2?"E":"R";return r<.01?"L":r<.05?"E":r<.3?"R":"C"}
-function offerCards(n,kind,force,shinyFirst){const out=[];let guard=0;while(out.length<n&&guard++<200){let id;if(!force&&rnd()<.08)id=pick(POOL_X);else{const rr=rollRar(kind);const pool=POOL_HERO.filter(x=>CARDS[x].r===rr);id=pick(pool)}if(out.some(c=>c.id===id))continue;out.push(mk(id,0))}
+function offerCards(n,kind,force,shinyFirst){const out=[];let guard=0;while(out.length<n&&guard++<200){let id;if(!force&&rnd()<.08)id=pick(POOL_X);else{const rr=rollRar(kind);const pool=POOL_HERO.filter(x=>CARDS[x].r===rr&&(!CARDS[x].hero||CARDS[x].hero===(S&&S.hero)));id=pick(pool)}if(out.some(c=>c.id===id))continue;out.push(mk(id,0))}
  out.forEach((c,i)=>rollShiny(c,shinyFirst&&i===0));return out}
 function addCard(c){S.deck.push(c);seeCard(c.id);const D=CARDS[c.id];if("SKTG".includes(D.r)||c.g)return false;
  const same=S.deck.filter(x=>x.id===c.id&&!x.g);if(same.length<3)return false;
@@ -639,11 +651,11 @@ function chooseReward(cards,title,canSkip=true){return new Promise(res=>{const o
  $$("#ov .pickRow .card").forEach((e,i)=>e.onclick=()=>{sfx("card");closeOv();if(!addCard(cards[i]))toast(`<b>${cname(cards[i])}</b> 加入了牌组`);renderTop();saveRun();res(cards[i])});
  const sk=$("#rkSkip");if(sk)sk.onclick=()=>{closeOv();res(null)}})}
 function randRelic(rar){let pool=RELIC_POOL.filter(r=>!S.relics.includes(r));if(rar){const p2=pool.filter(r=>RELICS[r].r===rar);if(p2.length)pool=p2}return pool.length?pick(pool):null}
-function gainRelic(id){if(!id){S.gold+=50;toast("遗物都拿光了，换成 <b>50</b> 金币");return}S.relics.push(id);if(id==="milktank"){S.max+=12;S.hp+=12}if(id==="belt")S.potSlots++;sfx("relic");toast(`获得遗物 <b>${RELICS[id].n}</b>：${RELICS[id].d}`);renderTop()}
+function gainRelic(id){if(!id){S.gold+=50;toast("遗物都拿光了，换成 <b>50</b> 金币");return}S.relics.push(id);if(id==="milktank"||id==="heartstone"){S.max+=12;S.hp+=12}if(id==="belt")S.potSlots++;sfx("relic");toast(`获得遗物 <b>${RELICS[id].n}</b>：${RELICS[id].d}`);renderTop()}
 const randPot=()=>pick(Object.keys(POTIONS));
 function givePot(id){if(S.pots.length>=S.potSlots){toast("药水栏满了");return false}S.pots.push(id);renderTop();return true}
 function rewardScreen(kind,extraGold,caught=[]){show("reward");setBg(actN().bgs[0]);playMusic("swing");
- const items=[];const gold=Math.round((((kind==="E"||kind==="M")?25+ri(11):10+ri(11))*(kind==="M"?2:1)+extraGold+(B&&B.goldKill?90+S.act*30:0))*(1+.4*perk("gold"))*(S.mod==="fat"?2:1));items.push({t:"gold",v:gold});
+ const items=[];const gold=Math.round((has("goldtooth")&&kind==="E"?1.4:1)*(((kind==="E"||kind==="M")?25+ri(11):10+ri(11))*(kind==="M"?2:1)+extraGold+(B&&B.goldKill?90+S.act*30:0))*(1+.4*perk("gold"))*(S.mod==="fat"?2:1));items.push({t:"gold",v:gold});
  if(kind==="M"||rnd()<(kind==="E"?.6:.4))items.push({t:"pot",v:randPot()});
 caught.forEach(id=>items.push({t:"pal",v:id,done:0,auto:1}));
  items.push({t:"card",v:offerCards(has("clover")?4:3,(kind==="E"||kind==="M"||S.combats<=1)?"E":"C",0,S.combats<=1||B&&B.shinyLoot)});
@@ -666,7 +678,7 @@ caught.forEach(id=>items.push({t:"pal",v:id,done:0,auto:1}));
  draw();renderTop()}
 
 /* ===================== 休息 ===================== */
-function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math.floor(S.max*.25*(asc()>=8?2/3:1))+(has("pot")?10:0);
+function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math.floor(S.max*(.25+(has("oldmap")?.15:0))*(asc()>=8?2/3:1))+(has("pot")?10:0);
  const canUp=S.deck.some(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type));
  $("#rest").innerHTML=`<div class="pickHead"><span class="ribbon b">休息点</span><small>篝火噼啪作响，难得能歇一会儿</small></div><div class="restScene"><img src="${IMG(HI())}" style="transform:scaleX(-1)"><div class="camp"><i class="fl"></i><i class="fl b"></i><i class="logs"></i></div><img src="${IMG("m6")}" style="width:180px;height:200px"></div>
  <div class="restOpts"><button class="ropt" id="rHeal"><span class="ic">${ICON.star}</span><b>休息</b><small>回复 ${heal} 生命</small></button><button class="ropt" id="rUp" ${canUp?"":"disabled"}><span class="ic">${ICON.up}</span><b>修炼</b><small>升级一张牌</small></button><button class="ropt" id="rTalk"><span class="ic">${ICON.heart}</span><b>和长老聊天</b><small>听一段往事，回复 ${Math.floor(heal/2)} 生命</small></button></div>`;
@@ -701,7 +713,7 @@ function treasure(){if(S.cur&&S.cur.mimic){S.cur.mimic=2;saveRun();return startC
   $("#tkGo").onclick=()=>{items.forEach(it=>{if(it.done)return;if(it.t==="relic")gainRelic(it.v);if(it.t==="gold")S.gold+=it.v});openMap()}};draw();renderTop()}
 
 /* ===================== 商店 ===================== */
-function shopScreen(mode){show("shop");setBg("shop");playMusic("country");const cv=mode==="caravan"||(S.cur.shop&&S.cur.shop.caravan);const off=(has("bellr")?.8:1)*(S.mod==="sale"?.7:1)*(S.mod==="gold"?1.2:1)*(cv?.85:1);
+function shopScreen(mode){show("shop");setBg("shop");playMusic("country");const cv=mode==="caravan"||(S.cur.shop&&S.cur.shop.caravan);const off=((has("bellr")?.8:1)*(has("coupon")?.8:1))*(S.mod==="sale"?.7:1)*(S.mod==="gold"?1.2:1)*(cv?.85:1);
  const price=c=>Math.round(({C:50,R:78,E:125,L:190,X:85}[CARDS[c.id].r]||60)*(.9+rnd()*.2)*off*(asc()>=5?1.15:1));
  if(!S.cur.shop&&cv){const cards=offerCards(4,"C",0,1).map(c=>({c,p:price(c)}));const relics=[randRelic("C"),randRelic("R")].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).map(id=>({id,p:Math.round(({C:150,R:220,E:290}[RELICS[id].r])*off)}));const pots=[randPot(),randPot()].map(id=>({id,p:Math.round(55*off)}));S.cur.shop={cards,relics,pots,rm:1,up:1,cp:1,caravan:1};saveRun()}
  if(!S.cur.shop){if(has("piggy")){S.gold+=30;toast("存钱罐叮当一响：<b>+30</b> 金币")}const cards=[...offerCards(5,"C"),mk(pick(POOL_X))].map(c=>({c,p:price(c)}));cards[ri(5)].sale=1;cards.forEach(x=>{if(x.sale)x.p=Math.round(x.p/2)});
@@ -909,6 +921,65 @@ cursechest:{n:"诅咒宝箱",img:"cki",t:"一只宝箱被铁链缠着，锁上�
 dummy:{n:"训练木桩",img:"n3",t:"空地上立着一排木桩，上面密密麻麻全是拳印。",o:()=>[
  {t:"打一百拳",d:"<span class='good'>随机升级 2 张牌</span>，<span class='bad'>失去 7 生命</span>",ok:S.hp>7,f:()=>{S.hp-=7;const l=shuffle(S.deck.filter(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type))).slice(0,2);l.forEach(c=>c.u=1);return`拳头肿了，但升级了：${l.map(cname).join("、")||"没有"}。`}},
  {t:"对着木桩冥想",d:"<span class='good'>+3 经验，回复 8 生命</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+8);await gainXP(3);return"你和木桩对视了一个下午，好像明白了什么。"}}]},
+lantern:{n:"熄掉的灯",img:"ct",act:0,t:"沼泽边的木桩上挂着一盏灯，灯芯还是湿的。",o:()=>[
+ {t:"把它点亮",d:"<span class='good'>+4 经验</span>",f:async()=>{await gainXP(4);return"灯亮了一会儿。远处好像有谁朝这边挥了挥手。"}},
+ {t:"倒出灯油",d:"<span class='good'>+45 金币</span>",f:()=>{S.gold+=45;sfx("coin");return"灯油卖了个好价钱。"}},
+ {t:"别碰它",d:"",f:()=>"你走过去的时候，灯晃了一下。"}]},
+nametags:{n:"一堆木牌",img:"m2",act:0,t:"路边堆着很多小木牌，每块上面都刻着一个名字。",o:()=>[
+ {t:"翻一翻",d:"<span class='good'>+3 经验</span>",f:async()=>{await gainXP(3);return"你没找到小七的名字。也可能是还没翻完。"}},
+ {t:"刻上自己的名字",d:"<span class='good'>最大生命 +6</span>",f:()=>{S.max+=6;S.hp+=6;return"刻完以后，你觉得自己结实了一点。"}},
+ {t:"走开",d:"",f:()=>"木牌太多了。"}]},
+portraitroom:{n:"画像室",img:"fbcc",act:1,t:"一间只挂着画的房间。角落有一个空画框，下面写着今天的日期。",o:()=>[
+ {t:"站到画框前面",d:"<span class='good'>获得一件稀有遗物</span>，<span class='bad'>最大生命 -6</span>",f:()=>{S.max=Math.max(20,S.max-6);S.hp=Math.min(S.hp,S.max);gainRelic(randRelic("R"));return"画框里映出了你。你赶紧走开，口袋里多了个东西。"}},
+ {t:"把画框砸了",d:"<span class='good'>+35 金币</span>",f:()=>{S.gold+=35;sfx("coin");return"砸碎以后，隔壁房间有人叹了口气。"}},
+ {t:"离开",d:"",f:()=>"门在你身后自己关上了。"}]},
+teaparty:{n:"茶会",img:"ctp",act:1,t:"长桌边坐满了客人，都低着头，没有人说话。主位空着。",o:()=>[
+ {t:"坐下喝一杯",d:"<span class='good'>回满生命</span>，<span class='bad'>获得诅咒「沉重」</span>",f:()=>{S.hp=S.max;addCard(mk("heavy"));return"茶很好喝。你走的时候，没有人抬头。"}},
+ {t:"拿走桌上的点心",d:"<span class='good'>获得 2 瓶药水</span>",f:()=>{givePot(randPot());givePot(randPot());return"点心是热的。"}},
+ {t:"离开",d:"",f:()=>"你轻轻把门带上了。"}]},
+frozenline:{n:"冰里的队伍",img:"c7",act:2,t:"冰层下面，一排奶蛙排着队，都朝着同一个方向。",o:()=>[
+ {t:"敲敲冰",d:"<span class='good'>+5 经验</span>，<span class='bad'>失去 5 生命</span>",ok:S.hp>5,f:async()=>{S.hp-=5;await gainXP(5);return"最前面那只好像动了一下。应该是看错了。"}},
+ {t:"顺着它们的方向走",d:"<span class='good'>下一个宝箱一定是金宝箱</span>",f:()=>{S.flags.goldChest=1;return"它们看的方向，确实有东西。"}},
+ {t:"离开",d:"",f:()=>"你没有回头。"}]},
+bellrope:{n:"钟绳",img:"egsk",act:2,t:"一根绳子从上面垂下来。拉一下，钟就会响。",o:()=>[
+ {t:"拉一下",d:"<span class='good'>随机升级 1 张牌</span>",f:()=>{const l=shuffle(S.deck.filter(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type))).slice(0,1);l.forEach(c=>c.u=1);return`钟响了。村里应该听得见。升级了：${l.map(cname).join("、")||"没有"}。`}},
+ {t:"拉很多下",d:"<span class='good'>随机升级 3 张牌</span>，<span class='bad'>失去 10 生命</span>",ok:S.hp>10,f:()=>{S.hp-=10;const l=shuffle(S.deck.filter(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type))).slice(0,3);l.forEach(c=>c.u=1);return`钟一直响。你停下来以后，它又自己响了一下。升级了：${l.map(cname).join("、")||"没有"}。`}},
+ {t:"别拉",d:"",f:()=>"绳子自己晃了晃。"}]},
+warehouse:{n:"仓库",img:"cty",act:3,t:"奶茶厂的仓库，门没有锁。里面很暖和，堆满了麻袋。",o:()=>[
+ {t:"翻麻袋",d:"<span class='good'>+80 金币</span>，<span class='bad'>获得诅咒「沉重」</span>",f:()=>{S.gold+=80;addCard(mk("heavy"));sfx("coin");return"麻袋里有金币，也有别的东西。你没细看。"}},
+ {t:"拿一袋珍珠",d:"<span class='good'>获得遗物「珍珠袋」</span>",f:()=>{if(!has("pearlbag"))gainRelic("pearlbag");else S.gold+=40;return"珍珠圆圆的，有点软。"}},
+ {t:"关上门",d:"",f:()=>"门关上以后，里面好像有什么在动。"}]},
+conveyor:{n:"传送带",img:"cup",act:3,t:"传送带一直往上走，上面是一个个封好的杯子。",o:()=>[
+ {t:"喝一杯",d:"<span class='good'>最大生命 +8</span>，<span class='bad'>获得诅咒「沉重」</span>",f:()=>{S.max+=8;S.hp+=8;addCard(mk("heavy"));return"很甜。你不太想知道为什么这么甜。"}},
+ {t:"关掉传送带",d:"<span class='good'>+4 经验</span>，<span class='bad'>失去 6 生命</span>",ok:S.hp>6,f:async()=>{S.hp-=6;await gainXP(4);return"整个工厂安静了几秒，然后又响了起来。"}},
+ {t:"离开",d:"",f:()=>"杯子一个接一个往上走。"}]},
+starmap:{n:"星图",img:"egf",act:4,t:"地上画着一张星图，有些星星被划掉了。",o:()=>[
+ {t:"研究星图",d:"<span class='good'>从 3 张稀有牌里选 1 张</span>",f:async()=>{await chooseReward(offerCards(3,"E",1),"星图上画着招式",false);return"你记住了几颗星星的位置。"}},
+ {t:"划掉一颗",d:"<span class='good'>获得一件稀有遗物</span>",f:()=>{gainRelic(randRelic("R"));return"你划掉的那颗，好像正好在村子上面。"}},
+ {t:"离开",d:"",f:()=>"星星还在闪。"}]},
+emptychair:{n:"空椅子",img:"bx",act:4,t:"塔顶边上摆着一把椅子，椅背上刻着很多名字。",o:()=>[
+ {t:"坐一会儿",d:"<span class='good'>回复 20 生命，+3 经验</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+20);await gainXP(3);return"椅子很舒服。舒服得有点不想起来。"}},
+ {t:"看看那些名字",d:"<span class='good'>立刻选一个天赋</span>",f:async()=>{await levelUp("椅背上的名字");return"最上面的名字已经磨平了。最下面那个还很新。"}},
+ {t:"离开",d:"",f:()=>"你走开以后，椅子还在原地。"}]},
+candykid:{n:"卖糖的小奶鼠",img:"msj",t:"路边有一只小奶鼠在卖糖，一块 10 金币。",o:()=>[
+ {t:"买一块",d:"<span class='good'>回复 10 生命</span>，花 10 金币",ok:S.gold>=10,f:()=>{S.gold-=10;S.hp=Math.min(S.max,S.hp+10);return"糖很甜。"}},
+ {t:"全买了",d:"<span class='good'>获得遗物「方糖」</span>，花 40 金币",ok:S.gold>=40,f:()=>{S.gold-=40;if(!has("sugarcube"))gainRelic("sugarcube");else S.hp=S.max;return"它数钱数了很久。"}},
+ {t:"问它爸妈在哪",d:"<span class='good'>+2 经验</span>",f:async()=>{await gainXP(2);return"它说爸妈去塔顶上班了，很快就回来。"}}]},
+mirrorpond:{n:"镜子一样的水",img:"bnl",t:"水面很平，映出来的你在笑。你没有笑。",o:()=>[
+ {t:"盯着看",d:"<span class='good'>从 3 张牌里选 1 张</span>",f:async()=>{await chooseReward(offerCards(3,"C"),"水里的你在比划招式",false);return"水里的你先转身走了。"}},
+ {t:"扔块石头",d:"<span class='good'>+30 金币</span>，<span class='bad'>失去 3 生命</span>",ok:S.hp>3,f:()=>{S.hp-=3;S.gold+=30;return"水花溅起来，打湿了你。水底有几枚硬币。"}},
+ {t:"走开",d:"",f:()=>"你走了几步，水里的你没有跟上。"}]},
+oldclimber:{n:"老登山者",img:"m5",t:"一只很老的奶蛙坐在台阶上，说他爬了一辈子。",o:()=>[
+ {t:"听他说",d:"<span class='good'>+4 经验</span>",f:async()=>{await gainXP(4);return"他说他第一次来的时候，塔只有三层。"}},
+ {t:"给他 30 金币",d:"<span class='good'>获得一件遗物</span>",ok:S.gold>=30,f:()=>{S.gold-=30;gainRelic(randRelic("C"));return"他从怀里掏出一个旧东西给你，说用不上了。"}},
+ {t:"问他为什么不下山",d:"",f:()=>"他想了很久，说忘了下山的路怎么走。"}]},
+cupgame:{n:"猜杯子",img:"dg",t:"一只奶狗摆了三个杯子，说猜中有奖。押 30 金币。",o:()=>[
+ {t:"押 30 金币",d:"三分之一机会拿回 <span class='good'>110 金币</span>",ok:S.gold>=30,f:()=>{S.gold-=30;if(rnd()<1/3){S.gold+=110;sfx("coin");return"猜中了！奶狗的笑容僵了一下。"}return"杯子下面是空的。三个都是。"}},
+ {t:"掀翻桌子",d:"<span class='good'>+25 金币</span>，<span class='bad'>失去 6 生命</span>",ok:S.hp>6,f:()=>{S.hp-=6;S.gold+=25;return"奶狗咬了你一口，跑了。地上掉了些钱。"}},
+ {t:"不玩",d:"",f:()=>"奶狗冲你笑了笑。"}]},
+ragdoll:{n:"布娃娃",img:"n2",t:"路上掉着一个布娃娃，缝的是一只小奶蛙，背后绣着一个「七」字。",o:()=>[
+ {t:"带上它",d:"<span class='good'>最大生命 +6，回复 6 生命</span>",f:()=>{S.max+=6;S.hp=Math.min(S.max,S.hp+12);S.flags.doll=1;return"抱着它，好像没那么怕了。"}},
+ {t:"放回原处",d:"<span class='good'>+3 经验</span>",f:async()=>{await gainXP(3);return"也许它的主人会回来找。"}}]},
 fishing:{n:"钓鱼",img:"c3",t:"一根钓竿插在池塘边，主人不知去哪了。水面下有东西在游来游去。",o:()=>[
  {t:"钓一杆",d:"随机：金币、药水、卡牌，或者，一块泥巴",f:()=>{const r=rnd();if(r<.3){S.gold+=40;return"钓上来一个钱袋！+40 金币"}if(r<.55){givePot(randPot());return"钓上来一瓶药水。"}if(r<.85){const c=offerCards(1,"C")[0];addCard(c);return`钓上来一张卡：「${cname(c)}」。`}addCard(mk("mud"));return"钓上来一块泥巴，它粘在你的牌组里了。"}},
  {t:"钓到天黑",d:"<span class='good'>钓三次</span>，<span class='bad'>失去 6 生命（着凉了）</span>",ok:S.hp>6,f:()=>{S.hp-=6;let s=[];for(let i=0;i<3;i++){const r=rnd();if(r<.4){S.gold+=30;s.push("30 金币")}else if(r<.7){givePot(randPot());s.push("药水")}else{const c=offerCards(1,"C")[0];addCard(c);s.push(cname(c))}}return"收获："+s.join("、")+"。"}},
