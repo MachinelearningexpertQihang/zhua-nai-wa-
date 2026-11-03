@@ -129,7 +129,7 @@ function talk(lines){return new Promise(res=>{const T=$("#talk");let i=0;const L
   T.classList.add("on");sfx("click");i++};T.onclick=step;step()})}
 
 /* ===================== 标题 ===================== */
-function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("swing");const sv=loadRun();
+function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("title");const sv=loadRun();
  $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙尖塔".split("").map(c=>`<span>${c}</span>`).join("")}</h1><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div>
  <div class="tmenu">${sv?`<button class="btn" id="tCont">继续冒险<small style="font-size:16px;letter-spacing:0;opacity:.7">　第 ${sv.row+1} 层</small></button>`:""}<button class="btn ${sv?"ghost":""}" id="tNew">${sv?"重新开始":"开始冒险"}</button><div class="sub"><button class="btn sm ghost" id="tCodex">卡牌图鉴</button><button class="btn sm ghost" id="tSet">${A.music?"♪ 音乐开":"♪ 音乐关"}</button></div></div>
  <div class="thero"><img src="${IMG("n1")}"><i class="plat"></i></div><div class="telder"><img src="${IMG("fj")}"><i class="plat stone"></i></div>
@@ -207,7 +207,7 @@ function startCombat(kind){if(S.cur){if(!S.cur.snap)S.cur.snap={hp:S.hp,gold:S.g
  B={kind,enemies:list.map(mkEnemy),p:{block:0,energy:0,str:has("star")?1:0,tstr:0,dex:0,vuln:0,weak:0,mud:0,nextAtk:0,borrow:0,retain:0,drawMinus:0,free:0,pw:{}},
   dp:shuffle(S.deck.map(c=>({...c}))),hand:[],disc:[],exh:[],turn:0,combo:0,played:0,fam:{},pool:[],poolCap:7,catchLeft:1+(has("net")?1:0),caught:[],badge:0,mirror:has("mirror"),over:0,after:[],sel:null,myTurn:false,totalPlayed:0};
  Object.assign(B,API);{const k=S.sky[S.atBoss?ROWS:Math.max(0,S.row)];B.moon=k.moon;B.wx=k.wx;if(has("moonmirror"))B.moon="full";if(B.moon==="new")B.poolCap=6;if(has("pondstone"))B.poolCap++}
- setBg(kind==="B"?"boss":kind==="E"?"elite":["swamp","reed","ruin"][(S.row+3)%3],B.moon);renderSky();show("battle");renderTop();if(kind!=="B")playMusic(kind==="E"?"boss":"tense");
+ setBg(kind==="B"?"boss":kind==="E"?"elite":["swamp","reed","ruin"][(S.row+3)%3],B.moon);renderSky();show("battle");renderTop();if(kind!=="B")playMusic(kind==="E"?"elite":"battle");
  B.enemies.forEach(e=>e.intent=ENEMY[e.id].ai(e,0));
  renderBattle(true);
  if(has("feather"))B.block(8,1);
@@ -459,7 +459,7 @@ function gameOver(quit){const fl=S.row+1;M.best=Math.max(M.best,fl);saveMeta();c
  $("#ending").innerHTML=`<div class="endBox lose"><div class="endImg"><img src="${IMG("hs")}"></div><h1>${quit?"下次再来":"倒下了……"}</h1><p>${quit?"塔还在那里，随时可以再爬。":"功夫奶蛙被抬回了奶茶泉边。<br>长老说：「没关系，塔每次都不一样。」"}</p><div class="endStats"><div><b>${fl}</b><small>到达层数</small></div><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>三连次数</small></div><div><b>${st.dmg}</b><small>总伤害</small></div></div><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div>`;
  $("#eAgain").onclick=heroSelect;$("#eHome").onclick=titleScreen}
 async function actClear(){const st=S.stats;M.wins++;M.shards+=1;const tale=ELDER_TALES[Math.min(M.tale,ELDER_TALES.length-1)];M.tale++;saveMeta();const deckN=S.deck.length;S=null;saveRun();B=null;
- show("ending");setBg("title");playMusic("swing");
+ show("ending");setBg("title");playMusic("title");
  $("#ending").innerHTML=`<div class="endBox"><div class="endImg"><img src="${IMG("n1")}"></div><h1>第一层 · 通关</h1><p>沼泽之王醒了过来。泉水，好像涨回了一点点。</p><div class="endStats"><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>三连次数</small></div><div><b>${st.dmg}</b><small>总伤害</small></div><div><b>${deckN}</b><small>最终牌组</small></div></div><p style="font-size:20px;color:#ffe7a0">获得记忆碎片 ×1　「${tale}」</p><div class="tbc"><span class="ribbon b">第二层「月夜古堡」未完待续</span></div><div style="margin-top:22px"><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div></div>`;
  sparks(640,200,"#ffd23f",40);$("#eAgain").onclick=heroSelect;$("#eHome").onclick=titleScreen}
 
