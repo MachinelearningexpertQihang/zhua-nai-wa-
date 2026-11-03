@@ -461,3 +461,71 @@ img{-webkit-user-drag:none;pointer-events:none}
 .card.cback .in small{font-size:.8em;color:#cfc4f2}
 .scene .rise{animation:rise 30s linear infinite}
 @keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(60px,-520px);opacity:0}}
+
+/* ===== 0.3 奶蛙池 ===== */
+#pool{position:absolute;left:50%;top:68px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:10px;padding:6px 12px 6px 14px;border-radius:20px;background:#2f6b5a;border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink),inset 0 0 0 4px #4f9a7a,inset 0 -10px 0 rgba(0,0,0,.18)}
+#pool:empty{display:none}
+#pool .plbl{display:flex;flex-direction:column;align-items:center;font-weight:400;font-size:18px;color:var(--milk);line-height:1.1;-webkit-text-stroke:4px var(--ink);paint-order:stroke}
+#pool .plbl small{font:800 13px var(--num);color:var(--gold);-webkit-text-stroke:3px var(--ink)}
+#pool .slots{display:flex;gap:6px}
+.tok{position:relative;width:48px;height:48px;border-radius:50%;background:#fff4dc;border:3px solid var(--ink);box-shadow:inset 0 0 0 3px var(--fc);overflow:hidden;animation:tokIn .3s ease-out}
+.tok img{position:absolute;left:-6%;top:2%;width:112%;height:112%;object-fit:contain}
+.tok.empty{background:rgba(0,0,0,.22);border:3px dashed rgba(255,255,255,.35);box-shadow:none;animation:none}
+.tok.empty.warn{border-color:#ff8a8a;animation:triP .6s infinite}
+.tok.hot{box-shadow:inset 0 0 0 4px var(--fc),0 0 0 3px var(--gold);animation:triP .8s infinite}
+.tok.mudt{background:#a07a50}
+@keyframes tokIn{from{transform:translateY(-30px) scale(.4)}}
+#pool.danger{background:#7a3a3a;box-shadow:0 5px 0 var(--ink),inset 0 0 0 4px #b25a5a}
+#pool.spill{animation:shk .4s}
+#skyBar{position:absolute;left:14px;top:70px;z-index:8;display:flex;flex-direction:column;gap:6px}
+.skyPill{display:flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 4px;border-radius:18px;background:var(--milk);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:17px;color:var(--ink)}
+.skyPill .ico{width:28px;height:28px}
+#hint{top:140px}
+/* 抓 */
+.catchBtn{position:absolute;right:-18px;top:-6px;z-index:5;display:none;flex-direction:column;align-items:center;width:58px;height:66px;padding-top:2px;border-radius:16px;background:#b392ff;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);color:#fff;font-size:17px;-webkit-text-stroke:4px var(--ink);paint-order:stroke}
+.catchBtn .ico{width:34px;height:34px}
+.en.canCatch .catchBtn{display:flex;animation:catchP 1s ease-in-out infinite}
+@keyframes catchP{50%{transform:scale(1.12) rotate(6deg)}}
+.en.caught{animation:caughtA .7s forwards;pointer-events:none}
+@keyframes caughtA{40%{transform:scale(.6) rotate(-10deg)}100%{transform:translate(-500px,40px) scale(.1);opacity:0}}
+.netFx{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;animation:netA .5s ease-out forwards;z-index:56}
+@keyframes netA{0%{transform:translateY(-220px) scale(.5) rotate(-30deg)}70%{transform:translateY(0) scale(1.1)}100%{transform:scale(1)}}
+/* 天气 */
+#wxfx{position:absolute;inset:60px 0 0 0;pointer-events:none;z-index:1}
+.wx-rain,.wx-storm{background-image:repeating-linear-gradient(105deg,transparent 0 22px,rgba(190,215,255,.35) 22px 24px,transparent 24px 60px);background-size:120px 120px;animation:rain .45s linear infinite}
+@keyframes rain{to{background-position:-30px 120px}}
+.wx-snow{background-image:radial-gradient(circle at 20px 30px,#fff 0 4px,transparent 5px),radial-gradient(circle at 80px 90px,#fff 0 3px,transparent 4px),radial-gradient(circle at 140px 20px,#fff 0 5px,transparent 6px),radial-gradient(circle at 170px 140px,#fff 0 3px,transparent 4px);background-size:200px 180px;animation:snow 6s linear infinite;opacity:.85}
+@keyframes snow{to{background-position:40px 180px}}
+.wx-wind{background-image:repeating-linear-gradient(0deg,transparent 0 70px,rgba(255,255,255,.18) 70px 72px,transparent 72px 140px);background-size:300px 140px;animation:wind .6s linear infinite;-webkit-mask:repeating-linear-gradient(90deg,#000 0 120px,transparent 120px 300px);mask:repeating-linear-gradient(90deg,#000 0 120px,transparent 120px 300px)}
+@keyframes wind{to{background-position:-300px 0;-webkit-mask-position:-300px 0;mask-position:-300px 0}}
+.wx-fog{background:linear-gradient(transparent 30%,rgba(220,230,240,.25) 55%,rgba(220,230,240,.12) 75%,transparent);animation:twk 4s ease-in-out infinite alternate}
+.flash{position:absolute;inset:0;background:#fff;animation:flash .6s forwards;z-index:57}
+@keyframes flash{0%,30%{opacity:.85}15%{opacity:.2}100%{opacity:0}}
+/* 金卡 */
+.card.gold .cf{background:linear-gradient(115deg,#fff2a8,#f7c948 30%,#e0a21c 50%,#ffe58a 70%,#f7c948);background-size:240% 100%;animation:leg 2.4s linear infinite}
+.card.gold .rib::before{background:linear-gradient(#ffe58a 0 50%,#e0a21c 50%)}
+.card.gold .rib span{color:#fff7c8}
+.card.gold .in{background:#fff6d6}
+.gtag{position:absolute;right:-.55em;bottom:3.4em;z-index:4;padding:.05em .45em;border-radius:.5em;font-size:.7em;background:var(--gold);border:.16em solid var(--ink);color:var(--ink);transform:rotate(8deg)}
+.pkw{display:flex;flex-direction:column;align-items:center;gap:12px}
+.mtag{padding:2px 12px;border-radius:10px;font-size:15px;background:var(--ink);color:#cfc4f2;border:2px solid #4e3c8a;white-space:nowrap}
+.mtag.hot{background:var(--gold);color:var(--ink);border-color:var(--ink);animation:triP .8s infinite}
+.shopItem .mtag{font-size:12px;padding:1px 6px}
+.mergeFx{position:absolute;inset:0;z-index:95;background:rgba(18,11,38,.85);cursor:pointer}
+.mergeFx .m3{position:absolute;left:0;right:0;top:170px;display:flex;justify-content:center;gap:30px}
+.mergeFx .mc{animation:mcIn .9s ease-in forwards}
+.mergeFx .mc0{--dx:200px}.mergeFx .mc1{--dx:0px}.mergeFx .mc2{--dx:-200px}
+@keyframes mcIn{60%{transform:none;opacity:1}100%{transform:translateX(var(--dx)) scale(.4);opacity:0}}
+.mergeFx .mg{position:absolute;left:50%;top:130px;transform:translateX(-50%);animation:mgIn .5s .85s backwards cubic-bezier(.3,1.6,.5,1)}
+@keyframes mgIn{from{transform:translateX(-50%) scale(0) rotate(-20deg)}}
+.mergeFx .mt{position:absolute;left:0;right:0;bottom:70px;text-align:center;animation:mgIn2 .4s 1s backwards}
+@keyframes mgIn2{from{opacity:0;transform:translateY(20px)}}
+.mergeFx .mt b{display:block;font-weight:400;font-size:64px;color:var(--gold);-webkit-text-stroke:9px var(--ink);paint-order:stroke;letter-spacing:6px}
+.mergeFx .mt small{font-size:20px;color:var(--milk)}
+/* 地图天空 */
+.skyCol{position:absolute;top:106px;margin-left:-31px;width:62px;display:flex;align-items:center;justify-content:center;gap:0;padding:2px;border-radius:12px;background:rgba(255,244,220,.85);border:2.5px solid var(--ink);cursor:pointer;z-index:3}
+.skyCol .ico{width:22px;height:22px}
+.skyCol.nx{background:var(--gold);transform:scale(1.12)}
+.mapHead{top:auto;bottom:22px;left:24px}
+.mapHead small{display:none}
+#mapTip{left:auto;right:520px;bottom:30px;max-width:420px;text-align:right;font-size:15px}

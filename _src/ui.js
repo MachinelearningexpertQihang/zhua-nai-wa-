@@ -19,10 +19,18 @@ chest:sv(`<rect x="3" y="13" width="26" height="15" rx="2" fill="#c27a3a"/><path
 q:sv(`<circle cx="16" cy="16" r="13" fill="#a983ff"/><text x="16" y="22.5" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" stroke="${INK}" stroke-width="1.2" font-family="Arial">?</text>`),
 deck:sv(`<rect x="9" y="3" width="17" height="23" rx="3" fill="#8a6cf0" transform="rotate(10 17 14)"/><rect x="5" y="6" width="17" height="23" rx="3" fill="#ffe08a"/><circle cx="13.5" cy="17.5" r="3.5" fill="#ff8a5b"/>`),
 gear:sv(`<path d="M13.5 3 H18.5 L19.2 7 L22.6 8.6 L26 6.4 L29.3 10 L27 13.4 L28 17 L31 18.5 V19 L28 21 L27 24 L29 27 L26 30 L22.6 28 L19.5 29.2 L18.5 31 H13.5 L12.6 29 L9.4 28 L6 30 L2.8 27 L5 23.6 L3.8 20.5 L1 19 V14 L4 13 L5 9.8 L2.8 6.4 L6 3.2 L9.4 5.4 L12.6 4.2 Z" fill="#cfc6e6" transform="scale(.94) translate(1 0)"/><circle cx="16" cy="16.5" r="4.6" fill="${INK}" stroke="none"/>`),
+net:sv(`<path d="M4 6 C10 2 22 2 28 6 L24 26 C20 30 12 30 8 26 Z" fill="#f2e6c8" fill-opacity=".85"/><path d="M6 12 H26 M7 18 H25 M9 24 H23 M11 5 L13 28 M16 4 V30 M21 5 L19 28" fill="none" stroke-width="1.6"/><path d="M16 30 V32" stroke-width="3"/>`),
 star:sv(`<path d="M16 3 L19.6 11.4 L28.6 12 L21.6 17.8 L23.8 26.8 L16 22 L8.2 26.8 L10.4 17.8 L3.4 12 L12.4 11.4 Z" fill="#f7c948"/>`),
 skull:sv(`<path d="M16 3 C8 3 4 9 4 15 C4 19 6 21 8 22 V27 H24 V22 C26 21 28 19 28 15 C28 9 24 3 16 3 Z" fill="#f2ead8"/><circle cx="11.5" cy="15" r="3.2" fill="${INK}" stroke="none"/><circle cx="20.5" cy="15" r="3.2" fill="${INK}" stroke="none"/><path d="M13 27 V23 M16 27 V23 M19 27 V23" fill="none" stroke-width="1.8"/>`),
 };
 
+function moonSVG(ph){const d={new:9,wax:-6,full:99,wane:6}[ph];return sv(`<circle cx="16" cy="16" r="12" fill="#fff1c2"/>${d===99?"":`<circle cx="${16+d}" cy="16" r="12" fill="#2a1a33" stroke="none"/>`}<circle cx="16" cy="16" r="12" fill="none"/>`)}
+const WXICON={clear:sv(`<circle cx="16" cy="16" r="7" fill="#ffd23f"/><path d="M16 2 V6 M16 26 V30 M2 16 H6 M26 16 H30 M6 6 L9 9 M23 23 L26 26 M26 6 L23 9 M6 26 L9 23" fill="none"/>`),
+rain:sv(`<path d="M8 18 a6 6 0 0 1 2 -11 a8 8 0 0 1 14 3 a5 5 0 0 1 0 8 Z" fill="#cfd8f0"/><path d="M10 22 L8 28 M16 22 L14 28 M22 22 L20 28" stroke="#5fb0f0" stroke-width="2.6" fill="none"/>`),
+wind:sv(`<path d="M3 11 H20 A4 4 0 1 0 16 7 M3 18 H25 A4 4 0 1 1 21 22 M6 25 H14" fill="none" stroke-width="3"/>`),
+snow:sv(`<path d="M16 3 V29 M5 9.5 L27 22.5 M27 9.5 L5 22.5" stroke="#bfe6ff" stroke-width="3"/><path d="M16 3 V29 M5 9.5 L27 22.5 M27 9.5 L5 22.5" stroke-width="1" />`),
+fog:sv(`<path d="M4 10 H24 M8 16 H28 M4 22 H22" stroke="#d8d0e8" stroke-width="3.4" fill="none"/>`),
+storm:sv(`<path d="M8 16 a6 6 0 0 1 2 -11 a8 8 0 0 1 14 3 a5 5 0 0 1 0 8 Z" fill="#8a84a8"/><path d="M17 15 L12 23 H17 L14 30 L22 20 H17 L20 15 Z" fill="#ffd23f"/>`)};
 /* 场景：分层平涂 SVG，没有模糊边；每种场景有自己的道具和小动画 */
 const PAL={
  swamp:{s1:"#16103a",s2:"#2c2263",s3:"#56407f",moon:"#fff1c2",far:"#2a2058",mid:"#1d3a3a",near:"#132a26",water:"#2a3f6b",gl:"#3d6b4f"},
@@ -34,7 +42,7 @@ const PAL={
  rest:{s1:"#0c1230",s2:"#1a2556",s3:"#2f3a74",moon:"#fff1c2",far:"#1b2350",mid:"#17303a",near:"#0f2220",water:"#22396a",gl:"#2b5244"},
  event:{s1:"#0f1a2a",s2:"#1f3a4a",s3:"#3f6a6a",moon:"#e0ffe8",far:"#1a3040",mid:"#173030",near:"#0e2020",water:"#22405a",gl:"#2a5a48"},
  shop:{s1:"#2a1230",s2:"#4a1f3a",s3:"#8a3a3a",moon:"#ffd9a0",far:"#3a1838",mid:"#2b1a1c",near:"#1a0f10",water:"#3a1f2a",gl:"#4a2a24"}};
-function sceneSVG(kind){const P=PAL[kind]||PAL.swamp,I=INK;
+function sceneSVG(kind,moon){const P=PAL[kind]||PAL.swamp,I=INK;
  const mx={swamp:1040,reed:640,ruin:300,elite:1000,boss:640,title:760,rest:1060,event:980,shop:1100}[kind]||1000,mr={boss:96,title:84,reed:84}[kind]||56,my={boss:150,reed:200}[kind]||118;
  let stars="";for(let i=0;i<56;i++){const x=(i*277)%1280,y=(i*131)%340,r=i%7===0?2.4:1.2;stars+=`<circle class="${i%3?"":"tw"}" style="animation-delay:${i%5*.6}s" cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${.35+(i%4)*.18}"/>`}
  const cloud=(x,y,s,o)=>`<g class="cloud" style="animation-duration:${60+s*30}s"><g transform="translate(${x} ${y}) scale(${s})" fill="#fff" opacity="${o}"><ellipse cx="0" cy="0" rx="60" ry="16"/><ellipse cx="-20" cy="-12" rx="28" ry="18"/><ellipse cx="18" cy="-16" rx="34" ry="22"/></g></g>`;
@@ -68,7 +76,7 @@ function sceneSVG(kind){const P=PAL[kind]||PAL.swamp,I=INK;
  if(kind==="shop"){let lt="";for(let i=0;i<9;i++){const x=340+i*110;lt+=lantern(x,150+Math.sin(i*.9)*18,i%2?"#e8484f":"#ff9a3a")}back+=`<path d="M300 120 Q760 200 1270 110" stroke="${I}" stroke-width="3" fill="none"/>`;props+=lt+`<g transform="translate(0 0)"><path d="M300 470 V300 M1260 470 V300" stroke="#5a3626" stroke-width="12"/><path d="M290 300 H1270 L1250 250 H310 Z" fill="#e8484f" stroke="${I}" stroke-width="3"/>${[...Array(12)].map((_,i)=>`<path d="M${310+i*80} 250 L${350+i*80} 250 L${345+i*80} 300 L${305+i*80} 300 Z" fill="#fff4dc" stroke="${I}" stroke-width="2"/>`).filter((_,i)=>i%2===0).join("")}</g>`}
  return `<svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.s1}"/><stop offset=".6" stop-color="${P.s2}"/><stop offset="1" stop-color="${P.s3}"/></linearGradient></defs>
  <rect width="1280" height="720" fill="url(#sk)"/>${stars}
- <circle class="halo" cx="${mx}" cy="${my}" r="${mr+40}" fill="${P.moon}" opacity=".08"/><circle cx="${mx}" cy="${my}" r="${mr+16}" fill="${P.moon}" opacity=".12"/><circle cx="${mx}" cy="${my}" r="${mr}" fill="${P.moon}"/><circle cx="${mx+mr*.3}" cy="${my-mr*.25}" r="${mr*.16}" fill="#000" opacity=".07"/><circle cx="${mx-mr*.35}" cy="${my+mr*.3}" r="${mr*.11}" fill="#000" opacity=".07"/>
+ <circle class="halo" cx="${mx}" cy="${my}" r="${mr+40}" fill="${P.moon}" opacity=".08"/><circle cx="${mx}" cy="${my}" r="${mr+16}" fill="${P.moon}" opacity=".12"/><circle cx="${mx}" cy="${my}" r="${mr}" fill="${P.moon}"/>${moon&&moon!=="full"?`<defs><mask id="mmask"><rect width="1280" height="720" fill="#fff"/><circle cx="${mx+{new:.18,wax:-.62,wane:.62}[moon]*mr*1.6}" cy="${my}" r="${mr*1.02}" fill="#000"/></mask></defs><circle cx="${mx}" cy="${my}" r="${mr}" fill="${P.s2}" opacity=".55"/><circle cx="${mx}" cy="${my}" r="${mr}" fill="${P.moon}" mask="url(#mmask)"/>`:""}<circle cx="${mx+mr*.3}" cy="${my-mr*.25}" r="${mr*.16}" fill="#000" opacity=".07"/><circle cx="${mx-mr*.35}" cy="${my+mr*.3}" r="${mr*.11}" fill="#000" opacity=".07"/>
  ${["swamp","title","reed","rest"].includes(kind)?skyl():""}${cloud(200,90,1.2,.07)}${cloud(700,160,.9,.06)}${cloud(1100,60,1,.05)}
  ${back}
  ${hills2(P.far)}
