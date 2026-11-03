@@ -227,6 +227,18 @@ p_ctl:{n:"冰原奶猫",cost:1,type:"skl",r:"P",fam:"pal",img:"ctl",ret:1,d:u=>`
 p_snn:{n:"冰龙蛇",cost:2,type:"atk",r:"P",fam:"pal",img:"snn",d:u=>`对所有敌人造成 ${U(u,10,13)} 伤害，冻住它们的气势：虚弱 2`,fx:(B,u)=>{B.hitAll(U(u,10,13));B.alive().forEach(e=>B.apply(e,"weak",2))}},
 p_ckn:{n:"冰晶卫士",cost:1,type:"skl",r:"P",fam:"pal",img:"ckn",d:u=>`获得 ${U(u,12,15)} 护盾，荆棘 +2`,fx:(B,u)=>{B.block(U(u,12,15));B.apply(B.p,"thorn",2)}},
 p_knight2:{n:"骑士长",cost:2,type:"atk",r:"P",fam:"pal",img:"np",tgt:1,d:u=>`造成 ${U(u,18,24)} 伤害，获得 8 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,18,24));B.block(8)}},
+p_hry:{n:"沸腾奶马",cost:1,type:"atk",r:"P",fam:"pal",img:"hry",tgt:1,d:u=>`造成 ${U(u,10,13)} 伤害，烫伤 ${U(u,2,3)}`,fx:(B,u,t)=>{B.hit(t,U(u,10,13));B.apply(t,"burn",U(u,2,3))}},
+p_cky:{n:"珍珠奶鸡",cost:1,type:"skl",r:"P",fam:"pal",img:"cky",d:u=>`获得 ${U(u,9,12)} 护盾，清掉池里 1 块泥巴`,fx:(B,u)=>{B.block(U(u,9,12));const i=B.pool.findIndex(x=>x.f==="mud");if(i>=0){B.pool.splice(i,1);B.poolResolve();renderPool()}}},
+p_cty:{n:"焦糖奶猫",cost:0,type:"skl",r:"P",fam:"pal",img:"cty",d:u=>`回复 ${U(u,3,5)} 生命，抽 1 张`,fx:(B,u)=>{B.heal(U(u,3,5));B.draw(1)}},
+p_sny:{n:"熔岩奶蛇",cost:1,type:"atk",r:"P",fam:"pal",img:"sny",tgt:1,d:u=>`造成 ${U(u,5,7)} 伤害 2 次，烫伤 2`,fx:(B,u,t)=>{B.hit(t,U(u,5,7),2);B.apply(t,"burn",2)}},
+p_egy:{n:"奶茶蛋",cost:1,type:"skl",r:"P",fam:"pal",img:"egy",d:u=>`获得 ${U(u,8,11)} 护盾，回复 3 生命`,fx:(B,u)=>{B.block(U(u,8,11));B.heal(3)}},
+p_msy:{n:"搬运奶鼠",cost:0,type:"skl",r:"P",fam:"pal",img:"msy",d:u=>`把池子最后 1 只推到最前面，抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.poolNudge();B.draw(U(u,1,2))}},
+p_dgy:{n:"锅炉奶狗",cost:1,type:"atk",r:"P",fam:"pal",d:u=>`对所有敌人造成 ${U(u,5,7)} 伤害，烫伤 2`,img:"dgy",fx:(B,u)=>{B.hitAll(U(u,5,7));B.alive().forEach(e=>B.apply(e,"burn",2))}},
+p_egx:{n:"熔炉巨蛋",cost:2,type:"atk",r:"P",fam:"pal",img:"egx",exh:1,d:u=>`对所有敌人造成 ${U(u,16,22)} 伤害，烫伤 4。消耗`,fx:(B,u)=>{B.hitAll(U(u,16,22));B.alive().forEach(e=>B.apply(e,"burn",4));B.shake()}},
+p_pot:{n:"紫砂奶茶壶",cost:2,type:"skl",r:"P",fam:"pal",img:"pot",exh:1,d:u=>`获得 ${U(u,14,18)} 护盾，回复 ${U(u,6,9)} 生命，抽 2 张。消耗`,fx:(B,u)=>{B.block(U(u,14,18));B.heal(U(u,6,9));B.draw(2)}},
+p_cup:{n:"笑笑奶茶杯",cost:0,type:"atk",r:"P",fam:"pal",img:"cup",tgt:1,d:u=>`造成 ${U(u,4,6)} 伤害，烫伤 ${U(u,1,2)}`,fx:(B,u,t)=>{B.hit(t,U(u,4,6));B.apply(t,"burn",U(u,1,2))}},
+p_imp:{n:"小恶魔奶蛙",cost:1,type:"atk",r:"P",fam:"pal",img:"imp",tgt:1,d:u=>`造成 ${U(u,9,12)} 伤害，给它虚弱 1、易伤 1`,fx:(B,u,t)=>{B.hit(t,U(u,9,12));B.apply(t,"weak",1);B.apply(t,"vuln",1)}},
+p_ckx:{n:"加热双子",cost:1,type:"atk",r:"P",fam:"pal",img:"ckx",tgt:1,d:u=>`造成 ${U(u,7,9)} 伤害 2 次，获得 5 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,7,9),2);B.block(5)}},
 /* ---- 诅咒 / 状态 ---- */
 mud:{n:"泥巴块",cost:1,type:"sts",r:"T",fam:"none",img:"pp",exh:1,d:u=>`在手里时，回合结束受到 2 伤害。打出后消耗`,fx:()=>{}},
 heavy:{n:"沉重",cost:-2,type:"cur",r:"K",fam:"none",img:"xsh",d:u=>`不能打出`,fx:()=>{}},
@@ -235,8 +247,8 @@ frozen:{n:"冻住",cost:-2,type:"sts",r:"T",fam:"none",img:"c7",eth:1,d:u=>`不�
 };
 const POOL_HERO=["frograge","dive","resonance","fistwind","ultimate","swim","frogeye","ironhoof","raid","herd","stallion","horseshoe","bugle","pegasus","duster","guardegg","hen","icechick","dawn","counter","rebirth","catnip","roll","lick","nightowl","clawcombo","hairball","meowstar","chainbomb","surge","rally","nest","catbed","tide","fullmoon","quick","woodpecker","catwalk","spinchain","diamond","bigtea","allfrogs","momentum","icefire","ninering","squeeze","rainbow","nudge","icebreak","lure","scoop","drain","rinse","pondheart","chain","cushion","reservoir","callwind","callrain","moonbow","snowball","thunderg","croak","cicada","legion","swallow","relief","bloodhorse","hatch","cockfight","rooster","scratch","stretch","ninetail","leap","jab","flurry","tongue","echo","dragon","rhythm","storm","gallop","rush","backkick","mane","trample","stampede","unicorn","peck","fluff","roost","crow","spur","wall","iron","blaze","paw","nap","purr","yarn","nine","prowl","stargaze","galaxy","fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
 const POOL_X=["icicle","handwarmer","bellring","refill","grabhand","lucky","demonpot","insight","rbridge","purge","stir","devil","dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
-const POOL_PAL=["p_hrcc","p_ckb","p_dgar","p_hrl","p_ckt","p_snl","p_egl","p_msl","p_ctl","p_snn","p_ckn","p_knight2","p_snk","p_dga","p_egg","p_ghost","p_china","p_starsnake","p_aurora","p_ml","p_np","p_xg","p_xb","p_hs","p_dog","p_ice","p_vp","p_nx","p_n4","p_star","p_hn","p_an","p_yjx","p_rat","p_ratg","p_ratb","p_poo","p_laugh","p_chick","p_snake","p_crawl","p_giant","p_bomb","p_mud"];
-const STARTER=["strike","strike","strike","strike","strike","guard","guard","guard","guard","fist"];
+const POOL_PAL=["p_imp","p_pot","p_cup","p_hry","p_cky","p_cty","p_sny","p_egy","p_msy","p_dgy","p_egx","p_ckx","p_hrcc","p_ckb","p_dgar","p_hrl","p_ckt","p_snl","p_egl","p_msl","p_ctl","p_snn","p_ckn","p_knight2","p_snk","p_dga","p_egg","p_ghost","p_china","p_starsnake","p_aurora","p_ml","p_np","p_xg","p_xb","p_hs","p_dog","p_ice","p_vp","p_nx","p_n4","p_star","p_hn","p_an","p_yjx","p_rat","p_ratg","p_ratb","p_poo","p_laugh","p_chick","p_snake","p_crawl","p_giant","p_bomb","p_mud"];
+const STARTER=["strike","strike","strike","strike","guard","guard","guard","guard","fist"];
 
 /* ===================== 敌人 ===================== */
 /* intent: {k:'atk',v,x} {k:'def',v} {k:'buff',s,v} {k:'debuff',s,v} {k:'add',card,n} {k:'atkdef',v,b} {k:'steal',v,g} {k:'flee'} {k:'boom',v} {k:'summon'} {k:'cnt',v}*/
@@ -281,11 +293,12 @@ angel:{n:"堕落天使",img:"e_an",pal:"p_an",hp:[100,106],h:230,elite:1,ai:(e,t
 isekai:{n:"异世界奶蛙",img:"e_v_yjx",pal:"p_yjx",hp:[96,100],h:220,elite:1,pd:"每回合把你的池子打乱",ai:(e,t)=>[{k:"atk",v:14,pool:{t:"shuffle"}},{k:"atk",v:8,x:2,pool:{t:"shuffle"}},{k:"buff",s:"str",v:3,pool:{t:"junk",n:2}}][t%3]},
 shadowE:{n:"影子刺客",img:"e_xsh",hp:[64,64],h:230,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:2},{k:"atk",v:9,x:2,pool:{t:"shuffle"}},{k:"atk",v:15,pool:{t:"freeze",n:1}}][t%3]},
 shadowE2:{n:"影子刺客",img:"e_xsh",hp:[96,96],h:240,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:3},{k:"atk",v:11,x:2,pool:{t:"shuffle"}},{k:"atk",v:20,pool:{t:"freeze",n:2}}][t%3]},
-demon:{n:"奶蛙大魔王",img:"e_bx",hp:[320,320],h:270,boss:1,pd:"会一口吞掉你整个池子，每吞 2 只力气 +1；还会掀锅，把池子冻住打乱",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:3,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:2,pool:{t:"eat"}},{k:"atk",v:34},{k:"atkdef",v:16,b:20,pool:{t:"freeze",n:3}}][t%4]:[{k:"atk",v:18,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:1,pool:{t:"eat"}},{k:"atk",v:8,x:3,pool:{t:"freeze",n:2}},{k:"def",v:24,pool:{t:"shuffle"}}][t%4]},
+demon:{n:"奶蛙大魔王",img:"e_dm",hp:[320,320],h:270,boss:1,pd:"会一口吞掉你整个池子，每吞 2 只力气 +1；还会掀锅，把池子冻住打乱",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:3,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:2,pool:{t:"eat"}},{k:"atk",v:34},{k:"atkdef",v:16,b:20,pool:{t:"freeze",n:3}}][t%4]:[{k:"atk",v:18,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:1,pool:{t:"eat"}},{k:"atk",v:8,x:3,pool:{t:"freeze",n:2}},{k:"def",v:24,pool:{t:"shuffle"}}][t%4]},
 /* ---------- 0.5 新增敌人 ---------- */
 mudhorse:{n:"泥巴奶马",img:"e_hrcc",pal:"p_hrcc",hp:[30,34],h:160,ai:(e,t)=>[{k:"atk",v:11},{k:"atk",v:6,x:2,pool:{t:"junk",n:1}},{k:"def",v:8}][(t+e.seed)%3]},
 blackchick:{n:"乌鸡",img:"e_ckb",pal:"p_ckb",hp:[28,32],h:145,ai:(e,t)=>[{k:"debuff",s:"weak",v:2},{k:"atk",v:10},{k:"atkdef",v:6,b:8}][(t+e.seed)%3]},
 knight2:{n:"拿破仑骑士长",img:"e_np",pal:"p_knight2",hp:[92,96],h:220,elite:1,ai:(e,t)=>[{k:"def",v:18,s2:"str",v2:3},{k:"atk",v:20},{k:"atk",v:8,x:3,pool:{t:"shuffle"}}][t%3]},
+imp:{n:"小恶魔奶蛙",img:"e_imp",pal:"p_imp",hp:[130,136],h:250,elite:1,pd:"翅膀一扇，让你又虚弱又易伤；还会偷吸你池里的奶蛙",ai:(e,t)=>[{k:"atk",v:11,x:2},{k:"debuff",s:"vuln",v:2},{k:"atk",v:16,pool:{t:"suck",n:1,h:8}},{k:"buff",s:"str",v:3},{k:"atk",v:9,x:3}][t%5]},
 stardog:{n:"星空奶狗",img:"e_dgar",pal:"p_dgar",hp:[36,40],h:160,ai:(e,t)=>[{k:"atk",v:9,x:2},{k:"atk",v:15,pool:{t:"freeze",n:1}},{k:"buff",s:"str",v:2}][(t+e.seed)%3]},
 icehorse:{n:"冰晶奶马",img:"e_hrl",pal:"p_hrl",hp:[34,38],h:160,ai:(e,t)=>[{k:"atk",v:12,pool:{t:"freeze",n:1}},{k:"atk",v:6,x:2},{k:"def",v:10}][(t+e.seed)%3]},
 snowchick:{n:"雪地奶鸡",img:"e_ckt",pal:"p_ckt",hp:[26,30],h:140,ai:(e,t)=>[{k:"def",v:10},{k:"atk",v:9,pool:{t:"freeze",n:1}}][(t+e.seed)%2]},
@@ -297,6 +310,23 @@ icedragon:{n:"冰龙蛇",img:"e_snn",pal:"p_snn",hp:[100,104],h:240,elite:1,pd:"
 iceguard:{n:"冰晶卫士",img:"e_ckn",pal:"p_ckn",hp:[54,58],h:180,elite:1,ai:(e,t)=>[{k:"atkdef",v:10,b:12},{k:"atk",v:7,x:2,pool:{t:"freeze",n:1}},{k:"def",v:16,s2:"str",v2:2}][(t+e.seed)%3]},
 iceking:{n:"冰封奶蛙王",img:"e_c7",hp:[250,250],h:280,boss:1,pd:"每回合都会冻住你池里的奶蛙，冰会越积越多",ai:(e,t)=>e.phase2?[{k:"atk",v:10,x:3,pool:{t:"freeze",n:3}},{k:"atkdef",v:18,b:20},{k:"buff",s:"str",v:3,pool:{t:"freeze",n:2}},{k:"atk",v:30}][t%4]:[{k:"atk",v:14,pool:{t:"freeze",n:2}},{k:"def",v:22,pool:{t:"freeze",n:1}},{k:"atk",v:7,x:3},{k:"atk",v:18,pool:{t:"freeze",n:2}}][t%4]},
 snowking:{n:"雪球大王",img:"e_egsk",hp:[240,240],h:270,boss:1,pd:"越滚越大：每回合往你池里滚进雪块（泥巴），血量过半叫来雪蛋",ai:(e,t)=>e.phase2?[{k:"atk",v:13,x:2,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:3},{k:"atk",v:28,pool:{t:"junk",n:1}},{k:"atkdef",v:12,b:18}][t%4]:[{k:"atk",v:12,pool:{t:"junk",n:2}},{k:"def",v:18},{k:"atk",v:8,x:2,pool:{t:"junk",n:1}},{k:"buff",s:"str",v:2,pool:{t:"shuffle"}}][t%4]},
+mimic:{n:"宝箱怪",img:"__mimic",hp:[46,50],h:200,elite:1,pd:"假装成宝箱的怪物，打赢它能拿双倍宝物",ai:(e,t)=>[{k:"atk",v:10},{k:"atk",v:5,x:2,pool:{t:"suck",n:1,h:4}},{k:"def",v:12},{k:"atk",v:14}][t%4]},
+goldfrog:{n:"金色奶蛙",img:"e_v_gold",hp:[40,40],h:170,pd:"三回合内打不倒它，它就会跑掉；打倒它掉一大笔金币",ai:(e,t)=>[{k:"def",v:6},{k:"def",v:9},{k:"flee"}][Math.min(t,2)]},
+/* ---------- 第四层：沸腾奶茶厂 ---------- */
+porter:{n:"搬运奶鼠",img:"e_msy",pal:"p_msy",hp:[18,22],h:120,ai:(e,t)=>[{k:"atk",v:6,x:2},{k:"atk",v:9},{k:"def",v:7}][(t+e.seed)%3]},
+hothorse:{n:"沸腾奶马",img:"e_hry",pal:"p_hry",hp:[36,40],h:160,ai:(e,t)=>[{k:"atk",v:12,s:"burn",d:2},{k:"atk",v:6,x:2},{k:"def",v:10}][(t+e.seed)%3]},
+pearlchick:{n:"珍珠奶鸡",img:"e_cky",pal:"p_cky",hp:[28,32],h:145,ai:(e,t)=>[{k:"atk",v:9,pool:{t:"junk",n:1}},{k:"def",v:12},{k:"debuff",s:"burn",v:3}][(t+e.seed)%3]},
+caramelcat:{n:"焦糖奶猫",img:"e_cty",pal:"p_cty",hp:[30,34],h:145,ai:(e,t)=>[{k:"atk",v:7,x:2},{k:"atk",v:10,pool:{t:"boil",n:1}},{k:"debuff",s:"weak",v:2}][(t+e.seed)%3]},
+lavasnake:{n:"熔岩奶蛇",img:"e_sny",pal:"p_sny",hp:[34,38],h:150,ai:(e,t)=>[{k:"atk",v:8,x:2,s:"burn",d:1},{k:"atk",v:16}][(t+e.seed)%2]},
+teaegg:{n:"奶茶蛋",img:"e_egy",pal:"p_egy",hp:[26,30],h:130,ai:(e,t)=>[{k:"def",v:12},{k:"atk",v:9,pool:{t:"boil",n:1}},{k:"buff",s:"str",v:2}][(t+e.seed)%3]},
+boilerdog:{n:"锅炉奶狗",img:"e_dgy",pal:"p_dgy",hp:[38,42],h:160,ai:(e,t)=>[{k:"atk",v:8,x:2},{k:"debuff",s:"burn",v:3},{k:"atk",v:15}][(t+e.seed)%3]},
+furnaceegg:{n:"熔炉巨蛋",img:"e_egx",pal:"p_egx",hp:[120,124],h:240,elite:1,pd:"把你池里的奶蛙煮成泥巴，还会烫伤你",ai:(e,t)=>[{k:"atk",v:14,pool:{t:"boil",n:2}},{k:"def",v:18,s2:"str",v2:3},{k:"atk",v:9,x:2,s:"burn",d:3},{k:"atk",v:28}][t%4]},
+twinchick:{n:"加热双子·红",img:"e_ckx",pal:"p_ckx",hp:[62,66],h:180,elite:1,ai:(e,t)=>[{k:"atk",v:9,x:2},{k:"debuff",s:"burn",v:3},{k:"atkdef",v:12,b:12}][(t+e.seed)%3]},
+twinchick2:{n:"加热双子·橙",img:"e_cky",pal:"p_ckx",hp:[62,66],h:180,elite:1,ai:(e,t)=>[{k:"atk",v:9,x:2},{k:"debuff",s:"burn",v:3},{k:"atkdef",v:12,b:12}][(t+e.seed+1)%3]},
+teacup:{n:"笑笑奶茶杯",img:"e_v_cup",pal:"p_cup",hp:[20,24],h:120,ai:(e,t)=>[{k:"atk",v:7,s:"burn",d:1},{k:"atk",v:4,x:2},{k:"def",v:8}][(t+e.seed)%3]},
+teapot:{n:"紫砂奶茶壶",img:"e_v_pot",pal:"p_pot",hp:[112,118],h:250,elite:1,pd:"每隔几回合倒出一只新的奶茶杯；还会把你池里的奶蛙煮成泥巴",ai:(e,t)=>[{k:"call",id:"teacup"},{k:"atk",v:13,s:"burn",d:2},{k:"atk",v:10,pool:{t:"boil",n:1}},{k:"def",v:16}][t%4]},
+lavagiant:{n:"熔岩巨无霸",img:"e_v_lava",hp:[300,300],h:290,boss:1,pd:"把你池里的奶蛙煮成泥巴，还会让你烫伤",ai:(e,t)=>e.phase2?[{k:"atk",v:14,x:2,pool:{t:"boil",n:2}},{k:"debuff",s:"burn",v:5},{k:"atk",v:34},{k:"atkdef",v:16,b:20,pool:{t:"boil",n:2}}][t%4]:[{k:"atk",v:18,pool:{t:"boil",n:2}},{k:"buff",s:"str",v:3},{k:"atk",v:9,x:3,s:"burn",d:2},{k:"def",v:24,pool:{t:"junk",n:1}}][t%4]},
+pearlqueen:{n:"紫砂奶茶壶",img:"e_v_pot",hp:[290,290],h:300,boss:1,pd:"每隔几回合倒出一只奶茶杯，把你池里的奶蛙煮成泥巴；血量过半一口气倒出两只",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:2,s:"burn",d:2},{k:"call",id:"teacup"},{k:"atk",v:20,pool:{t:"boil",n:2}},{k:"buff",s:"str",v:3},{k:"atk",v:30}][t%5]:[{k:"call",id:"teacup"},{k:"atk",v:16,pool:{t:"boil",n:1}},{k:"def",v:20,pool:{t:"junk",n:1}},{k:"atk",v:8,x:2,s:"burn",d:2},{k:"atk",v:22}][t%5]},
 /* 首领（每层随机两选一） */
 snakeking:{n:"泥沼蛇王",img:"e_snb",hp:[160,160],h:280,boss:1,pd:"缠住你的池子：吸走奶蛙、丢泥巴；血量过半会叫来小蛇",ai:(e,t)=>e.phase2?[{k:"atk",v:7,x:3,pool:{t:"suck",n:1,h:4}},{k:"atk",v:16,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:3},{k:"atkdef",v:10,b:12}][t%4]:[{k:"atk",v:12,pool:{t:"suck",n:1,h:4}},{k:"def",v:12,pool:{t:"junk",n:1}},{k:"atk",v:6,x:2,s:"weak",d:1},{k:"atk",v:15}][t%4]},
 buddha:{n:"金身奶蛙",img:"e_hg",hp:[230,230],h:280,boss:1,pd:"金身不坏：护盾很厚，还会把你的池子冻成石头",ai:(e,t)=>e.phase2?[{k:"atkdef",v:14,b:20,pool:{t:"freeze",n:2}},{k:"atk",v:9,x:3},{k:"buff",s:"str",v:3,pool:{t:"freeze",n:2}},{k:"atk",v:26}][t%4]:[{k:"def",v:28,pool:{t:"freeze",n:2}},{k:"atk",v:16},{k:"atkdef",v:10,b:16},{k:"atk",v:6,x:3,pool:{t:"freeze",n:1}}][t%4]},
@@ -311,8 +341,9 @@ const ENCS=[
 {easy:[["rat","ratg"],["poo"],["chick"],["snake"]],normal:[["rat","ratg","ratb"],["laugh"],["poo","rat"],["crawl"],["snake","rat"],["chick","poo"],["mutt","spotegg"],["spotegg","spotegg","rat"],["mudhorse","rat"]],elite:[["giant"],["bomb","bombp","bombw"],["shadowE"]],boss:["king"],bosses:[["king"],["snakeking"]]},
 {easy:[["butler"],["scream","scream"]],normal:[["painting","scream"],["knight"],["butler","bride"],["bride","scream"],["knight","butler"],["ghostcat","chinachick"],["ghostcat","ghostcat"],["blackchick","butler"]],elite:[["guard1","guard2"],["knight2"],["shadowE2"]],boss:["count"],bosses:[["count"],["buddha"]]},
 {easy:[["bellrat","bellrat"],["snowegg","snowchick"]],normal:[["icehorse","bellrat"],["icesnake","snowchick"],["frostcat","snowegg"],["icehorse","icesnake"],["bellrat","bellrat","snowegg"],["frostcat","snowchick","bellrat"]],elite:[["icedragon"],["iceguard","iceguard"],["icefrog"]],boss:["iceking"],bosses:[["iceking"],["snowking"]]},
-{easy:[["starcat","starchick"]],normal:[["starfrog","starcat"],["cosmic"],["starhorse","starchick","starcat"],["glow","starhorse"],["starfrog","glow"],["starsnake","auroraegg"],["auroraegg","starcat"],["stardog","starcat"]],elite:[["angel"],["isekai"]],boss:["shadow"],bosses:[["shadow"],["cosmicegg"]]}];
-const ACTS=[{n:"泥沼回廊",bgs:["swamp","reed","ruin"],boss:"king"},{n:"月夜古堡",bgs:["castle","gate","castle"],boss:"count"},{n:"冰封钟楼",bgs:["snowfield","belltower","snowfield"],boss:"iceking"},{n:"星空之顶",bgs:["cosmos","summit","cosmos"],boss:"shadow"}];
+{easy:[["porter","porter"],["teaegg","porter"],["teacup","teacup"]],normal:[["teacup","teacup","teacup"],["teacup","caramelcat"],["hothorse","porter"],["pearlchick","caramelcat"],["lavasnake","teaegg"],["boilerdog","pearlchick"],["hothorse","lavasnake"],["caramelcat","teaegg","porter"]],elite:[["furnaceegg"],["twinchick","twinchick2"]],boss:["lavagiant"],bosses:[["lavagiant"],["pearlqueen"]]},
+{easy:[["starcat","starchick"]],normal:[["starfrog","starcat"],["cosmic"],["starhorse","starchick","starcat"],["glow","starhorse"],["starfrog","glow"],["starsnake","auroraegg"],["auroraegg","starcat"],["stardog","starcat"]],elite:[["angel"],["isekai"],["imp"]],boss:["shadow"],bosses:[["shadow"],["cosmicegg"]]}];
+const ACTS=[{n:"泥沼回廊",bgs:["swamp","reed","ruin"],boss:"king"},{n:"月夜古堡",bgs:["castle","gate","castle"],boss:"count"},{n:"冰封钟楼",bgs:["snowfield","belltower","snowfield"],boss:"iceking"},{n:"沸腾奶茶厂",bgs:["factory","pipes","factory"],boss:"lavagiant"},{n:"星空之顶",bgs:["cosmos","summit","cosmos"],boss:"shadow"}];
 
 
 /* ===================== 遗物 ===================== */
@@ -374,32 +405,37 @@ pice:{n:"冰冻药水",c:"#bfefff",d:"所有敌人虚弱 3",fx:B=>B.enemies.forE
 };
 
 /* ===================== 状态 ===================== */
-const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"},thorn:{n:"荆棘",c:"#4fa86a",d:"被攻击时，对攻击者造成等量伤害"},mirror:{n:"模仿",c:"#5a4b7a",d:"你每消除一次，它对你造成等量伤害（连锁越多越疼）"}};
+const STAT={str:{n:"力气",c:"#ff6b6b",d:"攻击伤害 +1/层"},dex:{n:"敏捷",c:"#6fc3ff",d:"护盾 +1/层"},vuln:{n:"易伤",c:"#ff9a1f",d:"受到伤害 +50%（回合数）"},weak:{n:"虚弱",c:"#a98bff",d:"造成伤害 -25%（回合数）"},mud:{n:"泥巴",c:"#8a6a3c",d:"回合开始扣等量生命，然后 -1"},thorn:{n:"荆棘",c:"#4fa86a",d:"被攻击时，对攻击者造成等量伤害"},burn:{n:"烫伤",c:"#ff7a3a",d:"回合开始扣等量生命，然后 -1"},mirror:{n:"模仿",c:"#5a4b7a",d:"你每消除一次，它对你造成等量伤害（连锁越多越疼）"}};
 
 /* ===================== 剧情 ===================== */
 const STORY={
-intro:[["fj","奶蛙长老","满月又升起来了。奶蛙之塔……也跟着回来了。"],["n1","功夫奶蛙","长老，村里的奶茶泉，这几天又浅了一截。"],["fj","奶蛙长老","是那个影子。它钻进了塔里，一点点把泉水往上吸。"],["fj","奶蛙长老","塔一共四层：泥沼回廊、月夜古堡、冰封钟楼、星空之顶。影子就在最顶上。"],["n1","功夫奶蛙","我练了这么多年拳，就是为了这一天。"],["fj","奶蛙长老","记住：打出的招式会落进你心里的奶蛙池。同家族的凑在一起，就会一串一串地爆开。去吧。"]],
+intro:[["m6","奶蛙长老","奶茶泉被一个影子吸走了。它就藏在五层高的奶蛙之塔顶上。"],["n1","功夫奶蛙","那我就一路打上去！"],["m6","奶蛙长老","记住：同家族的招式凑满 3 个会爆开，越连越强。去吧！"]],
 boss0:[["xsk","沼泽之王","呱……呱……谁……谁在踩我的泥巴……"],["n1","功夫奶蛙","沼泽之王？你的眼睛……怎么是黑的？"],["xsk","沼泽之王","影子大人说……谁往上走……就把谁的池子……全塞满泥巴！"]],
 win0:[["xsk","沼泽之王","呱……头好晕。我刚才……是不是做了什么坏事？"],["n1","功夫奶蛙","你被影子控制了。现在没事了。"],["xsk","沼泽之王","影子往上跑了。上面是月夜古堡，住着一个很饿很饿的家伙……你要小心。"]],
-act1:[["n1","功夫奶蛙","这里……好冷。墙上的画像在看我。"],["fj","奶蛙长老","（远远传来的声音）月夜古堡的主人，最喜欢吸别人池子里的东西。别让他吸饱了。"]],
+act1:[["n1","功夫奶蛙","这里……好冷。墙上的画像在看我。"],["m6","奶蛙长老","（远远传来的声音）月夜古堡的主人，最喜欢吸别人池子里的东西。别让他吸饱了。"]],
 boss1:[["vp","月夜伯爵","哦？一只带着满满一池子奶蛙的小家伙。"],["vp","月夜伯爵","正好，我饿了很久了。"],["n1","功夫奶蛙","想吃我的奶蛙，先过我这一关！"]],
 win1:[["vp","月夜伯爵","咳……好久没吃得这么饱……也好久没输得这么痛快了。"],["vp","月夜伯爵","影子答应我，帮它守门就有吃不完的奶茶。看来它骗了我。"],["vp","月夜伯爵","再往上是冰封钟楼，钟楼顶上，才是星空之顶。"]],
-act3:[["n1","功夫奶蛙","脚下……是星星？"],["fj","奶蛙长老","（声音越来越近）孩子，影子会学你的招式。你越厉害，它就越厉害。"]],
-boss3:[["xsh","影子刺客","你终于爬上来了。前面三层，我都在暗处看着你。"],["n1","功夫奶蛙","你就是吸走泉水的影子？"],["xsh","影子刺客","我只是大魔王的影子。你每一招，我都会。"]],
+act4:[["n1","功夫奶蛙","脚下……是星星？"],["m6","奶蛙长老","（声音越来越近）孩子，影子会学你的招式。你越厉害，它就越厉害。"]],
+boss4:[["xsh","影子刺客","你终于爬上来了。前面四层，我都在暗处看着你。"],["n1","功夫奶蛙","你就是吸走泉水的影子？"],["xsh","影子刺客","我本来是一个被丢下的影子。是大魔王捡到了我，把我养大。"],["xsh","影子刺客","你每一招，我都会。"]],
 boss0b:[["snb","泥沼蛇王","嘶——嘶——又一个想往上爬的小家伙。"],["n1","功夫奶蛙","你的眼睛也被影子染黑了。"],["snb","泥沼蛇王","我会把你的池子缠得死死的，一只奶蛙都别想消掉！"]],
 win0b:[["snb","泥沼蛇王","嘶……我的尾巴打结了……"],["snb","泥沼蛇王","往上走吧，月夜古堡的主人在等你。"]],
 boss1b:[["hg","金身奶蛙","……（金光闪闪，一动不动）"],["n1","功夫奶蛙","这……是一尊佛像？"],["hg","金身奶蛙","金身不坏，万招不侵。你的奶蛙池，在我面前只会变成石头。"]],
 win1b:[["hg","金身奶蛙","金身……裂了。好久没有这么轻松过。"],["hg","金身奶蛙","再往上是冰封钟楼。钟声响的时候，要小心你的池子。"]],
-boss3b:[["egf","宇宙巨蛋","（巨蛋里传出咚、咚、咚的心跳声）"],["n1","功夫奶蛙","这颗蛋……在吸星星的光？"],["xsh","影子刺客","（从蛋的影子里走出来）我在里面养了一个大家伙。你来得正好。"]],
-act2:[["n1","功夫奶蛙","好冷……这里的钟，怎么一直在响？"],["fj","奶蛙长老","（声音穿过风雪）冰封钟楼。这里的冰会封住你的奶蛙池，记得随时敲碎它们。"]],
+boss4b:[["egf","宇宙巨蛋","（巨蛋里传出咚、咚、咚的心跳声）"],["n1","功夫奶蛙","这颗蛋……在吸星星的光？"],["xsh","影子刺客","（从蛋的影子里走出来）我在里面养了一个大家伙。你来得正好。"]],
+act2:[["n1","功夫奶蛙","好冷……这里的钟，怎么一直在响？"],["m6","奶蛙长老","（声音穿过风雪）冰封钟楼。这里的冰会封住你的奶蛙池，记得随时敲碎它们。"]],
 boss2:[["c7","冰封奶蛙王","叮——当——又一个闯进钟楼的小东西。"],["n1","功夫奶蛙","你也是被影子派来守门的？"],["c7","冰封奶蛙王","我只喜欢安静。你池子里那些吵吵闹闹的奶蛙，我全都要冻起来。"]],
-win2:[["c7","冰封奶蛙王","冰……化了。好暖和。"],["c7","冰封奶蛙王","上面就是星空之顶。影子……在星星中间等你。"]],
+win2:[["c7","冰封奶蛙王","冰……化了。好暖和。"],["c7","冰封奶蛙王","再往上是奶茶厂。泉水都被运到那里去了。"]],
 boss2b:[["egsk","雪球大王","滚——滚——滚——！谁也别想挡住我滚下山！"],["n1","功夫奶蛙","一颗……超大的雪球？"],["egsk","雪球大王","我会把你的池子塞满雪块，让你一只奶蛙都消不掉！"]],
-win2b:[["egsk","雪球大王","呼……滚累了。"],["egsk","雪球大王","往上走吧，星空之顶就在钟楼顶上。"]],
-demon:[["xsh","影子刺客","……主人，我撑不住了。"],["bx","奶蛙大魔王","哈——哈——哈！没用的影子，回到我身上来！"],["n1","功夫奶蛙","大魔王？你不是早就倒下了吗！"],["bx","奶蛙大魔王","倒下？我只是睡了个午觉！你那一池子奶蛙，我要一口吞掉！"]],
-win3:[["bx","奶蛙大魔王","呜哇……我的锅……我的池子……"],["bx","奶蛙大魔王","好吧好吧，泉水还给你们。我只是……一个人在塔顶太无聊了。"],["n1","功夫奶蛙","无聊就下来村里玩嘛，奶茶管够。"],["fj","奶蛙长老","（长老走了出来）奶茶泉满了。孩子，你登顶了。"],["bx","奶蛙大魔王","……下次我还会回来的！（然后真的跟着下山去喝奶茶了）"]],
+win2b:[["egsk","雪球大王","呼……滚累了。"],["egsk","雪球大王","往上走吧，上面一股奶茶味，热得要命。"]],
+act3:[["n1","功夫奶蛙","好香……这是奶茶的味道？"],["m6","奶蛙长老","（声音夹在蒸汽里）被吸走的泉水，全被运到这里煮沸了。小心，这里的东西都烫手。"]],
+boss3:[["v_lava","熔岩巨无霸","谁？谁在偷看我烧锅？"],["n1","功夫奶蛙","这些奶茶都是从村里的泉水煮出来的！"],["v_lava","熔岩巨无霸","厂长说了，煮好的奶茶全都送上塔顶。谁也别想拦！"]],
+win3:[["v_lava","熔岩巨无霸","呼……火灭了，我也凉快了。"],["v_lava","熔岩巨无霸","奶茶全送去星空之顶了，喂给一颗大蛋……还有一个影子。"]],
+boss3b:[["v_pot","紫砂奶茶壶","咕嘟咕嘟……欢迎光临沸腾奶茶厂。要来一杯吗？"],["n1","功夫奶蛙","你就是厂长？把我们的泉水还回来！"],["v_pot","紫砂奶茶壶","全世界的奶茶，都应该从我的壶嘴里倒出来！杯杯们，上！"]],
+win3b:[["v_pot","紫砂奶茶壶","我的盖子……掉了……"],["v_pot","紫砂奶茶壶","好吧好吧，其实奶茶都送去星空之顶了。那个影子说，要喂给一个很孤单的大家伙。（壶里还剩一点，倒给你喝吧。）"]],
+demon:[["xsh","影子刺客","……主人，我撑不住了。"],["dm","奶蛙大魔王","哈——哈——哈！没用的影子，回到我身上来！"],["n1","功夫奶蛙","大魔王？你不是早就倒下了吗！"],["dm","奶蛙大魔王","倒下？我只是睡了个午觉！你那一池子奶蛙，我要一口吞掉！"]],
+win4:[["dm","奶蛙大魔王","呜哇……我的锅……我的池子……"],["xsh","影子刺客","（从大魔王身后走出来）……主人，够了。"],["m6","奶蛙长老","（长老慢慢走上塔顶）好久不见。"],["m6","奶蛙长老","对不起。当年我只顾着修行，把你一个人留在了黑暗里。"],["xsh","影子刺客","……原来，被看见是这种感觉。"],["dm","奶蛙大魔王","喂喂喂，那我呢？是我把它养大的！"],["n1","功夫奶蛙","那就一起下山喝奶茶吧，大魔王。"],["dm","奶蛙大魔王","……哼，就喝一杯。（然后喝了十杯）"],["m6","奶蛙长老","奶茶泉满了。孩子，你登顶了。"]],
 };
-const ELDER_TALES=["很久很久以前，奶茶泉旁边住着一只总是一个人修行的奶蛙。","它太专心了，专心到连自己的影子都忘了。","影子一个人待在黑暗里，越来越大，越来越饿。","有一天，影子学会了那只奶蛙所有的招式。","长老说到这里停了下来：「那只奶蛙，就是年轻时的我。」"];
+const ELDER_TALES=["很久很久以前，奶茶泉旁边住着一只总是一个人修行的奶蛙。","它太专心了，专心到连自己的影子都忘了。","影子一个人待在黑暗里，越来越大，越来越饿。","有一天，影子学会了那只奶蛙所有的招式，然后不见了。","后来听说，一个很孤单的大家伙捡到了它。","长老说到这里停了下来：「那只奶蛙，就是年轻时的我。」"];
 
 /* ===================== 月相 / 天气 ===================== */
 const MOON={new:{n:"新月",d:"池子少 1 格，但每次消除多 1 点奶力"},wax:{n:"上弦月",d:"攻击牌伤害 +1"},full:{n:"满月",d:"三连只需要 2 个"},wane:{n:"下弦月",d:"护盾牌多 2 护盾"}};
