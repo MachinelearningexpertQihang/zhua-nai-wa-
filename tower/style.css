@@ -763,4 +763,6 @@ img{-webkit-user-drag:none;pointer-events:none}
 .en.bossEn.hit .body img,.en.bossEn .body img.hitting{animation:hitA .35s!important}
 .en.bossEn .itw{position:absolute;left:-46px;top:34%;z-index:3}
 .en.bossEn .itw .intent{animation:none}
-.en.bossEn{transform:translateY(38px)}
+.en.bossEn{transform:translateY(26px)}
+.en.bossEn .btrait{position:absolute;left:-46px;top:calc(34% - 34px);z-index:3}
+.en.bossEn .sts{position:absolute;left:-60px;top:calc(34% + 54px);z-index:3;flex-direction:column;align-items:flex-start;width:max-content}

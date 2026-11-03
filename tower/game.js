@@ -1,6 +1,6 @@
 /* ===================== 奶蛙之塔 · 主程序 ===================== */
 "use strict";
-const VER="1.1";
+const VER="2.0";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const IMG=k=>k==="__mimic"?MIMIC_URI:(window.__NWT_IMG||{})[k]||"";
 const sleep=ms=>new Promise(r=>setTimeout(r,ms*.72));
@@ -289,7 +289,7 @@ function renderBattle(first){if(!B)return;const p=B.p;
  pl.className="fighter";pl.querySelector(".hpw").innerHTML=hpHTML(S.hp,S.max,p.block);pl.querySelector(".sts").innerHTML=stsHTML(p);
  const en=$("#enemies");if(first)en.innerHTML="";
  B.enemies.forEach(e=>{let el=en.querySelector(`[data-k="${e.k}"]`);const E=ENEMY[e.id];
-  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn":"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.25,336/E.h):1))}px;height:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.25,336/E.h):1))}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
+  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn":"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.44,386/E.h):1))}px;height:${Math.round(E.h*(e.big?1.15:1)*(E.boss?Math.min(1.44,386/E.h):1))}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
    el.onclick=()=>clickEnemy(e);const cb=document.createElement("button");cb.className="catchBtn";cb.innerHTML=`${ICON.net}<span>抓</span>`;cb.onclick=ev=>{ev.stopPropagation();catchEnemy(e)};el.querySelector(".body").appendChild(cb)}
   el.classList.toggle("canCatch",canCatch(e));el.classList.toggle("hasAf",!!e.af);el.classList.toggle("goldf",e.id==="goldfrog");
   if(e.hp<=0&&!el.classList.contains("dead"))el.classList.add(e.fled?"fled":"dead");
