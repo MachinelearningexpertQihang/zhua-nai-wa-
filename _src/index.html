@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<meta name="theme-color" content="#140f2a">
+<title>奶蛙尖塔</title>
+<link rel="stylesheet" href="font.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <section id="title" class="scr"></section>
+  <section id="heroSel" class="scr"></section>
+  <section id="map" class="scr"><div id="mapWrap"><svg id="mapSvg" width="1280" height="720"></svg><div id="mapNodes"></div></div><div id="mapTip"></div></section>
+  <section id="battle" class="scr">
+    <div id="arena"><div id="player"></div><div id="enemies"></div></div>
+    <div id="hand"></div>
+    <div id="energy"></div><div id="energyLbl">奶力</div>
+    <button id="drawPile" class="pile"><span class="back"></span><b>0</b><i>抽牌堆</i></button>
+    <button id="discPile" class="pile"><span class="back"></span><b>0</b><i>弃牌堆</i></button>
+    <button id="exhPile" class="pile sm"><span class="back"></span><b>0</b><i>消耗</i></button>
+    <button id="endBtn">结束回合</button>
+    <div id="famBar"></div>
+    <div id="hint"></div>
+    <div id="turnBan"></div>
+  </section>
+  <section id="reward" class="scr"></section>
+  <section id="shop" class="scr"></section>
+  <section id="rest" class="scr"></section>
+  <section id="event" class="scr"></section>
+  <section id="ending" class="scr"></section>
+  <div id="top"></div>
+  <div id="ov"></div>
+  <div id="talk"></div>
+  <div id="fx"></div>
+  <div id="toast"></div>
+</div>
+<div id="rotTip">横过来玩更舒服哦 ↻</div>
+<script src="img0.js"></script><script src="img1.js"></script>
+<script src="music.js"></script>
+<script src="ui.js"></script>
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
