@@ -2,7 +2,10 @@
 "use strict";
 const VER="3.0";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const IMG=k=>k==="__mimic"?MIMIC_URI:(window.__NWT_IMG||{})[k]||"";
+/* 图片：把内嵌的 base64 一次性转成 blob 地址，之后每次渲染只传一个短链接，切页面和出牌都快很多 */
+const IMG_CACHE={};
+function toBlobURL(u){try{if(!u||u.slice(0,5)!=="data:"||!window.URL||!URL.createObjectURL)return u;const i=u.indexOf(",");const mime=u.slice(5,u.indexOf(";"));const bin=atob(u.slice(i+1));const arr=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)arr[j]=bin.charCodeAt(j);return URL.createObjectURL(new Blob([arr],{type:mime}))}catch(e){return u}}
+const IMG=k=>{if(k!=="__mimic"&&IMG_CACHE[k])return IMG_CACHE[k];const u=k==="__mimic"?(typeof MIMIC_URI!=="undefined"?MIMIC_URI:""):(window.__NWT_IMG||{})[k]||"";if(!u)return"";const b=toBlobURL(u);IMG_CACHE[k]=b;return b};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms*.72));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S=null,B=null,busy=false;
@@ -207,15 +210,15 @@ function resume(){if(S.act==null)S.act=0;if(!S.boss)pickBoss();if(!S.sky)S.sky=g
 /* ===================== 地图 ===================== */
 const MAPTH=(()=>{const R=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join("");const r=(a,b)=>(a+Math.random()*(b-a)).toFixed(1);
  return[
- {bg:"swamp",k:"沼",fx:()=>R(26,i=>`<i class="ff" style="left:${r(2,98)}%;top:${r(10,95)}%;animation-delay:-${r(0,6)}s;animation-duration:${r(4,8)}s"></i>`),
+ {bg:"swamp",k:"沼",fx:()=>R(14,i=>`<i class="ff" style="left:${r(2,98)}%;top:${r(10,95)}%;animation-delay:-${r(0,6)}s;animation-duration:${r(4,8)}s"></i>`),
   deco:`<svg class="mDeco reeds" viewBox="0 0 300 220"><g fill="#0c1a0e">${[20,48,70,96,130,160,190].map((x,i)=>`<path d="M${x} 220 Q${x-6} ${120-i*6} ${x+4} ${40+i*9} Q${x+10} ${120-i*6} ${x+8} 220Z"/><ellipse cx="${x+4}" cy="${46+i*9}" rx="6" ry="20"/>`).join("")}</g></svg><svg class="mDeco reeds r2" viewBox="0 0 300 220"><g fill="#0c1a0e">${[30,64,92,140,200,240].map((x,i)=>`<path d="M${x} 220 Q${x-6} ${110-i*5} ${x+4} ${50+i*8} Q${x+10} ${110-i*5} ${x+8} 220Z"/>`).join("")}</g></svg>`},
- {bg:"castle",k:"堡",fx:()=>R(9,i=>`<i class="bat" style="top:${r(5,55)}%;animation-delay:-${r(0,12)}s;animation-duration:${r(9,16)}s"><svg viewBox="0 0 40 16"><path d="M20 6 Q14 0 2 4 Q8 6 6 12 Q12 8 16 12 Q18 8 20 10 Q22 8 24 12 Q28 8 34 12 Q32 6 38 4 Q26 0 20 6Z" fill="#0d0d0d"/></svg></i>`),
+ {bg:"castle",k:"堡",fx:()=>R(6,i=>`<i class="bat" style="top:${r(5,55)}%;animation-delay:-${r(0,12)}s;animation-duration:${r(9,16)}s"><svg viewBox="0 0 40 16"><path d="M20 6 Q14 0 2 4 Q8 6 6 12 Q12 8 16 12 Q18 8 20 10 Q22 8 24 12 Q28 8 34 12 Q32 6 38 4 Q26 0 20 6Z" fill="#0d0d0d"/></svg></i>`),
   deco:`<div class="mDeco moonBig"></div><svg class="mDeco rose" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94" fill="#0d0d0d"/>${R(12,i=>`<path d="M100 100 L${100+88*Math.cos(i*Math.PI/6)} ${100+88*Math.sin(i*Math.PI/6)} A88 88 0 0 1 ${100+88*Math.cos((i+1)*Math.PI/6)} ${100+88*Math.sin((i+1)*Math.PI/6)}Z" fill="${["#e5191c","#5b1a7a","#c8a23a"][i%3]}" opacity=".85" stroke="#0d0d0d" stroke-width="6"/>`)}<circle cx="100" cy="100" r="22" fill="#e5191c" stroke="#0d0d0d" stroke-width="6"/></svg>`},
- {bg:"ice",k:"冰",fx:()=>R(60,i=>`<i class="sn" style="left:${r(0,100)}%;width:${r(2,6)}px;height:${r(2,6)}px;animation-delay:-${r(0,10)}s;animation-duration:${r(6,12)}s"></i>`),
+ {bg:"ice",k:"冰",fx:()=>R(30,i=>`<i class="sn" style="left:${r(0,100)}%;width:${r(2,6)}px;height:${r(2,6)}px;animation-delay:-${r(0,10)}s;animation-duration:${r(6,12)}s"></i>`),
   deco:`<svg class="mDeco bell" viewBox="0 0 120 140"><path d="M60 8 Q64 8 64 16 Q100 24 100 80 L112 112 L8 112 L20 80 Q20 24 56 16 Q56 8 60 8Z" fill="#0d0d0d"/><circle cx="60" cy="122" r="12" fill="#0d0d0d"/><path d="M30 104 L90 104" stroke="#fff" stroke-width="4"/></svg>`},
- {bg:"gears",k:"沸",fx:()=>R(14,i=>`<i class="st" style="left:${r(3,97)}%;animation-delay:-${r(0,7)}s;animation-duration:${r(5,9)}s"></i>`),
+ {bg:"gears",k:"沸",fx:()=>R(8,i=>`<i class="st" style="left:${r(3,97)}%;animation-delay:-${r(0,7)}s;animation-duration:${r(5,9)}s"></i>`),
   deco:`<svg class="mDeco gear g1" viewBox="0 0 100 100"><path fill="#0d0d0d" d="${R(12,i=>{const a=i*Math.PI/6,b=a+.2,c=a+.32,d=a+.52;return(i?"L":"M")+(50+40*Math.cos(a))+" "+(50+40*Math.sin(a))+"L"+(50+48*Math.cos(b))+" "+(50+48*Math.sin(b))+"L"+(50+48*Math.cos(c))+" "+(50+48*Math.sin(c))+"L"+(50+40*Math.cos(d))+" "+(50+40*Math.sin(d))})}Z"/><circle cx="50" cy="50" r="14" fill="#e5191c"/></svg><svg class="mDeco gear g2" viewBox="0 0 100 100"><path fill="#0d0d0d" d="${R(10,i=>{const a=i*Math.PI/5,b=a+.25,c=a+.4,d=a+.62;return(i?"L":"M")+(50+38*Math.cos(a))+" "+(50+38*Math.sin(a))+"L"+(50+48*Math.cos(b))+" "+(50+48*Math.sin(b))+"L"+(50+48*Math.cos(c))+" "+(50+48*Math.sin(c))+"L"+(50+38*Math.cos(d))+" "+(50+38*Math.sin(d))})}Z"/><circle cx="50" cy="50" r="12" fill="#fff"/></svg><div class="mDeco pipe"></div>`},
- {bg:"sky",k:"星",fx:()=>R(70,i=>`<i class="tw" style="left:${r(0,100)}%;top:${r(0,100)}%;animation-delay:-${r(0,4)}s"></i>`),
+ {bg:"sky",k:"星",fx:()=>R(36,i=>`<i class="tw" style="left:${r(0,100)}%;top:${r(0,100)}%;animation-delay:-${r(0,4)}s"></i>`),
   deco:``}
  ]})();
 const LEGI={m:["laugh","butler","snowchick","teacup","starfrog"],E:["swampbear","knight2","icefrog","furnaceegg","imp"]};

@@ -1411,3 +1411,16 @@ img{-webkit-user-drag:none;pointer-events:none}
 .bcxD .lore h4{display:inline-block;margin:12px 0 4px;padding:1px 12px;font:900 15px 'NW Black';background:var(--p5k);color:#fff;transform:skewX(-12deg)}
 .bcxD .lore h4.lk{background:#777}
 .bcxD{overflow-y:auto!important}.bcxD .lore p{line-height:1.7}
+
+/* ===== 性能：减少每帧要重画的东西 ===== */
+#mapSvg path,#mapSvg path.done{filter:none!important}
+#map.ma4 #mapSvg path{filter:none!important}
+.lvRays{width:1600px;height:1600px;margin:-800px 0 0 -800px;will-change:transform;animation-duration:60s}
+.rose,.gear,.orbit,.bell,.ma1 .bat,.ma2 .sn,.ma3 .st,.ma0 .ff,.isePeek,.rn{will-change:transform}
+.ma0 .ff{box-shadow:none;background:radial-gradient(circle,#f5ff8a 0 35%,rgba(220,255,90,.35) 60%,transparent 70%);width:14px;height:14px}
+.ma4 .tw{box-shadow:none}
+.mFx,.mDeco{contain:layout paint}
+#hand .card{will-change:transform}
+.card .art img,.en .body img,#player .body img{image-rendering:auto}
+@media (prefers-reduced-motion:reduce){.lvRays,.rose,.gear,.orbit,.ma1 .bat,.ma2 .sn,.ma3 .st,.ma0 .ff,.ma4 .tw{animation:none!important}}
+.fighter .body img,.en .body img{will-change:transform;backface-visibility:hidden}
