@@ -1424,3 +1424,16 @@ img{-webkit-user-drag:none;pointer-events:none}
 .card .art img,.en .body img,#player .body img{image-rendering:auto}
 @media (prefers-reduced-motion:reduce){.lvRays,.rose,.gear,.orbit,.ma1 .bat,.ma2 .sn,.ma3 .st,.ma0 .ff,.ma4 .tw{animation:none!important}}
 .fighter .body img,.en .body img{will-change:transform;backface-visibility:hidden}
+
+/* ===== 奶蛙魔法师 ===== */
+#title .tmage{position:absolute;right:390px;bottom:70px;width:220px;height:290px;z-index:2;animation:bob 4.2s ease-in-out infinite}
+#title .tmage img{width:100%;height:100%;object-fit:contain;transform:scaleX(-1);filter:drop-shadow(8px 8px 0 rgba(13,13,13,.85))}
+@keyframes castA{0%{transform:none}35%{transform:translateY(-14px) rotate(-4deg) scale(1.04);filter:drop-shadow(0 0 18px #b07cff)}100%{transform:none}}
+.castA .body{animation:castA .5s ease-out}
+.castRing{position:absolute;width:220px;height:70px;margin:-35px 0 0 -110px;border-radius:50%;border:4px solid #c9b2ff;box-shadow:0 0 18px #b07cff,inset 0 0 14px #b07cff;pointer-events:none;z-index:40;animation:castRing .7s ease-out forwards}
+@keyframes castRing{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.25);opacity:0}}
+.spellOrb{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:radial-gradient(circle,var(--c2) 0 30%,var(--c1) 60%,transparent 72%);box-shadow:0 0 22px 8px var(--c1);pointer-events:none;z-index:45;transition:transform .26s cubic-bezier(.4,0,.8,.6)}
+.spellOrb.sp-thunder{border-radius:0;clip-path:polygon(40% 0,70% 0,55% 40%,80% 40%,30% 100%,42% 55%,20% 55%)}
+.spellOrb.sp-ice{border-radius:10%;transform-origin:center;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.spellHit{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;background:radial-gradient(circle,#fff 0 12%,var(--c1) 35%,transparent 68%);pointer-events:none;z-index:45;animation:spellHit .45s ease-out forwards}
+@keyframes spellHit{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.4);opacity:0}}
