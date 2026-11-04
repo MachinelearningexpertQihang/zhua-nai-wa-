@@ -801,3 +801,10 @@ img{-webkit-user-drag:none;pointer-events:none}
 .achPop span{display:block;font:700 13px var(--body);opacity:.85}
 @keyframes achIn{from{transform:translate(-50%,-40px) scale(.6);opacity:0}}
 .toyKeys{max-width:1000px;margin:0 auto 8px;font:600 11px/1.4 var(--body);color:#cfc4f2;word-break:break-all;opacity:.8}
+
+.zsBtn{position:absolute;right:22px;top:66px;z-index:3;display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;font:inherit;font-size:16px;color:var(--ink);background:#fff6e0;border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);cursor:pointer}
+.zsBtn img{width:44px;height:44px;border-radius:8px;object-fit:cover;object-position:50% 38%}
+.zsBtn:hover{transform:translateY(-2px)}
+.zsBox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12px}
+.zsBox img{width:380px;height:380px;border-radius:18px;border:5px solid var(--ink);box-shadow:0 8px 0 var(--ink)}
+.zsBox p{font-size:22px;color:#ffe7a0}
