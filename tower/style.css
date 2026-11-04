@@ -1158,3 +1158,24 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 .rn1{transform:rotate(3deg) translateY(8px)}
 #title .logo h1 .rn2{transform:rotate(-3deg)}
 #title .logo h1 .rn3{transform:rotate(4deg) translateY(6px)}
+/* 主页标题：P5 剪报拼字，四个字同样大小，但每个字的字体和剪纸形状都不同 */
+#title .logo h1{gap:2px;align-items:center}
+#title .logo h1 span.rn{width:132px;height:138px;display:flex;align-items:center;justify-content:center;padding:0;font-size:104px!important;line-height:1;box-shadow:none;filter:drop-shadow(7px 7px 0 var(--p5r))}
+#title .logo h1 .rn0{font-family:'NW Serif',serif;font-weight:600;background:var(--p5k);color:var(--p5w);clip-path:polygon(4% 6%,92% 0,100% 18%,96% 94%,10% 100%,0 70%);transform:rotate(-5deg)}
+#title .logo h1 .rn1{font-family:'NW Black';background:var(--p5w);color:var(--p5k);clip-path:polygon(0 4%,100% 0,94% 52%,100% 100%,6% 96%,2% 48%);transform:rotate(4deg) translateY(10px);filter:drop-shadow(7px 7px 0 var(--p5k))}
+#title .logo h1 .rn2{font-family:'Zhi Mang Xing',cursive;background:var(--p5r);color:var(--p5w);clip-path:polygon(8% 0,100% 8%,92% 100%,0 92%);transform:rotate(-3deg);filter:drop-shadow(7px 7px 0 var(--p5k));font-size:116px!important}
+#title .logo h1 .rn3{font-family:'NW Black';background:var(--p5k);color:var(--p5w);border:0;clip-path:polygon(0 0,86% 3%,100% 30%,97% 100%,4% 92%);transform:rotate(5deg) translateY(4px);text-shadow:4px 4px 0 var(--p5r)}
+#title .logo::after{right:-60px;top:-18px}
+#title .tsub{margin-top:26px}
+#title .gbtn b{font-style:italic}
+#title .logo h1 span.rn{-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:currentColor}
+/* 标题：统一粗黑体，更大更稳；剪报底色区分 */
+#title .logo{left:48px;top:40px}
+#title .logo h1{gap:10px}
+#title .logo h1 span.rn{font-family:'NW Black',sans-serif!important;font-weight:900;font-size:118px!important;width:148px;height:158px;text-shadow:none}
+#title .logo h1 span.rn0{background:var(--p5w);color:var(--p5k);clip-path:polygon(3% 4%,96% 0,100% 94%,0 100%);transform:rotate(-4deg);filter:drop-shadow(8px 8px 0 var(--p5r))}
+#title .logo h1 span.rn1{background:var(--p5r);color:var(--p5w);clip-path:polygon(0 0,100% 5%,97% 100%,4% 95%);transform:rotate(3deg) translateY(10px);filter:drop-shadow(8px 8px 0 var(--p5w))}
+#title .logo h1 span.rn2{background:var(--p5w);color:var(--p5k);clip-path:polygon(5% 0,100% 3%,95% 100%,0 96%);transform:rotate(-2deg);filter:drop-shadow(8px 8px 0 var(--p5r))}
+#title .logo h1 span.rn3{background:var(--p5r);color:var(--p5w);clip-path:polygon(0 4%,97% 0,100% 97%,3% 100%);transform:rotate(4deg) translateY(6px);filter:drop-shadow(8px 8px 0 var(--p5w))}
+#title .logo::after{right:-40px;top:-14px}
+#title .tsub{margin-top:30px}
