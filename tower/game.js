@@ -143,7 +143,7 @@ function bossCodex(){const ids=Object.keys(BOSS_LORE);const rec=M.boss||{};const
  $("#bcxX").onclick=closeOv}
 const mlv=id=>((M.up||{})[id]||0);
 function earnShards(win){if(!S)return{n:0};const rooms=(S.act||0)*(ROWS+1)+Math.max(0,S.row)+1;
- const n=Math.max(1,Math.floor(rooms/10)+(S.stats.endb||0)+(win?5:0)+Math.floor(asc()/2));
+ const n=Math.max(1,Math.floor(rooms/15)+Math.floor((S.stats.endb||0)/2)+(win?3:0)+Math.floor(asc()/3));
  M.shards=(M.shards||0)+n;M.shardsAll=(M.shardsAll||0)+n;saveMeta();return{n}}
 function villageTale(){M.seenT=M.seenT||[];const un=VILLAGE_TALES.filter(t=>!M.seenT.includes(t.t));const T=pick(un.length?un:VILLAGE_TALES);if(!M.seenT.includes(T.t))M.seenT.push(T.t);if(VILLAGE_TALES.every(t=>M.seenT.includes(t.t)))ach("tales");saveMeta();return T}
 function shardHTML(r){return`<div class="shardRes"><div class="srN">${ICON.star}<b>记忆碎片 +${r.n}</b><small>在主页「长老的小院」换成永久成长</small></div></div>`}
@@ -198,7 +198,7 @@ async function blessing(){const opts=shuffle([
  {t:"获得 100 金币",d:"长老的私房钱",f:()=>{S.gold+=100}},
  {t:"选一张稀有牌",d:"长老教你一招",f:async()=>{const c=offerCards(3,"R",1);await chooseReward(c,"长老教你一招",false)}},
  {t:"获得两瓶药水",d:"奶茶泉的泉水",f:()=>{givePot(randPot());givePot(randPot())}}]).slice(0,3+mlv("bless"));
- return new Promise(res=>{ov(`<div class="ovHead"><span class="ribbon b">奶蛙长老的祝福</span><small>出发前，选一样带上</small></div><div class="evOpts" style="position:absolute;left:330px;right:200px;top:190px">${opts.map((o,i)=>`<button class="evo" data-i="${i}"><b>${o.t}</b><small>${o.d}</small></button>`).join("")}</div><div style="position:absolute;left:60px;bottom:30px;width:220px;height:260px"><img src="${IMG("m6")}" style="width:100%;height:100%;object-fit:contain"></div><div class="blessSay">塔里很危险，带上这个吧。</div>`);
+ return new Promise(res=>{ov(`<div class="ovHead"><span class="ribbon b">奶蛙长老的祝福</span><small>出发前，选一样带上</small></div><div class="evOpts" style="position:absolute;left:330px;right:200px;top:190px">${opts.map((o,i)=>`<button class="evo" data-i="${i}"><b>${o.t}</b><small>${o.d}</small></button>`).join("")}</div><div style="position:absolute;left:60px;bottom:30px;width:220px;height:260px"><img src="${IMG("m6")}" style="width:100%;height:100%;object-fit:contain"></div><div class="blessSay">拿着。用不上就扔了，别跟人说是我给的。</div>`);
   $$("#ov .evo").forEach(b=>b.onclick=async()=>{sfx("relic");closeOv();await opts[+b.dataset.i].f();if(mlv("lv")&&!S.lvPerk){S.lvPerk=1;await levelUp("老练")}saveRun();openMap();res()})})}
 function resume(){if(S.act==null)S.act=0;if(!S.boss)pickBoss();if(!S.sky)S.sky=genSky();if(!S.pals)S.pals={};setBg("swamp");if(S.cur){const c=S.cur;S.cur=null;enterNode(c.t,true,c)}else openMap()}
 
@@ -631,16 +631,30 @@ async function win(){if(B.over)return;B.over=1;if(B.turn<=1)ach("oneturn");if(B.
  if(B.kind==="E")S.elites++;
  rewardScreen(B.kind,gold+B.extraGold,B.caught)}
 async function lose(){if(B&&B.over===2)return;if(B)B.over=2;busy=true;sfx("lose");await sleep(900);gameOver(false)}
-function gameOver(quit){setTimeout(()=>CLOUD.up(true),500);const heroName=HN();if(!quit&&S){if(!(S.act||0))ach("oops");M.deaths=(M.deaths||0)+1;if(M.deaths>=10)ach("stubborn")}const fl=(S.act||0)*(ROWS+1)+S.row+1+(S.atBoss?1:0);M.best=Math.max(M.best,fl);const SR=earnShards(false);saveMeta();const st=S.stats;const roast=quit?[]:elderRoast(st,{gold:S.gold,deck:S.deck.length,golds:S.deck.filter(c=>c.g).length,pots:S.pots.length,killer:st.killer,rooms:fl});S=null;saveRun();B=null;show("ending");setBg("title");playMusic("space");
- $("#ending").innerHTML=`<div class="endBox lose"><div class="endImg"><img src="${IMG("hs")}"></div><h1>${quit?"下次再来":"倒下了"}</h1><p>${quit?"塔还在那里，随时可以再爬。":heroName+"被抬回了村里。长老什么也没问。"}</p>${roast.length?`<div class="roast"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>`:""}${shardHTML(SR)}<div class="endStats"><div><b>${fl}/${ACTS.length*(ROWS+1)}</b><small>走过的房间</small></div><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>消除次数</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div></div><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div>`;
+function gameOver(quit){setTimeout(()=>CLOUD.up(true),500);const heroName=HN(),heroImg=HI();if(!quit&&S){if(!(S.act||0))ach("oops");M.deaths=(M.deaths||0)+1;if(M.deaths>=10)ach("stubborn")}const fl=(S.act||0)*(ROWS+1)+S.row+1+(S.atBoss?1:0);M.best=Math.max(M.best,fl);const SR=earnShards(false);saveMeta();const st=S.stats;const roast=quit?[]:elderRoast(st,{gold:S.gold,deck:S.deck.length,golds:S.deck.filter(c=>c.g).length,pots:S.pots.length,killer:st.killer,rooms:fl});S=null;saveRun();B=null;show("ending");setBg("title");playMusic("space");
+ const fails=["塔还在那里，它不着急。","你被抬下山的时候，天已经亮了。","村里有人给你留了一碗粥，已经凉了，你还是喝完了。","长老看了你很久，说：回来就好。"];
+ $("#ending").innerHTML=`<div class="winWrap lose"><div class="winHero"><div class="winMoon"></div><img src="${IMG("hs")}"><i class="winStone"></i></div>
+ <div class="winScroll"><div class="wsHead"><h1>${quit?"下山":"倒下了"}</h1><div class="wsSeal">${heroName}<br>${fl} 步</div></div>
+ <p class="wsLead">${quit?"塔还在那里，随时可以再爬。":heroName+"被抬回了村里。长老什么也没问。"+pick(fails)}</p>
+ <div class="wsStats"><div><b>${fl}/${ACTS.length*(ROWS+1)}</b><small>走过的房间</small></div><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.endb||0}</b><small>层末首领</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div><div><b>${st.maxHit||0}</b><small>单次最高伤害</small></div></div>
+ ${roast.length?`<div class="wsQuote"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>`:""}
+ <div class="wsFoot"><div class="wsShard">${ICON.star}<span>记忆碎片</span><b>+${SR.n}</b></div><div class="wsBtns"><button class="wsBtn red" id="eAgain">再爬一次</button><button class="wsBtn" id="eHome">回到主页</button></div></div></div></div>`;
  $("#eAgain").onclick=heroSelect;$("#eHome").onclick=titleScreen}
 async function actClear(){setTimeout(()=>CLOUD.up(true),1500);if((S.act||0)<ACTS.length-1){const a=S.act,ob=curBoss();S.act++;if(S.act>=2)ach("act3");pickBoss();S.row=-1;S.col=-1;S.path=[];S.atBoss=false;S.actCombats=0;S.cur=null;S.map=genMap();S.sky=genSky();
   const heal=Math.floor((S.max-S.hp)*.5);S.hp+=heal;saveRun();B=null;show("ending");setBg(["castle","snowfield","factory","cosmos"][a]);playMusic("title");
-  $("#ending").innerHTML=`<div class="endBox"><div class="endImg"><img src="${IMG(ENEMY[ob].img)}"></div><h1>第${"一二三四"[a]}层 · 通关</h1><p>${ENEMY[ob].n}不再挡路了。往上的楼梯露了出来。</p><p style="font-size:20px;color:#ffe7a0">休整一下：回复 ${heal} 生命</p><div class="tbc"><span class="ribbon b">下一层：${ACTS[a+1].n}</span></div><div style="margin-top:22px"><button class="btn" id="eNext">继续往上爬 ▶</button></div></div>`;
+  $("#ending").innerHTML=`<div class="endBox"><div class="endImg"><img src="${IMG(ENEMY[ob].img)}"></div><h1>第${"一二三四"[a]}层 · 通关</h1><p>${ENEMY[ob].n}倒下的时候没有出声。往上的楼梯就在它身后，一直都在。</p><p style="font-size:20px;color:#ffe7a0">休整一下：回复 ${heal} 生命</p><div class="tbc"><span class="ribbon b">下一层：${ACTS[a+1].n}</span></div><div style="margin-top:22px"><button class="btn" id="eNext">继续往上爬 ▶</button></div></div>`;
   sparks(640,200,"#ffd23f",30);$("#eNext").onclick=async()=>{show("none");await talk(STORY["act"+S.act]);openMap()};return}
  const st=S.stats;const roast=elderRoast(st,{win:1,gold:S.gold,deck:S.deck.length,golds:S.deck.filter(c=>c.g).length,pots:S.pots.length});ach("win");ach("win_"+(S.hero||"naiwa"));if(["naiwa","kungfu","knight"].every(h=>(M.ach||{})["win_"+h]))ach("trinity");if(!(S.stats.caught||0))ach("lonewolf");if(S.flags&&S.flags.doll)ach("seven");if(asc()>=1)ach("asc2");if(asc()>=3)ach("asc4");if(asc()>=7)ach("asc8");if(S.deck.length<=12)ach("slim");if(S.hp<10)ach("close");const endImg=HI(),ascNow=asc(),ascUp=ascNow>=(M.ascMax||0)&&ascNow<ASC.length-1;const SR=earnShards(true);M.wins++;if(ascUp)M.ascMax=ascNow+1;saveMeta();const deckN=S.deck.length;S=null;saveRun();B=null;
  show("ending");setBg("title");playMusic("title");
- $("#ending").innerHTML=`<div class="endBox"><div class="endImg"><img src="${IMG(endImg)}"></div><h1>奶蛙之塔 · 登顶！</h1>${ascUp?`<p class="ascUp">解锁「第 ${ascNow+2} 周目」：${ASC[ascNow+1].n}</p>`:""}<p>你下山的时候，泉水已经在往回流了。长老没有一起回来。</p><div class="endStats"><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.tri}</b><small>消除次数</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div><div><b>${deckN}</b><small>最终牌组</small></div></div><div class="roast"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>${shardHTML(SR)}${(()=>{const T=villageTale();return`<div class="srT"><em>长老说起一件旧事 · ${T.t}</em><p>${T.l.join("")}</p></div>`})()}<div style="margin-top:16px"><button class="btn" id="eAgain">再爬一次</button> <button class="btn ghost" id="eHome">回到标题</button></div></div>`;
+ const T=(()=>{M.warmI=((M.warmI||0)+1);saveMeta();return WARM_TALES[(M.warmI-1)%WARM_TALES.length]})(),heroN=(HEROES.find(h=>h.img===endImg)||{}).n||"奶蛙",ascT=ascNow?`第 ${ascNow+1} 周目`:"";
+ $("#ending").innerHTML=`<div class="winWrap"><div class="winHero"><div class="winMoon"></div><img src="${IMG(endImg)}"><i class="winStone"></i></div>
+ <div class="winScroll"><div class="wsHead"><h1>登顶</h1><div class="wsSeal">${heroN}<br>${ascT||"首登"}</div></div>
+ <p class="wsLead">你下山的时候，山脚下的泉水已经开始往回流了，水声一路跟着你，像是在送你回家。村口站着好些人，远远看见你，有人先喊了一声你的名字，接着大家都跑了过来。长老没有一起回来，他说塔上总得有人守着，让你替他看看村子。你走到半路回头望了一眼，塔顶亮着一盏小小的灯。</p>
+ ${ascUp?`<p class="wsAsc">解锁「第 ${ascNow+2} 周目」　${ASC[ascNow+1].n}</p>`:""}
+ <div class="wsStats"><div><b>${st.kills}</b><small>击败敌人</small></div><div><b>${st.endb||0}</b><small>层末首领</small></div><div><b>${st.chain||0}</b><small>最长连锁</small></div><div><b>${st.maxHit||0}</b><small>单次最高伤害</small></div><div><b>${deckN}</b><small>最终牌组</small></div></div>
+ <div class="wsQuote"><img src="${IMG("m6")}"><div>${roast.map(t=>`<p>「${t}」</p>`).join("")}</div></div>
+ <div class="wsTale"><em>后来 · ${T.t}</em><p>${T.l.join("")}</p></div>
+ <div class="wsFoot"><div class="wsShard">${ICON.star}<span>记忆碎片</span><b>+${SR.n}</b></div><div class="wsBtns"><button class="wsBtn red" id="eAgain">再爬一次</button><button class="wsBtn" id="eHome">回到主页</button></div></div></div></div>`;
  sparks(640,200,"#ffd23f",40);$("#eAgain").onclick=heroSelect;$("#eHome").onclick=titleScreen}
 
 /* ===================== 等级 / 天赋 ===================== */
@@ -718,7 +732,7 @@ caught.forEach(id=>items.push({t:"pal",v:id,done:0,auto:1}));
 /* ===================== 休息 ===================== */
 function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math.floor(S.max*(.27-.025*(S.act||0)+(has("oldmap")?.15:0)+.05*mlv("rest"))*(asc()>=8?2/3:1))+(has("pot")?10:0);
  const canUp=S.deck.some(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type));
- $("#rest").innerHTML=`<div class="pickHead"><span class="ribbon b">休息点</span><small>篝火噼啪作响，难得能歇一会儿</small></div><div class="restScene"><img src="${IMG(HI())}" style="transform:scaleX(-1)"><div class="camp"><i class="fl"></i><i class="fl b"></i><i class="logs"></i></div><img src="${IMG("m6")}" style="width:180px;height:200px"></div>
+ $("#rest").innerHTML=`<div class="pickHead"><span class="ribbon b">休息点</span><small>火烧得很安静。你坐了一会儿，想起村里的晚饭。</small></div><div class="restScene"><img src="${IMG(HI())}" style="transform:scaleX(-1)"><div class="camp"><i class="fl"></i><i class="fl b"></i><i class="logs"></i></div><img src="${IMG("m6")}" style="width:180px;height:200px"></div>
  <div class="restOpts"><button class="ropt" id="rHeal"><span class="ic">${ICON.star}</span><b>休息</b><small>回复 ${heal} 生命</small></button><button class="ropt" id="rUp" ${canUp?"":"disabled"}><span class="ic">${ICON.up}</span><b>修炼</b><small>升级一张牌</small></button><button class="ropt" id="rTalk"><span class="ic">${ICON.heart}</span><b>和长老聊天</b><small>听一段往事，回复 ${Math.floor(heal/2)} 生命</small></button></div>`;
  const done=()=>{saveRun();setTimeout(openMap,600)};
  $("#rHeal").onclick=()=>{S.hp=Math.min(S.max,S.hp+heal);sfx("heal");toast(`回复了 <b>${heal}</b> 生命`);renderTop();done()};
