@@ -1475,3 +1475,4 @@ img{-webkit-user-drag:none;pointer-events:none}
 .card.unk .cf{background:#555!important}
 .ovTip{color:#ddd;font:700 14px 'NW Black';margin-right:16px}
 .ovGrid .card{cursor:pointer}
+.modal .credit{font:600 12px var(--body);color:#888;margin-top:14px}

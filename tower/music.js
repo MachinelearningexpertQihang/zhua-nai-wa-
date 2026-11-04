@@ -14,11 +14,19 @@ function audioUnlock(){if(A.ctx){if(A.ctx.state!=="running"&&!document.hidden)A.
  d1.delayTime.value=.137;d2.delayTime.value=.211;f1.gain.value=.38;f2.gain.value=.33;lp.type="lowpass";lp.frequency.value=2600;
  A.rev.connect(lp);lp.connect(d1);lp.connect(d2);d1.connect(f1);f1.connect(d1);d2.connect(f2);f2.connect(d2);d1.connect(A.bgm);d2.connect(A.bgm);
  const b=c.createBuffer(1,c.sampleRate,c.sampleRate),dd=b.getChannelData(0);for(let i=0;i<dd.length;i++)dd[i]=Math.random()*2-1;A.noise=b;
- if(c.resume)c.resume().catch(()=>{});A.next=c.currentTime+.1;if(!A.timer)A.timer=setInterval(sched,25)}
+ if(c.resume)c.resume().catch(()=>{});A.next=c.currentTime+.1;if(!A.timer)A.timer=setInterval(sched,25);loadSF()}
 document.addEventListener("visibilitychange",()=>{if(!A.ctx)return;if(document.hidden)A.ctx.suspend&&A.ctx.suspend().catch(()=>{});else{A.ctx.resume().catch(()=>{});A.next=Math.max(A.next,A.ctx.currentTime+.05)}});
 ["pointerdown","touchend","click","keydown"].forEach(ev=>addEventListener(ev,audioUnlock,true));
 function audioSave(){try{localStorage.setItem("nwt-audio",JSON.stringify({music:A.music,sfx:A.sfx}))}catch(e){}if(A.bgm)A.bgm.gain.value=A.music?.22:0;if(A.fx)A.fx.gain.value=A.sfx?.6:0}
 
+/* ---- 真实乐器采样（FluidR3 GM 音色库，Frank Wen，CC BY 3.0） ---- */
+const SF={};let SF_N=4,SF_LOADING=0;
+function loadSF(){if(SF_LOADING||!A.ctx)return;SF_LOADING=1;for(let i=0;i<SF_N;i++){const sc=document.createElement("script");sc.src="sf/sf"+i+".js?v="+(typeof VER!=="undefined"?VER:"1");sc.onload=()=>decodeSF();document.head.appendChild(sc)}}
+function decodeSF(){const W=window.__NWT_SF||{};for(const inst in W){if(SF[inst])continue;SF[inst]={keys:[],buf:{}};const notes=W[inst];for(const m in notes){const bin=atob(notes[m]);const arr=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)arr[j]=bin.charCodeAt(j);
+  const done=b=>{SF[inst].buf[m]=b;SF[inst].keys=Object.keys(SF[inst].buf).map(Number).sort((a,b)=>a-b)};try{const p=A.ctx.decodeAudioData(arr.buffer,done,()=>{});if(p&&p.then)p.then(done).catch(()=>{})}catch(e){}}delete W[inst]}}
+function samp(inst,m,t,dur,vol,wet){const I=SF[inst];if(!I||!I.keys.length||!A.ctx)return false;let k=I.keys[0];for(const x of I.keys)if(Math.abs(x-m)<Math.abs(k-m))k=x;const b=I.buf[k];if(!b)return false;
+ const c=A.ctx,src=c.createBufferSource(),g=c.createGain();src.buffer=b;src.playbackRate.value=Math.pow(2,(m-k)/12);const end=Math.min(t+Math.max(.08,dur),t+b.duration/src.playbackRate.value);
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.006);g.gain.setValueAtTime(vol,Math.max(t+.01,end-.12));g.gain.linearRampToValueAtTime(0,end+.02);src.connect(g);g.connect(A.bgm);if(wet&&A.rev){const w=c.createGain();w.gain.value=wet;g.connect(w);w.connect(A.rev)}src.start(t);src.stop(end+.05);return true}
 /* ---- 基础发声 ---- */
 function tone(o){const c=A.ctx;if(!c)return;const t=o.t||c.currentTime,dur=o.dur||.15;
  const os=c.createOscillator(),g=c.createGain();os.type=o.type||"sine";os.frequency.setValueAtTime(o.f,t);if(o.f2)os.frequency.exponentialRampToValueAtTime(o.f2,t+dur);
@@ -49,11 +57,12 @@ const INST={
  synth:(m,t,l)=>{tone({type:"sawtooth",f:mtof(m),t,dur:l*.95,vol:.09,dest:D(),filt:"lowpass",ff:2600,q:4,sus:.6,wet:.2});tone({type:"sawtooth",f:mtof(m)*1.01,t,dur:l*.95,vol:.06,dest:D(),filt:"lowpass",ff:2000,sus:.6})},
  flute:(m,t,l)=>{tone({type:"sine",f:mtof(m),t,dur:l*1.2,vol:.16,att:.05,dest:D(),vib:5,vibD:mtof(m)*.008,vibDelay:.12,sus:.7,wet:.45});noise({t,dur:.08,vol:.02,f:mtof(m)*2,q:6,dest:D()})},
 };
+function bnote(m,t,d,v,fb){const S2=A.T&&A.T.s;if(S2&&S2.bass&&samp(S2.bass,m,t,Math.max(d,.2),Math.min(.9,v*2.6),.1))return;fb()}
 const BASS={
- soft:(r,t,e,q)=>{if(e===0||e===4)tone({type:"sine",f:mtof(r-12),t,dur:q*3.5,vol:.32,dest:D(),filt:"lowpass",ff:400})},
- walk:(r,t,e,q)=>{if(e%2===0)tone({type:"triangle",f:mtof(r-12+[0,7,12,7][e/2]),t,dur:q*1.6,vol:.24,dest:D(),filt:"lowpass",ff:700})},
- drive:(r,t,e,q)=>tone({type:"sawtooth",f:mtof(r-24+(e%2?12:0)),t,dur:q*.9,vol:.12,dest:D(),filt:"lowpass",ff:520,q:3}),
- heavy:(r,t,e,q)=>{if(e!==3&&e!==7){tone({type:"sawtooth",f:mtof(r-24),t,dur:q*.95,vol:.16,dest:D(),filt:"lowpass",ff:380,q:4});tone({type:"sine",f:mtof(r-24),t,dur:q,vol:.2,dest:D()})}},
+ soft:(r,t,e,q)=>{if(e===0||e===4)bnote(r-12,t,q*3.5,.32,()=>tone({type:"sine",f:mtof(r-12),t,dur:q*3.5,vol:.32,dest:D(),filt:"lowpass",ff:400}))},
+ walk:(r,t,e,q)=>{if(e%2===0){const m=r-12+[0,7,12,7][e/2];bnote(m,t,q*1.6,.24,()=>tone({type:"triangle",f:mtof(m),t,dur:q*1.6,vol:.24,dest:D(),filt:"lowpass",ff:700}))}},
+ drive:(r,t,e,q)=>{const m=r-24+(e%2?12:0)+(e===7?7:0);bnote(m+12,t,q*.9,.13,()=>tone({type:"sawtooth",f:mtof(m),t,dur:q*.9,vol:.12,dest:D(),filt:"lowpass",ff:520,q:3}))},
+ heavy:(r,t,e,q)=>{if(e!==3&&e!==7){bnote(r-12,t,q*.95,.16,()=>tone({type:"sawtooth",f:mtof(r-24),t,dur:q*.95,vol:.16,dest:D(),filt:"lowpass",ff:380,q:4}));tone({type:"sine",f:mtof(r-24),t,dur:q,vol:.16,dest:D()})}},
  none:()=>{}};
 const kick=(t,v=.45)=>tone({type:"sine",f:150,f2:42,t,dur:.18,vol:v,dest:D()});
 const snare=(t,v=.16)=>{noise({t,dur:.14,vol:v,filt:"highpass",f:1800,dest:D()});tone({type:"triangle",f:190,f2:140,t,dur:.08,vol:.1,dest:D()})};
@@ -125,15 +134,40 @@ const TR={
   mel:[74,-1,-1,0,77,-1,76,0, 74,-1,72,0,69,-1,-1,0, 70,-1,72,0,74,-1,77,0, 76,-1,-1,-1,0,0,0,0, 81,-1,79,0,77,-1,76,0, 74,-1,76,0,77,-1,-1,0, 79,-1,77,0,76,-1,74,0, 73,-1,-1,-1,0,0,0,0]},
 };
 Object.assign(TR,TR2);
+const ORCH={
+ title:{lead:"music_box",bass:"cello",pad:"string_ensemble_1",arp:"orchestral_harp"},
+ map:{lead:"kalimba",bass:"acoustic_bass",arp:"acoustic_guitar_nylon",perc:"wood"},
+ battle:{lead:"pizzicato_strings",dbl:"marimba",bass:"acoustic_bass",stab:"string_ensemble_1",perc:"taiko"},
+ elite:{lead:"trumpet",bass:"cello",pad:"string_ensemble_1",perc:"timp"},
+ boss:{lead:"french_horn",dbl:"trumpet",bass:"cello",pad:"string_ensemble_1",perc:"taiko"},
+ final:{lead:"church_organ",dbl:"french_horn",bass:"cello",pad:"string_ensemble_1",perc:"timp",bells:1},
+ shop:{lead:"fiddle",bass:"acoustic_bass",arp:"acoustic_guitar_nylon",perc:"wood"},
+ rest:{lead:"orchestral_harp",bass:"cello",arp:"acoustic_guitar_nylon",pad:"string_ensemble_1"},
+ event:{lead:"flute",bass:"cello",pad:"string_ensemble_1",bells:1},
+ map1:{lead:"church_organ",dbl:"harpsichord",bass:"cello",pad:"string_ensemble_1"},
+ battle1:{lead:"harpsichord",bass:"cello",stab:"string_ensemble_1",perc:"timp"},
+ map2:{lead:"celesta",dbl:"music_box",bass:"cello",pad:"string_ensemble_1",arp:"orchestral_harp"},
+ battle2:{lead:"pizzicato_strings",dbl:"celesta",bass:"acoustic_bass",stab:"string_ensemble_1",perc:"taiko",bells:1},
+ map3:{lead:"acoustic_grand_piano",bass:"acoustic_bass",arp:"acoustic_guitar_nylon",perc:"wood"},
+ battle3:{lead:"trumpet",dbl:"acoustic_grand_piano",bass:"acoustic_bass",stab:"acoustic_grand_piano",perc:"taiko"},
+ map4:{lead:"flute",bass:"cello",pad:"string_ensemble_1",arp:"orchestral_harp",bells:1},
+ battle4:{lead:"french_horn",dbl:"trumpet",bass:"cello",pad:"string_ensemble_1",stab:"string_ensemble_1",perc:"timp"}};
+for(const k in ORCH)if(TR[k])TR[k].s=ORCH[k];
 function harmUnder(m,chord){let best=null;for(const c of chord)for(const o of [12,24,36]){const n=c+o;if(n<m-2&&n>=m-9&&(best===null||n>best))best=n}return best}
 function sched(h=.15){const c=A.ctx;if(!c)return;if(A.next<c.currentTime-.2)A.next=c.currentTime+.05;
  while(A.next<c.currentTime+h){const T=TR[A.cur];const q=60/(T?T.bpm*(A.rage?1.18:1):100)/2;
   if(T&&A.music&&(c.state==="running"||A.offline)){const s=A.step%64,bar=Math.floor(s/8),e=s%8,t=A.next+(e%2?q*T.sw:0);const [r,ty]=T.ch[bar%T.ch.length];const chord=CH(r,ty);
-   const loop=Math.floor(A.step/64);const m=T.mel[s];if(m>0){let l=1;while(T.mel[(s+l)%64]===-1&&l<8)l++;INST[T.lead](m,t,q*l);if(loop%2===1||A.rage){const hm=harmUnder(m,chord);if(hm)tone({type:"triangle",f:mtof(hm),t,dur:q*l*.9,vol:.05,dest:D(),wet:.3})}}
+   A.T=T;const O=T.s||{};const loop=Math.floor(A.step/64);const m=T.mel[s];if(m>0){let l=1;while(T.mel[(s+l)%64]===-1&&l<8)l++;if(!(O.lead&&samp(O.lead,m,t,q*l,.72,.3)))INST[T.lead](m,t,q*l);if(O.dbl&&(loop%2===1||A.rage))samp(O.dbl,m+(O.dbl==="music_box"||O.dbl==="celesta"?12:0),t,q*l,.28,.3);if(loop%2===1||A.rage){const hm=harmUnder(m,chord);if(hm)tone({type:"triangle",f:mtof(hm),t,dur:q*l*.9,vol:.05,dest:D(),wet:.3})}}
    if(loop%4===2&&!T.arp&&e%2===0)tone({type:"triangle",f:mtof(chord[(e/2)%chord.length]+12),t,dur:q*1.5,vol:.04,dest:D(),wet:.4});
    if(A.rage){hat(t,.05);if(e===2||e===6)kick(t,.4);if(e===7)snare(t,.1);tone({type:"sawtooth",f:mtof(r+(e%2?7:0)),t,dur:q*.8,vol:.035,dest:D(),filt:"lowpass",ff:900})}
    BASS[T.bass](r,t,e,q);DRUM[T.dr](t,e,bar);
-   if(T.pad&&e===0)chord.forEach(n=>tone({type:"sine",f:mtof(n),t,dur:q*8.2,vol:T.pad,att:.4,dest:D(),wet:.3}));
+   if(e===0&&O.pad&&SF[O.pad]){chord.forEach(n=>samp(O.pad,n,t,q*8.1,.16,.35))}else if(T.pad&&e===0)chord.forEach(n=>tone({type:"sine",f:mtof(n),t,dur:q*8.2,vol:T.pad,att:.4,dest:D(),wet:.3}));
+   if(O.arp&&SF[O.arp]&&(loop>0||!T.mel[s])){const pat=[0,2,1,2,0,2,1,2];const n=chord[pat[e]%chord.length]+(e>=4?12:0);if(e%2===0||T.bpm<100)samp(O.arp,n,t,q*2,.2,.3)}
+   if(O.stab&&SF[O.stab]&&(e===2||e===5||(e===7&&bar%2)))chord.forEach(n=>samp(O.stab,n+12,t,q*.6,.08,.15));
+   if(O.perc==="taiko"&&SF.taiko_drum){if(e===0&&bar%2===0)samp("taiko_drum",48,t,.8,.7,.2);if(bar%4===3&&e>=4)samp("taiko_drum",[60,48,48,36][e-4],t,.5,.5+.08*(e-4),.2)}
+   if(O.perc==="timp"&&SF.timpani){if(e===0)samp("timpani",r-12,t,1,.55,.25);if(bar%4===3&&e>=4)samp("timpani",r-12+(e%2?7:0),t,.3,.35+.05*(e-4),.2)}
+   if(O.perc==="wood"&&SF.woodblock&&(e===3||(e===6&&bar%2)))samp("woodblock",e===3?72:84,t,.2,.35);
+   if(O.bells&&SF.tubular_bells&&e===0&&bar%4===0)samp("tubular_bells",r+24,t,2,.22,.6);
    if(T.arp)tone({type:"triangle",f:mtof(chord[e%chord.length]+(e>=4?12:0)),t,dur:q*2,vol:.07,dest:D(),wet:.4});
    if(T.bell&&e===0&&bar%2===0)INST.bell(r+24,t,q)}
   A.next+=q;A.step++}}
