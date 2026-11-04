@@ -416,6 +416,7 @@ starchick:{n:"星鸡",img:"e_ckar",pal:"p_star",hp:[22,26],h:130,ai:(e,t)=>[{k:"
 glow:{n:"发光奶蛙",img:"e_hn",pal:"p_hn",hp:[34,38],h:160,ai:(e,t)=>[{k:"buff",s:"str",v:2},{k:"atk",v:12},{k:"atkdef",v:8,b:10}][t%3]},
 angel:{n:"堕落天使",img:"e_an",pal:"p_an",hp:[100,106],h:230,elite:1,ai:(e,t)=>[{k:"atk",v:12,x:2},{k:"def",v:20,s2:"str",v2:3},{k:"atk",v:24,pool:{t:"freeze",n:2}}][t%3]},
 isekai:{n:"异世界奶蛙",img:"e_v_yjx",pal:"p_yjx",hp:[96,100],h:220,elite:1,pd:"每回合把你的池子打乱",ai:(e,t)=>[{k:"atk",v:14,pool:{t:"shuffle"}},{k:"atk",v:8,x:2,pool:{t:"shuffle"}},{k:"buff",s:"str",v:3,pool:{t:"junk",n:2}}][t%3]},
+isekaiX:{n:"门里来的异世界奶蛙",img:"e_v_yjx",pal:"p_yjx",hp:[150,160],h:220,elite:1,pd:"从另一个世界来的。每回合打乱你的池子，血量一半以下可以抓",ai:(e,t)=>[{k:"atk",v:14,pool:{t:"shuffle"}},{k:"atk",v:8,x:2,pool:{t:"shuffle"}},{k:"buff",s:"str",v:3,pool:{t:"junk",n:2}}][t%3]},
 shadowE:{n:"影子刺客",img:"e_xsh",hp:[64,64],h:230,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:2},{k:"atk",v:9,x:2,pool:{t:"shuffle"}},{k:"atk",v:15,pool:{t:"freeze",n:1}}][t%3]},
 shadowE2:{n:"影子刺客",img:"e_xsh",hp:[96,96],h:240,elite:1,flee:1,pd:"它在试探你：血量降到一半就会逃走。会搅乱你的池子、模仿你的消除",ai:(e,t)=>[{k:"buff",s:"mirror",v:3},{k:"atk",v:11,x:2,pool:{t:"shuffle"}},{k:"atk",v:20,pool:{t:"freeze",n:2}}][t%3]},
 demon:{n:"奶蛙大魔王",img:"e_bx",hp:[320,320],h:270,boss:1,pd:"会一口吞掉你整个池子，每吞 2 只力气 +1；还会掀锅，把池子冻住打乱",ai:(e,t)=>e.phase2?[{k:"atk",v:12,x:3,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:2,pool:{t:"eat"}},{k:"atk",v:34},{k:"atkdef",v:16,b:20,pool:{t:"freeze",n:3}}][t%4]:[{k:"atk",v:18,pool:{t:"junk",n:2}},{k:"buff",s:"str",v:1,pool:{t:"eat"}},{k:"atk",v:8,x:3,pool:{t:"freeze",n:2}},{k:"def",v:24,pool:{t:"shuffle"}}][t%4]},
@@ -498,6 +499,7 @@ const ACTS=[{n:"泥沼回廊",bgs:["swamp","reed","ruin"],boss:"king"},{n:"月�
 /* ===================== 遗物 ===================== */
 const RELICS={
 cup:{n:"茶杯",img:"ctm",r:"S",d:"每场战斗结束，回复 6 生命"},
+otherball:{n:"另一个世界的奶蛙球",img:"yjx",r:"S",d:"每场战斗第一次抓怪：敌人血量一半以下就能抓，而且不花奶力"},
 ironpot:{n:"铁锅",img:"ctm",r:"R",d:"每场战斗开局，力气 +1"},
 bigspoon:{n:"大汤勺",img:"ct",r:"C",d:"回合开始时如果没有护盾，获得 4 护盾"},
 frogcharm:{n:"蛙护身符",img:"n3",r:"C",d:"每场战斗开局，池里加 2 只奶蛙"},
@@ -753,7 +755,9 @@ const ACH=[
 {id:"notover",n:"还没完",d:"看着奶蛙大魔王重新站起来",ic:"skull"},
 {id:"trinity",n:"三个都行",d:"三位主角都登顶过",ic:"star"},
 {id:"sweet",n:"很甜",d:"在奶茶厂的传送带上喝了一杯",ic:"q",hid:1},
-{id:"seven",n:"七",d:"带着那个布娃娃登顶",ic:"heart",hid:1}];
+{id:"seven",n:"七",d:"带着那个布娃娃登顶",ic:"heart",hid:1},
+{id:"isekai",n:"从另一个世界来的",d:"遇到了异世界之门",ic:"swirl",hid:1},
+{id:"isekai2",n:"到哪都一样",d:"在异世界之门把那只奶蛙抓住了",ic:"heart",hid:1}];
 
 /* ===================== 局外成长：长老的小院 ===================== */
 const META=[
