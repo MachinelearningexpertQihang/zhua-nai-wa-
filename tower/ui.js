@@ -56,7 +56,49 @@ const PAL={
  bossice:{s1:"#060a20",s2:"#122a5a",s3:"#3a6aa8",moon:"#bfefff",far:"#10204a",mid:"#9ab4d8",near:"#c8d8f0",water:"#5a80b8",gl:"#a8c0e0"},
  boss2:{s1:"#020208",s2:"#0e0a24",s3:"#2a1440",moon:"#000000",far:"#120a22",mid:"#0e0818",near:"#06040c",water:"#1a1030",gl:"#241640"},
  shop:{s1:"#2a1230",s2:"#4a1f3a",s3:"#8a3a3a",moon:"#ffd9a0",far:"#3a1838",mid:"#2b1a1c",near:"#1a0f10",water:"#3a1f2a",gl:"#4a2a24"}};
-function sceneSVG(kind,moon){const P=PAL[kind]||PAL.swamp,I=INK;
+function inkTitleSVG(){
+ const mtn=(pts,id)=>`<path d="M0 720 L${pts} L1280 720 Z" fill="url(#${id})"/>`;
+ let stars="";for(let i=0;i<60;i++){const x=(i*317)%1280,y=(i*97)%330;stars+=`<circle class="${i%4?"":"tw"}" style="animation-delay:${i%5*.7}s" cx="${x}" cy="${y}" r="${i%9===0?1.7:1}" fill="#f6edd8" opacity="${.3+(i%3)*.15}"/>`}
+ let wins="";[[1007,250],[1001,300],[1013,348],[995,402]].forEach(([x,y],i)=>wins+=`<rect class="win" style="animation-delay:${i*1.3}s" x="${x}" y="${y}" width="6" height="11" rx="3" fill="#ffc870"/>`);
+ const pine=(x,y,s,c)=>`<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M-3 0 L-2 -120 L2 -120 L3 0Z"/><path d="M0 -150 C-30 -140 -62 -128 -70 -118 C-40 -122 -22 -120 0 -112 C22 -120 44 -124 74 -116 C60 -130 30 -142 0 -150Z"/><path d="M-4 -102 C-40 -94 -80 -84 -96 -72 C-56 -76 -28 -74 -2 -66 C26 -76 60 -78 98 -70 C76 -86 40 -96 -4 -102Z"/><path d="M-2 -56 C-36 -50 -66 -40 -80 -30 C-46 -32 -22 -30 0 -24 C24 -32 52 -34 84 -28 C64 -42 34 -52 -2 -56Z"/></g>`;
+ const stoneLamp=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-46" r="40" fill="#ffb84a" opacity=".16"/><circle cx="0" cy="-46" r="20" fill="#ffc870" opacity=".22" class="tw"/><path d="M-6 0 L-5 -30 L5 -30 L6 0Z" fill="#0d0b12"/><path d="M-14 -30 H14 V-36 H-14Z" fill="#0d0b12"/><rect x="-9" y="-56" width="18" height="20" fill="#ffcf7a"/><path d="M-9 -56 V-36 M9 -56 V-36" stroke="#0d0b12" stroke-width="3"/><path d="M-20 -56 L0 -72 L20 -56Z" fill="#0d0b12"/></g>`;
+ const redLantern=(x,y,d)=>`<g class="swing" style="transform-origin:${x}px ${y-24}px;animation-delay:${d}s"><path d="M${x} ${y-24} V${y-12}" stroke="#0d0b12" stroke-width="2"/><circle cx="${x}" cy="${y}" r="20" fill="#ff6a4a" opacity=".22"/><ellipse cx="${x}" cy="${y}" rx="9" ry="11" fill="#d83a2e"/><path d="M${x} ${y+11} V${y+20}" stroke="#e8b04a" stroke-width="2"/></g>`;
+ const bird=(x,y,s,d)=>`<g class="birdF" style="animation-delay:-${d}s"><path transform="translate(${x} ${y}) scale(${s})" d="M-12 0 Q-6 -6 0 0 Q6 -6 12 0" stroke="#15121c" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>`;
+ let village="";[[470,486],[512,492],[690,488],[736,494],[1150,476],[1196,470]].forEach(([x,y],i)=>village+=`<g><path d="M${x-14} ${y} L${x} ${y-14} L${x+14} ${y} V${y+16} H${x-14}Z" fill="#14111b"/><rect class="win" style="animation-delay:${i*.8}s" x="${x-3}" y="${y+3}" width="6" height="7" fill="#ffc870"/></g>`);
+ return `<svg class="scene inkScene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice"><defs>
+ <linearGradient id="ik_sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14122a"/><stop offset=".45" stop-color="#2a2444"/><stop offset=".8" stop-color="#4a3a52"/><stop offset="1" stop-color="#5a4450"/></linearGradient>
+ <radialGradient id="ik_moon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff2d0" stop-opacity=".95"/><stop offset=".45" stop-color="#f4d8a0" stop-opacity=".25"/><stop offset="1" stop-color="#f4d8a0" stop-opacity="0"/></radialGradient>
+ <radialGradient id="ik_warm" cx=".5" cy="1" r=".7"><stop offset="0" stop-color="#ff9a5a" stop-opacity=".28"/><stop offset="1" stop-color="#ff9a5a" stop-opacity="0"/></radialGradient>
+ <linearGradient id="ik_m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a5070"/><stop offset="1" stop-color="#3a3250" stop-opacity=".25"/></linearGradient>
+ <linearGradient id="ik_m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c2640"/><stop offset=".7" stop-color="#1c1828" stop-opacity=".7"/><stop offset="1" stop-color="#1c1828" stop-opacity="0"/></linearGradient>
+ <linearGradient id="ik_m3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#15121e"/><stop offset="1" stop-color="#0b0a12"/></linearGradient>
+ <linearGradient id="ik_water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3456"/><stop offset="1" stop-color="#14121e"/></linearGradient>
+ <linearGradient id="ik_mist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8dcc8" stop-opacity="0"/><stop offset=".5" stop-color="#e8dcc8" stop-opacity=".2"/><stop offset="1" stop-color="#e8dcc8" stop-opacity="0"/></linearGradient>
+ <filter id="ik_grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .9  0 0 0 0 .85  0 0 0 0 .75  0 0 0 .06 0"/></filter>
+ <filter id="ik_soft"><feGaussianBlur stdDeviation="2.2"/></filter></defs>
+ <rect width="1280" height="720" fill="url(#ik_sky)"/>${stars}
+ <rect y="260" width="1280" height="300" fill="url(#ik_warm)"/>
+ <circle cx="760" cy="160" r="250" fill="url(#ik_moon)"/>
+ <circle cx="760" cy="160" r="94" fill="#f6e6c2"/><circle cx="742" cy="140" r="16" fill="#e2cc9c" opacity=".5"/><circle cx="790" cy="182" r="10" fill="#e2cc9c" opacity=".45"/>
+ <path d="M630 172 C700 152 830 152 910 176" stroke="#2a2444" stroke-width="9" fill="none" opacity=".6" filter="url(#ik_soft)"/>
+ ${bird(640,120,1,0)}${bird(672,104,.8,3)}${bird(700,128,.7,6)}
+ <g filter="url(#ik_soft)">${mtn("0 420 C90 360 160 300 240 330 C300 350 340 280 420 300 C520 330 560 410 640 400 C720 390 760 330 860 350 C960 370 1040 300 1140 330 C1200 345 1240 380 1280 370","ik_m1")}</g>
+ <rect y="360" width="1280" height="90" fill="url(#ik_mist)" class="mistDrift"/>
+ <g transform="translate(-420 10)"><g fill="#121019"><path d="M985 470 L992 240 L986 240 L1003 186 L1020 240 L1014 240 L1021 470 Z"/><path d="M970 470 L990 330 L1016 330 L1036 470 Z"/><path d="M1003 186 L1003 160" stroke="#121019" stroke-width="3"/></g>${wins}
+ ${redLantern(988,262,0)}${redLantern(1018,262,1.2)}${redLantern(980,348,.6)}${redLantern(1026,348,1.8)}</g>
+ ${mtn("0 520 C120 460 220 470 320 500 C420 530 500 450 620 470 C740 490 820 540 940 510 C1060 480 1160 500 1280 470","ik_m2")}${village}
+ <rect y="470" width="1280" height="100" fill="url(#ik_mist)" class="mistDrift" style="animation-duration:34s"/>
+ <path d="M0 600 C200 590 420 596 640 592 C860 588 1080 594 1280 590 V720 H0Z" fill="url(#ik_water)"/>
+ <g opacity=".55"><ellipse cx="760" cy="612" rx="46" ry="5" fill="#f6e6c2"/><ellipse cx="760" cy="630" rx="30" ry="3.5" fill="#f6e6c2" opacity=".7"/><ellipse cx="760" cy="646" rx="18" ry="2.5" fill="#f6e6c2" opacity=".5"/></g>
+ <ellipse class="rip" style="transform-origin:540px 640px" cx="540" cy="640" rx="40" ry="6" fill="none" stroke="#f6e6c2" stroke-width="1.5" opacity="0"/>
+ ${mtn("0 660 C140 630 260 640 400 652 C520 662 600 640 700 648 C820 660 1000 636 1280 646","ik_m3")}
+ ${pine(80,650,1.25,"#0c0b12")}${pine(1210,660,1.05,"#0c0b12")}${pine(1270,640,.8,"#0c0b12")}
+ ${stoneLamp(560,664,1)}${stoneLamp(1140,664,.85)}
+ <g stroke="#0a0910" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"><path d="M200 720 Q206 650 194 580"/><path d="M224 720 Q228 670 238 610"/><path d="M1060 720 Q1054 660 1068 600"/></g>
+ <g fill="#0a0910"><ellipse cx="194" cy="586" rx="4" ry="11"/><ellipse cx="238" cy="616" rx="4" ry="11"/><ellipse cx="1068" cy="606" rx="4" ry="11"/></g>
+ <rect width="1280" height="720" filter="url(#ik_grain)"/>
+ <rect width="1280" height="720" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="120" filter="url(#ik_soft)"/></svg>`}
+function sceneSVG(kind,moon){if(kind==="title")return inkTitleSVG();const P=PAL[kind]||PAL.swamp,I=INK;
  const mx={factory:1060,pipes:220,bossfac:640,snowfield:1000,belltower:220,bellE:1060,bossice:640,demon:640,castle:1040,gate:200,boss1:1030,cosmos:980,summit:640,boss2:640,swamp:1040,reed:640,ruin:300,elite:1000,boss:640,title:760,rest:1060,event:980,shop:1100}[kind]||1000,mr={bossfac:120,bossice:120,demon:150,boss:96,title:84,reed:84,boss1:110,boss2:120,summit:70}[kind]||56,my={bossfac:170,bossice:170,demon:190,boss:150,reed:200,boss1:140,boss2:170}[kind]||118;
  let stars="";for(let i=0;i<56;i++){const x=(i*277)%1280,y=(i*131)%340,r=i%7===0?2.4:1.2;stars+=`<circle class="${i%3?"":"tw"}" style="animation-delay:${i%5*.6}s" cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${.35+(i%4)*.18}"/>`}
  const cloud=(x,y,s,o)=>`<g class="cloud" style="animation-duration:${60+s*30}s"><g transform="translate(${x} ${y}) scale(${s})" fill="#fff" opacity="${o}"><ellipse cx="0" cy="0" rx="60" ry="16"/><ellipse cx="-20" cy="-12" rx="28" ry="18"/><ellipse cx="18" cy="-16" rx="34" ry="22"/></g></g>`;
