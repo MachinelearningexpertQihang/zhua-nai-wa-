@@ -141,7 +141,7 @@ function talk(lines){return new Promise(res=>{const T=$("#talk");let i=0;const L
 function bossCodex(){const ids=Object.keys(BOSS_LORE);const rec=M.boss||{};const got=ids.filter(id=>(rec[id]||{}).k).length;
  ov(`<div class="bcx"><div class="mgHead"><span class="ribbon b">首领图鉴</span><small>已解锁 ${got} / ${ids.length}　打败首领后解锁它的故事</small></div><div class="bcxRow"><div class="bcxGrid">${ids.map(id=>{const k=(rec[id]||{}).k;return`<button class="bcxC ${k?"":"lock"}" data-id="${id}"><img src="${IMG(ENEMY[id].img)}"><span>${k?ENEMY[id].n:"？？？"}</span></button>`}).join("")}</div><div class="bcxD" id="bcxD"><p class="bcxHint">点左边的首领看看</p></div></div><div class="ovFoot"><button class="btn" id="bcxX">关闭</button></div></div>`);
  $$(".bcxC").forEach(b=>b.onclick=()=>{$$(".bcxC").forEach(x=>x.classList.remove("on"));b.classList.add("on");const id=b.dataset.id,L=BOSS_LORE[id],k=(rec[id]||{}).k;sfx("click");
-  $("#bcxD").innerHTML=k?`<img src="${IMG(ENEMY[id].img)}"><h3>${ENEMY[id].n}</h3><div class="bt"><b>${L.t}</b>${L.td}</div><div class="lore">${L.lore.map(x=>x?`<p>${x}</p>`:`<p class="sp">·</p>`).join("")}</div><small>击败 ${k} 次</small>`:`<img class="sil" src="${IMG(ENEMY[id].img)}"><h3>？？？</h3><p class="bcxHint">还没有打败过它。</p>`});
+  $("#bcxD").innerHTML=k?`<img src="${IMG(ENEMY[id].img)}"><h3>${ENEMY[id].n}</h3><div class="bt"><b>${L.t}</b>${L.td}</div><div class="lore">${[["初见",L.lore,1],["为什么",L.lore2,2],["阿岳与长老",L.lore3,3]].filter(x=>x[1]).map(([h,l,n])=>k>=n?`<h4>${h}</h4>${l.map(x=>`<p>${x}</p>`).join("")}`:`<h4 class="lk">${h}</h4><p class="sp">再打败它 ${n-k} 次解锁</p>`).join("")}</div><small>击败 ${k} 次</small>`:`<img class="sil" src="${IMG(ENEMY[id].img)}"><h3>？？？</h3><p class="bcxHint">还没有打败过它。</p>`});
  $("#bcxX").onclick=closeOv}
 const mlv=id=>((M.up||{})[id]||0);
 function earnShards(win){if(!S)return{n:0};const rooms=(S.act||0)*(ROWS+1)+Math.max(0,S.row)+1;
@@ -219,7 +219,7 @@ const MAPTH=(()=>{const R=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join("");con
   deco:``}
  ]})();
 const LEGI={m:["laugh","butler","snowchick","teacup","starfrog"],E:["swampbear","knight2","icefrog","furnaceegg","imp"]};
-const ROWS=9,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);S.boss=pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count";{const gl=(ENCS[S.act||0].guards||ENCS[S.act||0].bosses.map(x=>x[0])).filter(b=>b!==S.boss);S.guard=pick(gl)}};
+const ROWS=9,COLS=7;const actN=()=>ACTS[S.act||0];const curBoss=()=>S.boss||ACTS[S.act||0].boss;const bossAlt=()=>curBoss()!==ACTS[S.act||0].boss;const pickBoss=()=>{const bl=ENCS[S.act||0].bosses.map(x=>x[0]);const last=(M.lastBoss||{})[S.act||0];const fresh=bl.filter(b=>b!==last);const unk=bl.filter(b=>!((M.boss||{})[b]||{}).k);S.boss=asc()>=1&&unk.length&&rnd()<.75?pick(unk):pick(fresh.length&&rnd()<.75?fresh:bl);M.lastBoss=M.lastBoss||{};M.lastBoss[S.act||0]=S.boss;if(S.act===1&&S.flags&&(S.flags.vampTea||S.flags.vampBit))S.boss="count";{const gl=(ENCS[S.act||0].guards||ENCS[S.act||0].bosses.map(x=>x[0])).filter(b=>b!==S.boss);const gu=gl.filter(b=>!((M.boss||{})[b]||{}).k);S.guard=asc()>=1&&gu.length&&rnd()<.75?pick(gu):pick(gl)}};
 function genMap(){const g=[...Array(ROWS)].map(()=>Array(COLS).fill(null));const edges=new Set();const starts=[];
  for(let i=0;i<5;i++){let c=ri(COLS);if(i<2)while(starts.includes(c))c=ri(COLS);starts.push(c)}
  for(const s of starts){let c=s;for(let r=0;r<ROWS;r++){g[r][c]=g[r][c]||{r,c,t:null,nx:[],jx:ri(16)-8,jy:ri(16)-8};if(r===ROWS-1)break;
@@ -575,7 +575,7 @@ async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=cu
 function findRun(P,need){for(let i=0;i<P.length;i++){let f=null,j=i;while(j<P.length){const t=P[j];if(t.ice&&!has("warmscarf"))break;if(t.f==="any"){if(f==="mud")break;j++;continue}if(f===null){if(t.f==="mud"&&j>i)break;f=t.f;j++;continue}if(t.f===f){j++;continue}break}
   const n=j-i;if(n>=need&&!(f==="mud"&&P.slice(i,j).some(x=>x.f==="any")))return{i,n,f:f||"any"}}return null}
 function chainBanner(lv){const d=document.createElement("div");d.className="triBan chain";d.innerHTML=`<b>${["","","二","三","四","五","六"][Math.min(lv,6)]}连锁！</b><small>爆发 ×${lv}，奶力 +1</small>`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),1200);sparks(640,260,"#f7c948",36);stageShake()}
-function triBanner(fam){sfx("tri");const d=document.createElement("div");d.className="triBan";d.innerHTML=`<b>消除！</b><small>${(FAM[fam]||{n:"彩虹"}).n}爆发：${({frog:"乱拳 3×3",horse:"群踏 5",chick:"护盾 +6",cat:"回复 3，抽 1",pal:"伙伴出击 8",any:"奶力 +1"}[fam]||"")}</small>`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),1000);sparks(640,300,FAM[fam].c,22)}
+function triBanner(fam){sfx("tri");const d=document.createElement("div");d.className="triBan";d.innerHTML=`<b>消除！</b><small>${(FAM[fam]||{n:"彩虹"}).n}爆发：${({frog:"乱拳 3×3",horse:"群踏 5",chick:"护盾 +6",cat:"回复 3，抽 1",pal:"伙伴出击 8",any:"奶力 +1"}[fam]||"")}</small>`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),1000);sparks(640,300,(FAM[fam]||{c:"#ffd200"}).c,22)}
 function afterAction(){renderTop();renderBattle();if(S.hp<=0)return lose();if(!B.alive().length&&!B.over)win()}
 
 /* ---- 回合结束 / 敌人行动 ---- */
@@ -698,7 +698,7 @@ const PERKS={
 async function gainXP(n){if(!S.lv){S.lv=1;S.xp=0;S.perks={}}if(has("xpbook"))n=Math.ceil(n*1.5);if(S.mod==="xp")n*=2;S.xp+=n;renderTop();
  while(S.lv<LV_XP.length-1&&S.xp>=LV_XP[S.lv+1]){S.lv++;S.hp=Math.min(S.max,S.hp+5);renderTop();await levelUp()}saveRun()}
 function levelUp(title){return new Promise(res=>{sfx("win");const ids=shuffle(Object.keys(PERKS).filter(k=>perk(k)<PERKS[k].max)).slice(0,3);
- ov(`<div class="lvUp"><b>${title||"等级提升！"}</b><small>${title?"":"Lv."+S.lv+"　生命 +5"}　选一个天赋，这一局一直有效</small></div><div class="perkRow">${ids.map(k=>{const P=PERKS[k];return`<button class="perk" data-k="${k}"><span class="pi">${ICON[P.ic]||""}</span><b>${P.n}</b><p>${P.d}</p><small>${perk(k)?"已有 "+perk(k)+" 级":"新天赋"}</small></button>`}).join("")}</div>`);
+ ov(`<div class="lvWrap"><div class="lvRays"></div><div class="lvSlash"></div><div class="lvUp"><i>LEVEL UP</i><b>${title||"等级提升！"}</b><small>${title?"":"<em>Lv."+S.lv+"</em>　生命 +5　"}选一个天赋，这一局一直有效</small></div><div class="perkRow">${ids.map((k,i)=>{const P=PERKS[k];return`<button class="perk" data-k="${k}"><u>0${i+1}</u><span class="pi">${ICON[P.ic]||""}</span><b>${P.n}</b><p>${P.d}</p><small>${perk(k)?"已有 "+perk(k)+" 级":"NEW · 新天赋"}</small></button>`}).join("")}</div></div>`);
  sparks(640,140,"#f7c948",34);
  $$("#ov .perk").forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.perks[k]=(S.perks[k]||0)+1;if(PERKS[k].f)PERKS[k].f();sfx("relic");closeOv();toast(`获得天赋 <b>${PERKS[k].n}</b>`);renderTop();saveRun();res()})})}
 
@@ -1030,12 +1030,12 @@ starmap:{n:"星图",img:"egf",act:4,t:"地上画着一张星图，有些星星�
  {t:"离开",d:"",f:()=>"星星还在闪。"}]},
 isekaigate:{n:"异世界之门",img:"yjx",rare:1,t:"墙上裂开一道缝，透出很亮的光。光里探出来一个猫耳朵、穿女仆装的家伙，左右看了看，小声问你：「这里……不是那个大家拿着网到处抓奶蛙的地方吧？」看你一脸疑惑，它解释：「我原来也是只奶蛙。去了一趟异世界，回来就变成这样了。在那边被抓了好多次，今天门开了，我就跑过来了。」",o:()=>[
  {t:"帮它回去",d:"<span class='good'>获得遗物「另一个世界的奶蛙球」</span>，<span class='bad'>花 30 金币修门</span>",ok:S.gold>=30,f:()=>{S.gold-=30;if(!has("otherball"))gainRelic("otherball");else S.gold+=60;return"你帮它把门撑开。它钻回去之前，塞给你一个圆圆的球：「那边的人就是用这个抓我的。送你吧，我用不上了。」光一下子合上了。"}},
- {t:"让它跟着你",d:"<span class='good'>伙伴卡「异世界传送」加入牌组</span>，<span class='bad'>失去 6 生命</span>",ok:S.hp>6,f:()=>{S.hp-=6;addCard(mk("p_yjx"));return"它想了想：「反正回去也是被抓，我先跟你走一段。」它跳下来的时候踩了你一脚。"}},
+ {t:"让它跟着你",d:"<span class='good'>伙伴卡「异世界传送」和 1 张异世界招式加入牌组</span>，<span class='bad'>失去 6 生命</span>",ok:S.hp>6,f:()=>{S.hp-=6;addCard(mk("p_yjx"));addCard(mk(pick(["x_reborn","x_rules","x_otherside","x_tray","x_nekoimpact"])));return"它想了想：「反正回去也是被抓，我先跟你走一段。」它跳下来的时候踩了你一脚，又塞给你一张它那边的招式。"}},
  {t:"把它抓了",d:"<span class='bad'>和它打一场</span>，<span class='good'>赢了有稀有遗物；抓住它有隐藏成就</span>",f:async()=>{await talk([["yjx","异世界奶蛙","……"],["yjx","异世界奶蛙","怎么到哪都一样啊。"]]);S.cur={t:"E",rs:S.rs};S.pendGrp=["isekaiX"];S.isekaiFight=1;startCombat("E");return null}}]},
-emptychair:{n:"空椅子",img:"bx",act:4,t:"塔顶边上摆着一把椅子，椅背上刻着很多名字。",o:()=>[
- {t:"坐一会儿",d:"<span class='good'>回复 20 生命，+3 经验</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+20);await gainXP(3);return"椅子很舒服。舒服得有点不想起来。"}},
- {t:"看看那些名字",d:"<span class='good'>立刻选一个天赋</span>",f:async()=>{await levelUp("椅背上的名字");return"最上面的名字已经磨平了。最下面那个还很新。"}},
- {t:"离开",d:"",f:()=>"你走开以后，椅子还在原地。"}]},
+emptychair:{n:"旧灯",img:"bx",act:4,t:"塔顶边上挂着一排熄掉的旧灯。每一盏的灯座上，都刻着一个名字。",o:()=>[
+ {t:"在灯下歇一会儿",d:"<span class='good'>回复 20 生命，+3 经验</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+20);await gainXP(3);return"灯虽然灭了，底下还是暖的。暖得有点不想起来。"}},
+ {t:"看看那些名字",d:"<span class='good'>立刻选一个天赋</span>",f:async()=>{await levelUp("灯座上的名字");return"最上面的名字已经磨平了。最下面那个还很新。"}},
+ {t:"离开",d:"",f:()=>"你走开以后，远处那盏还亮着的灯晃了一下。"}]},
 candykid:{n:"卖糖的小奶鼠",img:"msj",t:"路边有一只小奶鼠在卖糖，一块 10 金币。",o:()=>[
  {t:"买一块",d:"<span class='good'>回复 10 生命</span>，花 10 金币",ok:S.gold>=10,f:()=>{S.gold-=10;S.hp=Math.min(S.max,S.hp+10);return"糖很甜。"}},
  {t:"全买了",d:"<span class='good'>获得遗物「方糖」</span>，花 40 金币",ok:S.gold>=40,f:()=>{S.gold-=40;if(!has("sugarcube"))gainRelic("sugarcube");else S.hp=S.max;return"它数钱数了很久。"}},

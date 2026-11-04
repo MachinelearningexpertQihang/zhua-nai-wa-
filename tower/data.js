@@ -6,6 +6,61 @@ const U=(u,a,b)=>u?b:a;
 
 /* fx(B,u,t)  B=battle api, u=upgraded, t=target enemy */
 const CARDS={
+/* ---- 3.0 新卡：抓捕与伙伴 ---- */
+x_net:{n:"再撒一网",cost:0,type:"skl",r:"C",fam:"none",img:"ms",exh:1,d:u=>`这场战斗可以多抓 1 次，抽 ${U(u,1,2)} 张。消耗`,fx:(B,u)=>{B.catchLeft++;B.draw(U(u,1,2))}},
+x_palcall:{n:"伙伴集合",cost:1,type:"skl",r:"R",fam:"none",img:"dgar",d:u=>`牌组里每有 1 张伙伴卡，获得 ${U(u,2,3)} 护盾（最多 ${U(u,20,30)}）`,fx:(B,u)=>{const n=S.deck.filter(c=>CARDS[c.id].fam==="pal").length;B.block(Math.min(U(u,20,30),n*U(u,2,3)))}},
+x_palrush:{n:"一拥而上",cost:1,type:"atk",r:"C",fam:"none",img:"dga",tgt:1,d:u=>`造成 ${U(u,6,8)} 伤害。这一局每抓过 1 只，多 3 伤害`,fx:(B,u,t)=>{B.hit(t,U(u,6,8)+3*(S.stats.caught||0))}},
+x_palbond:{n:"羁绊",cost:1,type:"pow",r:"R",fam:"none",img:"ctp",d:u=>`每回合开始，回复 ${U(u,1,2)} 生命。牌组里伙伴卡 ≥5 张时，再获得 3 护盾`,fx:(B,u)=>{PW(B,"heal",U(u,1,2));if(S.deck.filter(c=>CARDS[c.id].fam==="pal").length>=5)PW(B,"shield",3)}},
+x_lure:{n:"诱饵",cost:1,type:"skl",r:"C",fam:"none",img:"cup",tgt:1,d:u=>`给它易伤 ${U(u,2,3)}。它血量低于一半时，再虚弱 2`,fx:(B,u,t)=>{B.apply(t,"vuln",U(u,2,3));if(t.hp<t.max/2)B.apply(t,"weak",2)}},
+x_haul:{n:"收网",cost:1,type:"atk",r:"C",fam:"none",img:"msg",tgt:1,d:u=>`造成 ${U(u,7,10)} 伤害。打完后它能被抓了，获得 1 点奶力`,fx:(B,u,t)=>{B.hit(t,U(u,7,10));if(t.hp>0&&ENEMY[t.id].pal&&!ENEMY[t.id].boss&&t.hp<=Math.ceil(t.max*.35))B.gainEnergy(1)}},
+x_palbook:{n:"图鉴翻页",cost:0,type:"skl",r:"C",fam:"none",img:"fj",exh:1,d:u=>`抽 ${U(u,1,2)} 张。一共抓过 10 只以上时，再抽 1 张。消耗`,fx:(B,u)=>{B.draw(U(u,1,2)+((M.palN||0)>=10?1:0))}},
+x_palteam:{n:"伙伴连携",cost:1,type:"atk",r:"R",fam:"none",img:"ckar",tgt:1,d:u=>`造成 ${U(u,5,7)} 伤害。本回合每打过 1 张伙伴卡，再打 1 次`,fx:(B,u,t)=>{B.hit(t,U(u,5,7),1+(B.palTurn||0))}},
+x_palguard:{n:"伙伴挡刀",cost:1,type:"skl",r:"C",fam:"none",img:"dgcc",d:u=>`获得 ${U(u,7,10)} 护盾。本回合打过伙伴卡，再获得 5`,fx:(B,u)=>{B.block(U(u,7,10)+((B.palTurn||0)>0?5:0))}},
+x_cage:{n:"奶蛙笼",cost:2,type:"skl",r:"R",fam:"none",img:"egj",d:u=>`获得 ${U(u,12,16)} 护盾，池里加 1 只彩虹奶蛙`,fx:(B,u)=>{B.block(U(u,12,16));B.poolAdd("any")}},
+x_palfeast:{n:"伙伴聚餐",cost:1,type:"skl",r:"R",fam:"none",img:"ckp",exh:1,d:u=>`回复 ${U(u,4,6)} 生命。这一局每抓过 1 只，多回复 2（最多 16）。消耗`,fx:(B,u)=>{B.heal(U(u,4,6)+Math.min(16,2*(S.stats.caught||0)))}},
+x_chase:{n:"追捕",cost:1,type:"atk",r:"C",fam:"none",img:"hrg",tgt:1,d:u=>`造成 ${U(u,6,9)} 伤害。它血量低于一半时，伤害翻倍`,fx:(B,u,t)=>{B.hit(t,U(u,6,9)*(t.hp<t.max/2?2:1))}},
+x_palroad:{n:"一起走过的路",cost:2,type:"pow",r:"E",fam:"none",img:"nw",d:u=>`每回合开始，本回合力气 +${U(u,1,2)}`,fx:(B,u)=>{PW(B,"tstr",U(u,1,2))}},
+x_netthrow:{n:"飞网",cost:1,type:"atk",r:"C",fam:"none",img:"msa",d:u=>`对所有敌人造成 ${U(u,4,6)} 伤害，全体虚弱 1`,fx:(B,u)=>{B.hitAll(U(u,4,6));B.alive().forEach(e=>B.apply(e,"weak",1))}},
+x_palcall2:{n:"呼朋引伴",cost:1,type:"skl",r:"E",fam:"none",img:"ckb",exh:1,d:u=>`随机 ${U(u,1,2)} 张伙伴卡加入手牌，本回合 0 费。消耗`,fx:(B,u)=>{for(let i=0;i<U(u,1,2);i++){if(B.hand.length>=10)break;const c=mk(pick(POOL_PAL));c.tmp=0;B.hand.push(c);seeCard(c.id)}renderHand()}},
+/* ---- 3.0 新卡：月相与天气 ---- */
+x_moonblade:{n:"月刃",cost:1,type:"atk",r:"C",fam:"none",img:"vp",tgt:1,d:u=>`造成 ${U(u,7,10)} 伤害。满月时再打一次`,fx:(B,u,t)=>{B.hit(t,U(u,7,10),B.moon==="full"?2:1)}},
+x_newmoon:{n:"新月潜行",cost:1,type:"skl",r:"C",fam:"none",img:"xsh",d:u=>`获得 ${U(u,6,9)} 护盾。新月时抽 2 张`,fx:(B,u)=>{B.block(U(u,6,9));if(B.moon==="new")B.draw(2)}},
+x_waxing:{n:"上弦之力",cost:1,type:"skl",r:"R",fam:"none",img:"n1",d:u=>`本回合力气 +${U(u,2,3)}。上弦月时改为 +${U(u,4,5)}`,fx:(B,u)=>{B.p.tstr=(B.p.tstr||0)+(B.moon==="wax"?U(u,4,5):U(u,2,3));B.fxBuff&&B.fxBuff(B.p)}},
+x_waning:{n:"下弦护身",cost:1,type:"skl",r:"C",fam:"none",img:"kn",d:u=>`获得 ${U(u,8,11)} 护盾。下弦月时再获得 5`,fx:(B,u)=>{B.block(U(u,8,11)+(B.moon==="wane"?5:0))}},
+x_rainfrog:{n:"雨中奶蛙",cost:1,type:"skl",r:"C",fam:"none",img:"c3",d:u=>`池里加 1 只奶蛙，下雨时再加 1 只。抽 ${U(u,1,2)} 张`,fx:(B,u)=>{B.poolAdd("frog");if(B.wx==="rain"||B.wx==="storm")B.poolAdd("frog");B.draw(U(u,1,2))}},
+x_windride:{n:"乘风",cost:0,type:"skl",r:"C",fam:"none",img:"hrl",d:u=>`抽 ${U(u,1,2)} 张。刮风时获得 1 点奶力`,fx:(B,u)=>{B.draw(U(u,1,2));if(B.wx==="wind")B.gainEnergy(1)}},
+x_snowwall:{n:"雪墙",cost:2,type:"skl",r:"R",fam:"none",img:"egsk",d:u=>`获得 ${U(u,14,18)} 护盾。下雪时再获得 8`,fx:(B,u)=>{B.block(U(u,14,18)+(B.wx==="snow"?8:0))}},
+x_fogstep:{n:"雾中步",cost:1,type:"skl",r:"C",fam:"none",img:"xsw",d:u=>`获得 ${U(u,5,8)} 护盾，全体虚弱 1。起雾时改为虚弱 2`,fx:(B,u)=>{B.block(U(u,5,8));B.alive().forEach(e=>B.apply(e,"weak",B.wx==="fog"?2:1))}},
+x_thunder:{n:"引雷",cost:2,type:"atk",r:"R",fam:"none",img:"v_bthunder",d:u=>`对所有敌人造成 ${U(u,9,12)} 伤害。雷雨时伤害翻倍`,fx:(B,u)=>{B.hitAll(U(u,9,12)*(B.wx==="storm"?2:1))}},
+x_sunny:{n:"晴天",cost:1,type:"skl",r:"C",fam:"none",img:"ct",d:u=>`回复 ${U(u,3,5)} 生命。晴天时抽 2 张`,fx:(B,u)=>{B.heal(U(u,3,5));if(B.wx==="clear")B.draw(2)}},
+x_moonwatch:{n:"看月亮",cost:1,type:"pow",r:"R",fam:"none",img:"m6",d:u=>`每回合开始获得 ${U(u,3,5)} 护盾。满月时，现在获得 1 点奶力`,fx:(B,u)=>{PW(B,"shield",U(u,3,5));if(B.moon==="full")B.gainEnergy(1)}},
+x_skyread:{n:"看天",cost:0,type:"skl",r:"E",fam:"none",img:"egf",exh:1,d:u=>`按现在的天气：晴 回 ${U(u,6,9)} 生命；雨 池里加 2 只奶蛙；风 抽 2 张；雪 获得 ${U(u,10,14)} 护盾；雾 全体虚弱 2；雷雨 全体 ${U(u,8,11)} 伤害。消耗`,fx:(B,u)=>{const w=B.wx;if(w==="clear")B.heal(U(u,6,9));else if(w==="rain"){B.poolAdd("frog");B.poolAdd("frog")}else if(w==="wind")B.draw(2);else if(w==="snow")B.block(U(u,10,14));else if(w==="fog")B.alive().forEach(e=>B.apply(e,"weak",2));else B.hitAll(U(u,8,11))}},
+/* ---- 3.0 新卡：打首领 ---- */
+x_behead:{n:"斩首",cost:2,type:"atk",r:"R",fam:"none",img:"v_bfallen",tgt:1,d:u=>`造成 ${U(u,12,16)} 伤害。对首领再加 8`,fx:(B,u,t)=>{B.hit(t,U(u,12,16)+(ENEMY[t.id].boss?8:0))}},
+x_crack:{n:"破甲",cost:1,type:"atk",r:"C",fam:"none",img:"v_brock",tgt:1,d:u=>`造成 ${U(u,5,7)} 伤害，给它易伤 2。首领改为易伤 3`,fx:(B,u,t)=>{B.hit(t,U(u,5,7));if(t.hp>0)B.apply(t,"vuln",ENEMY[t.id].boss?3:2)}},
+x_braceult:{n:"硬接",cost:1,type:"skl",r:"C",fam:"none",img:"m5",d:u=>`获得 ${U(u,9,12)} 护盾。有敌人在蓄力时，再获得 ${U(u,9,12)}`,fx:(B,u)=>{B.block(U(u,9,12)*(B.alive().some(e=>e.charging||(e.intent&&e.intent.ult))?2:1))}},
+x_counter:{n:"看准时机",cost:1,type:"atk",r:"R",fam:"none",img:"n2",tgt:1,d:u=>`造成 ${U(u,8,11)} 伤害。它在蓄力或准备大招时，再获得 15 护盾`,fx:(B,u,t)=>{B.hit(t,U(u,8,11));if(t.charging||(t.intent&&t.intent.ult))B.block(15)}},
+x_gatebreak:{n:"闯关",cost:1,type:"atk",r:"C",fam:"none",img:"xcs",tgt:1,d:u=>`造成 ${U(u,9,12)} 伤害。对守关首领伤害翻倍`,fx:(B,u,t)=>{B.hit(t,U(u,9,12)*(t.guard?2:1))}},
+x_lastditch:{n:"背水一战",cost:1,type:"skl",r:"R",fam:"none",img:"hs",exh:1,d:u=>`生命低于一半时，获得 2 点奶力，抽 ${U(u,2,3)} 张。消耗`,fx:(B,u)=>{if(S.hp<S.max/2){B.gainEnergy(2);B.draw(U(u,2,3))}else toast("生命还没低于一半")}},
+x_nofear:{n:"不怕",cost:0,type:"skl",r:"C",fam:"none",img:"m4",d:u=>`获得 ${U(u,5,8)} 护盾。面对首领时，抽 1 张`,fx:(B,u)=>{B.block(U(u,5,8));if(B.alive().some(e=>ENEMY[e.id].boss))B.draw(1)}},
+x_giantslayer:{n:"以小博大",cost:2,type:"atk",r:"E",fam:"none",img:"n4",tgt:1,d:u=>`造成它已损失生命 ${U(u,15,20)}% 的伤害（至少 8，最多 40）`,fx:(B,u,t)=>{B.hit(t,Math.max(8,Math.min(40,Math.floor((t.max-t.hp)*U(u,15,20)/100))))}},
+x_grit:{n:"咬牙",cost:1,type:"pow",r:"R",fam:"none",img:"m2",d:u=>`每回合开始回复 ${U(u,1,2)} 生命。面对首领时，现在力气 +1`,fx:(B,u)=>{PW(B,"heal",U(u,1,2));if(B.alive().some(e=>ENEMY[e.id].boss)){B.p.str+=1;B.fxBuff&&B.fxBuff(B.p)}}},
+x_finish:{n:"最后一击",cost:1,type:"atk",r:"R",fam:"none",img:"np",tgt:1,d:u=>`造成 ${U(u,8,11)} 伤害。它血量低于 30% 时，伤害变 3 倍`,fx:(B,u,t)=>{B.hit(t,U(u,8,11)*(t.hp<t.max*.3?3:1))}},
+/* ---- 3.0 新卡：等级与天赋 ---- */
+x_veteran:{n:"老手",cost:1,type:"atk",r:"C",fam:"none",img:"m3",tgt:1,d:u=>`造成 ${U(u,4,6)} + 等级 伤害`,fx:(B,u,t)=>{B.hit(t,U(u,4,6)+(S.lv||1))}},
+x_lvshield:{n:"经验之盾",cost:1,type:"skl",r:"C",fam:"none",img:"kn",d:u=>`获得 ${U(u,3,5)} + 等级×2 护盾`,fx:(B,u)=>{B.block(U(u,3,5)+2*(S.lv||1))}},
+x_awaken:{n:"天赋觉醒",cost:1,type:"skl",r:"R",fam:"none",img:"i3",d:u=>`每有 1 级天赋，获得 ${U(u,2,3)} 护盾，并抽 1 张（最多抽 3 张）`,fx:(B,u)=>{const n=Object.values(S.perks||{}).reduce((a,b)=>a+b,0);if(n)B.block(n*U(u,2,3));B.draw(Math.min(3,n))}},
+x_review:{n:"温故",cost:1,type:"skl",r:"C",fam:"none",img:"fj",d:u=>`获得 ${U(u,2,3)} 经验，抽 1 张`,fx:(B,u)=>{B.draw(1);B.after.push(async()=>gainXP(U(u,2,3)))}},
+x_mastery:{n:"熟能生巧",cost:2,type:"pow",r:"E",fam:"none",img:"m6",d:u=>`每回合开始，本回合力气 + 等级÷3${u?" + 1":""}`,fx:(B,u)=>{PW(B,"tstr",Math.floor((S.lv||1)/3)+(u?1:0))}},
+x_burst:{n:"厚积薄发",cost:2,type:"atk",r:"R",fam:"none",img:"v_bdragon",d:u=>`对所有敌人造成 等级×3${u?" + 4":""} 伤害`,fx:(B,u)=>{B.hitAll(3*(S.lv||1)+(u?4:0))}},
+x_lesson:{n:"长老的课",cost:0,type:"skl",r:"R",fam:"none",img:"m6",exh:1,d:u=>`获得 ${U(u,4,6)} 经验。消耗`,fx:(B,u)=>{B.after.push(async()=>gainXP(U(u,4,6)))}},
+x_gifted:{n:"天赋异禀",cost:1,type:"skl",r:"E",fam:"none",img:"i4",exh:1,d:u=>`你有几种天赋，就获得几点奶力（最多 ${U(u,3,4)}）。消耗`,fx:(B,u)=>{const n=Object.keys(S.perks||{}).filter(k=>S.perks[k]>0).length;if(n)B.gainEnergy(Math.min(U(u,3,4),n))}},
+/* ---- 3.0 新卡：异世界 ---- */
+x_reborn:{n:"转生",cost:1,type:"skl",r:"R",fam:"none",img:"yjx",exh:1,d:u=>`弃掉所有手牌，抽同样多张${u?"再多 1 张":""}，这些牌本回合 0 费。消耗`,fx:(B,u,t,c)=>{const n=B.hand.filter(h=>h!==c).length+(u?1:0);B.discardHand(c);B.draw(n);B.hand.forEach(h=>h.tmp=0);renderHand()}},
+x_rules:{n:"异世界的规则",cost:1,type:"skl",r:"E",fam:"none",img:"yjx",d:u=>`打乱池子，池里加 ${U(u,2,3)} 只彩虹奶蛙`,fx:(B,u)=>{B.poolShuffle();for(let i=0;i<U(u,2,3);i++)B.poolInsert("any");B.poolResolve();B.poolOverflow();renderPool()}},
+x_otherside:{n:"门的另一边",cost:0,type:"skl",r:"R",fam:"none",img:"yjx",exh:1,d:u=>`手牌里最贵的一张本回合变成 0 费，抽 ${U(u,1,2)} 张。消耗`,fx:(B,u,t,c)=>{const l=B.hand.filter(h=>h!==c&&CARDS[h.id].cost>=0);if(l.length){l.sort((a,b)=>curCost(b)-curCost(a));l[0].tmp=0}B.draw(U(u,1,2));renderHand()}},
+x_tray:{n:"女仆的托盘",cost:1,type:"skl",r:"C",fam:"none",img:"yjx",d:u=>`获得 ${U(u,6,9)} 护盾，回复 2 生命，抽 1 张`,fx:(B,u)=>{B.block(U(u,6,9));B.heal(2);B.draw(1)}},
+x_nekoimpact:{n:"猫耳冲击",cost:1,type:"atk",r:"R",fam:"none",img:"yjx",tgt:1,d:u=>`造成 ${U(u,6,8)} 伤害 2 次，打乱池子`,fx:(B,u,t)=>{B.hit(t,U(u,6,8),2);B.poolShuffle()}},
 /* ---- 起始 ---- */
 frogquake:{n:"蛙跳地震",cost:2,type:"atk",r:"R",fam:"frog",img:"n3",d:u=>`对所有敌人造成 ${U(u,10,14)} 伤害。连击 ≥2 时，全体虚弱 1`,fx:(B,u)=>{B.hitAll(U(u,10,14));if(B.combo>=2)B.alive().forEach(e=>B.apply(e,"weak",1))}},
 ironfrog:{n:"铁皮蛙",cost:1,type:"skl",r:"C",fam:"frog",img:"n1",d:u=>`获得 ${U(u,8,11)} 护盾。生命低于一半时，再抽 1 张`,fx:(B,u)=>{B.block(U(u,8,11));if(S.hp<S.max/2)B.draw(1)}},
@@ -371,7 +426,7 @@ fret:{n:"烦躁",cost:-2,type:"cur",r:"K",fam:"none",img:"xch",d:u=>`不能打�
 frozen:{n:"冻住",cost:-2,type:"sts",r:"T",fam:"none",img:"c7",eth:1,d:u=>`不能打出。回合结束时消失`,fx:()=>{}},
 };
 const POOL_HERO=["frogslam","frogchain","tongue2","lilypad","croak2","bellyhit","frogdance","milkspray","frogfort","swampkick","leap2","frogsage","tadpole","heavyfrog","frogrush","echocroak","pondheal","frogking","chorus","frogwall","backkick2","bigcharge","trot","hoofstorm","saddle","neigh","relay","mustang","dustcloud","fullthrottle","bridle","warhorse","doublestrike","goldshoe","stable","unicorn2","thunderhoof","marathon","eggbomb","feathershield","cluck","nest2","roost2","peckfive","goldegg2","henhouse","incubate","morningcall","chickwing","shellbreak","bigegg","featherstorm","phoenix2","eggwall","chickrun","omelette","scratch2","tripleclaw","hiss","catnap","ambush","purr2","shadowcat","yarnball","luckycat","ninetail2","alleycats","catstep","flyingpounce","catgrace","kneading","midnightcat","catfury","tabby","teabreak","bigbrew","steamblast","pearlgun","boilpunch","icepack","mudball","mudslide","deepbreath","laststand","n_bellyflop","n_thick","n_burp","n_nap","n_snack","n_bounce","n_roll","n_hug","n_stubborn","n_homesick","k_jab","k_combo","k_palm","k_crane","k_tiger","k_flow","k_hundred","k_focus","k_dragon","k_breath","kn_shield","kn_slash","kn_bash","kn_oath","kn_fortress","kn_lance","kn_rally","kn_armor","kn_judgement","kn_guardian","frogquake","ironfrog","stampede","gallop","peck","eggarmor","pounce","ninelives","frograge","dive","resonance","fistwind","ultimate","swim","frogeye","ironhoof","raid","herd","stallion","horseshoe","bugle","pegasus","duster","guardegg","hen","icechick","dawn","counter","rebirth","catnip","roll","lick","nightowl","clawcombo","hairball","meowstar","chainbomb","surge","rally","nest","catbed","tide","fullmoon","quick","woodpecker","catwalk","spinchain","diamond","bigtea","allfrogs","momentum","icefire","ninering","squeeze","rainbow","nudge","icebreak","lure","scoop","drain","rinse","pondheart","chain","cushion","reservoir","callwind","callrain","moonbow","snowball","thunderg","croak","cicada","legion","swallow","relief","bloodhorse","hatch","cockfight","rooster","scratch","stretch","ninetail","leap","jab","flurry","tongue","echo","dragon","rhythm","storm","gallop","rush","backkick","mane","trample","stampede","unicorn","peck","fluff","roost","crow","spur","wall","iron","blaze","paw","nap","purr","yarn","nine","prowl","stargaze","galaxy","fist","palm","breath","sit","flow","still","charge","borrow","spin","sweep","whisk","thought","tea","oneb","thousand","retreat","bell","glow","calm","way","zone","thunder","hundred","enlight","noself"];
-const POOL_X=["icicle","handwarmer","bellring","refill","grabhand","lucky","demonpot","insight","rbridge","purge","stir","devil","dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog"];
+const POOL_X=["icicle","handwarmer","bellring","refill","grabhand","lucky","demonpot","insight","rbridge","purge","stir","devil","dogpal","twinegg","snakestep","ratpack","milktea","gacha","shake","gather","bigfrog","icefrog","bombfrog","kiss","goldfrog","x_net","x_palcall","x_palrush","x_palbond","x_lure","x_haul","x_palbook","x_palteam","x_palguard","x_cage","x_palfeast","x_chase","x_palroad","x_netthrow","x_palcall2","x_moonblade","x_newmoon","x_waxing","x_waning","x_rainfrog","x_windride","x_snowwall","x_fogstep","x_thunder","x_sunny","x_moonwatch","x_skyread","x_behead","x_crack","x_braceult","x_counter","x_gatebreak","x_lastditch","x_nofear","x_giantslayer","x_grit","x_finish","x_veteran","x_lvshield","x_awaken","x_review","x_mastery","x_burst","x_lesson","x_gifted","x_reborn","x_rules","x_otherside","x_tray","x_nekoimpact"];
 const POOL_PAL=["p_timefrog","p_plague","p_imp","p_pot","p_cup","p_hry","p_cky","p_cty","p_sny","p_egy","p_msy","p_dgy","p_egx","p_ckx","p_hrcc","p_ckb","p_dgar","p_hrl","p_ckt","p_snl","p_egl","p_msl","p_ctl","p_snn","p_ckn","p_knight2","p_snk","p_dga","p_egg","p_ghost","p_china","p_starsnake","p_aurora","p_ml","p_np","p_xg","p_xb","p_hs","p_dog","p_ice","p_vp","p_nx","p_n4","p_star","p_hn","p_an","p_yjx","p_rat","p_ratg","p_ratb","p_poo","p_laugh","p_chick","p_snake","p_crawl","p_giant","p_bomb","p_mud"];
 const STARTER=["strike","strike","strike","strike","guard","guard","guard","guard","fist"];
 
@@ -631,8 +686,8 @@ win3b:[["v_pot","紫砂奶茶壶","盖子掉了。"],["v_pot","紫砂奶茶壶",
 act4:[["n1","功夫奶蛙","脚底下是星星。"],["m6","奶蛙长老","（很近）上面那个会学你。你出什么，它就出什么。"],["n1","功夫奶蛙","长老，你来过这里？"],["m6","奶蛙长老","（没有回答。过了很久，风停了。）"]],
 boss4:[["xsh","影子刺客","你来了。我一直在看你。"],["n1","功夫奶蛙","泉水是你吸走的？"],["xsh","影子刺客","我是被留下的那个。有人下山了，我就一直待在这。"],["xsh","影子刺客","你的招式我都会。我学过很多只奶蛙的招式。"]],
 boss4b:[["egf","宇宙巨蛋","（咚，咚，咚）"],["n1","功夫奶蛙","这颗蛋在长大。"],["xsh","影子刺客","（从蛋的影子里走出来）它吃得很好。每一个上来的，它都尝过。"]],
-demon:[["xsh","影子刺客","主人，我撑不住了。"],["bx","奶蛙大魔王","哈哈哈，没用的影子，回来。"],["n1","功夫奶蛙","你就是大魔王？"],["bx","奶蛙大魔王","大魔王是他们叫的。我只是第一个爬上来的。"],["bx","奶蛙大魔王","上来以后才知道，塔顶不能没有人。"]],
-win4:[["bx","奶蛙大魔王","输了啊。"],["xsh","影子刺客","主人，够了。"],["m6","奶蛙长老","（长老走上塔顶）好久不见。"],["m6","奶蛙长老","当年我也爬到了这里。我转身下山，把影子留下了。"],["xsh","影子刺客","我等了很久。"],["bx","奶蛙大魔王","塔顶不能没有人。总得有一个留下。"],["m6","奶蛙长老","这次我留下。"],["n1","功夫奶蛙","长老？"],["m6","奶蛙长老","回去吧。跟村里说，长老出远门了。"]],
+demon:[["xsh", "影子刺客", "主人，我撑不住了。"], ["bx", "奶蛙大魔王", "回来吧。你已经很努力了。"], ["n1", "功夫奶蛙", "你就是大魔王？"], ["bx", "奶蛙大魔王", "大魔王是他们叫的。我叫阿岳，以前住在村子东边，泉水旁边那户。"], ["bx", "奶蛙大魔王", "你是来换我的吗？"], ["n1", "功夫奶蛙", "我是来把泉水带回去的。"], ["bx", "奶蛙大魔王", "那就打吧。打不过我的人，守不住那盏灯。"]],
+win4:[["bx", "奶蛙大魔王", "输了啊。"], ["bx", "奶蛙大魔王", "我拦了这么多年，就是在等一个能打赢我的。"], ["xsh", "影子刺客", "主人，够了。"], ["m6", "奶蛙长老", "（长老走上塔顶）阿岳，好久不见。"], ["bx", "奶蛙大魔王", "……是你。当年你说了不。"], ["m6", "奶蛙长老", "那时候我太怕了，走得太快，连影子都忘了带。"], ["m6", "奶蛙长老", "欠你的这一班，我来还。灯我来守。"], ["n1", "功夫奶蛙", "长老？"], ["m6", "奶蛙长老", "带阿岳下山吧。沼泽里有个渔夫，等他很多年了。"], ["m6", "奶蛙长老", "跟村里说，长老出远门了。"]],
 };
 const ELDER_TALES=[
 {t:"泉水",l:["村子东边有一口泉，泉水是奶茶味的。","大家喝了很多年，谁也没问过为什么。","问的人后来都搬走了。"]},
@@ -654,8 +709,8 @@ const ELDER_TALES=[
 {t:"回来的人",l:["从塔里回来的奶蛙，都比去的时候轻一点。","他们会忘掉一些事。","大部分人忘的是回来的路，所以他们没有回来。"]},
 {t:"布娃娃",l:["小七的布娃娃，是他妈妈缝的。","背后绣着一个七字。","有人在奶茶厂的传送带边上捡到过一个一样的。"]},
 {t:"泉水的味道",l:["泉水为什么是奶茶味的？","长老说，那是塔里的东西，一点一点流下来了。","他说完这句话，倒掉了自己的那杯茶。"]},
-{t:"名字",l:["塔顶那把椅子的椅背上刻满了名字。","最上面的已经磨平了。","最下面那个还很新，刻的是长老的名字。"]},
-{t:"换班",l:["这一次登顶的时候，长老留下了。","他把大魔王送下山，自己坐上了那把椅子。","他说：这次轮到我了。"]},
+{t:"名字",l:["塔顶那盏灯的灯座上刻满了名字。","最上面的已经磨平了。","最下面那个还很新，刻的是长老的名字。"]},
+{t:"换班",l:["这一次登顶的时候，长老留下了。","他把大魔王送下山，自己留在了那盏灯旁边。","他说：这次轮到我了。"]},
 {t:"下一次",l:["塔还会再来的，在下一个满月。","到时候村里会多一只新来的奶蛙。","大家会对它很好。就像当初对你一样。"]},
 {t:"你",l:["你还记得你是哪一年来村子的吗？","不记得也没关系，大家都不记得。","村里的奶蛙，一直是这么多。"]},
 {t:"字条",l:["长老走后，有人在泉边的石头下面找到一张字条。","上面写着：灶上的粥别忘了热，小七的布娃娃替他收好，他会回来的。","字写得很工整，最后一笔有点抖。"]}];
@@ -668,27 +723,27 @@ const WX_POOL=["clear","clear","rain","wind","snow","fog","storm"];
 
 /* ===================== 首领特性与故事（图鉴） ===================== */
 const BOSS_LORE={
-rockfrog:{t:"岩甲",td:"开场有 6 层石甲：每层让每次受到的伤害 -4，每挨一下掉一层",lore:["塔的第一个守门人。","身上的石甲是一块一块垒上去的。","每拦下一个往上爬的，就多一块石头。"]},
-fallen:{t:"圣与魔",td:"每回合切换：圣光回合回复生命并让你虚弱，魔焰回合力气 +2",lore:["古堡里的神父，光环一直没摘。","他给每个路过的奶蛙祷告。","祷告完，那只奶蛙就留在古堡里了。"]},
-thunderking:{t:"雷暴",td:"每回合落雷劈你 5 点，无视护盾",lore:["钟楼的钟，是他敲响的。","每有一只奶蛙进塔，他就劈一道雷。","他说这是在通知大家。"]},
-fourhead:{t:"四个脑袋",td:"每回合行动次数等于醒着的脑袋数；生命每掉四分之一，睡着一个",lore:["奶茶厂里排队的四只奶蛙。","队伍排得太挤了。","出来的时候，就只剩一只了。"]},
-abyssdragon:{t:"吞噬",td:"每回合吞掉你弃牌堆最上面的 1 张牌（本场战斗），并回复 6 生命",lore:["塔底下那片水，一直通到塔顶。","掉进水里的东西不会沉下去。","它们会被接住，长成它身上的一部分。"]},fogwhite:{t:"雾隐",td:"偶数回合躲进雾里：受到的伤害减半，看不清它要干什么",lore:["沼泽深处有一片散不掉的雾。","进去的奶蛙出来的时候，都不太记得自己是谁。","也有没出来的。"]},
-witch:{t:"诅咒",td:"每回合往你的抽牌堆塞 1 张诅咒「沉重」",lore:["伯爵的邻居。","她的柜子里有很多小瓶子，每个瓶子上都写着一个名字。","最新的那个瓶子，还没贴标签。"]},
-bloodbeast:{t:"嗜血",td:"你每失去一次生命，它力气 +1",lore:["冰原上很冷，什么都留不住。","只有它身上是红的。","没人问过那是哪来的红。"]},
-boilerdragon:{t:"过热",td:"热度每回合 +1，满 3 时喷火，让你烫伤 6，然后热度清零",lore:["奶茶厂最大的锅炉下面住着它。","它每天都要吃很多东西，火才不会灭。","厂里的账本上，燃料那一栏写的是数字，不是名字。"]},
-tophat:{t:"魔术",td:"每回合把你抽牌堆里的 1 张牌变没（本场战斗）",lore:["塔顶的魔术师。","他最拿手的魔术，是让东西消失。","观众席上的椅子，每一场都会少几把。"]},
+rockfrog:{t:"岩甲",td:"开场有 6 层石甲：每层让每次受到的伤害 -4，每挨一下掉一层",lore:["塔的第一个守门人，一只想证明自己的年轻奶蛙。", "每拦下一个往上爬的，他就往身上垒一块石头。"],lore2:["他觉得石头越多，自己就越强，阿岳就会让他往上一层。", "阿岳从来没说过这句话，是他自己想的。"],lore3:["石头越来越重，他已经很多年没有挪过地方了。", "你把石头打碎的时候，他第一次觉得轻松。他说：原来我也能走路。"]},
+fallen:{t:"圣与魔",td:"每回合切换：圣光回合回复生命并让你虚弱，魔焰回合力气 +2",lore:["古堡里的神父，光环一直没摘，翅膀却慢慢变黑了。", "他给每一只路过的奶蛙祷告。"],lore2:["他真心觉得，在古堡里安安静静地住下，比继续往上爬要好。", "所以祷告完，那只奶蛙就留下了。他说这是保佑。"],lore3:["他是出于慈悲做这件事的，这正是可怕的地方。", "被你打倒的时候，他最后一次为你祷告，这一次，他祈祷的是你能走到顶。"]},
+thunderking:{t:"雷暴",td:"每回合落雷劈你 5 点，无视护盾",lore:["钟楼的守钟人。每有一只奶蛙进塔，他就劈一道雷，敲一下钟。", "他说这是在通知大家。"],lore2:["他是塔里唯一一个一直在数的人。", "钟一共响过三百多下。每一下，他都记着是谁。"],lore3:["他不拦人，也不帮人，他只记账。", "他说总得有人记着，不然这些事就像没发生过一样。最后他把账本交给了你。"]},
+fourhead:{t:"四个脑袋",td:"每回合行动次数等于醒着的脑袋数；生命每掉四分之一，睡着一个",lore:["奶茶厂里排队的四只奶蛙，原本互相不认识。", "队伍排得太挤，排得太久，挤成了一个。"],lore2:["他们只记得一件事：排队，等轮到我。", "轮到什么，已经没人记得了。"],lore3:["其中一个，是小七的爸爸。小七的布娃娃，就是他缝的。", "你把布娃娃拿出来的时候，四个头里有一个，愣了很久。"]},
+abyssdragon:{t:"吞噬",td:"每回合吞掉你弃牌堆最上面的 1 张牌（本场战斗），并回复 6 生命",lore:["塔底下那片水，一直通到塔顶。", "掉进水里的东西不会沉下去，它们会被接住，长成它身上的一部分。"],lore2:["它没有自己的想法，它是塔本身的意思。", "每一个被塔吃掉的名字、忘掉的事，最后都流到这里。"],lore3:["你打赢它的时候，水退了一点。", "水底露出来很多东西：一盏没油的灯，一只鞋，半封没写完的信。"]},fogwhite:{t:"雾隐",td:"偶数回合躲进雾里：受到的伤害减半，看不清它要干什么",lore:["沼泽深处有一片散不掉的雾，她住在里面。", "在雾里待久了，会忘掉自己是谁，也会忘掉疼。"],lore2:["她以前有很难过的事，具体是什么，她已经想不起来了。", "她觉得这样很好，所以想把每一个路过的人都留在雾里，让大家都轻松一点。"],lore3:["她不是坏人，她只是太怕疼了。", "雾散的那一刻，她想起了一点自己的样子，然后哭了。哭完以后，她说：谢谢你，好久没这么难过了。"]},
+witch:{t:"诅咒",td:"每回合往你的抽牌堆塞 1 张诅咒「沉重」",lore:["伯爵的邻居，有一柜子的小瓶子。", "每一个瓶子上都写着一个名字。"],lore2:["塔会吃掉名字，她就赶在那之前，把名字装进瓶子里收好。", "她觉得只要名字还在，那只奶蛙就不算真的不见了。"],lore3:["最新的那个瓶子还空着，标签也没贴。", "你问她给谁准备的，她笑了笑，没回答，只是把瓶子往柜子里面推了推。"]},
+bloodbeast:{t:"嗜血",td:"你每失去一次生命，它力气 +1",lore:["冰原上很冷，什么都留不住，只有它身上是红的。", "它以前也是热的，是一只奶蛙。"],lore2:["它在冰原上走得太久，忘了自己从哪里来。", "只记得热的东西很好，所以每一个热的，它都想抱住不放。"],lore3:["身上那些红，是它抱住过的东西留下的。", "它输的时候说：冷。然后又说：以前我也是热的。"]},
+boilerdragon:{t:"过热",td:"热度每回合 +1，满 3 时喷火，让你烫伤 6，然后热度清零",lore:["奶茶厂最大的锅炉下面住着它。", "它每天都要吃很多东西，火才不会灭。"],lore2:["厂里的账本上，燃料那一栏写的是数字，不是名字。", "这是厂长要的，写成数字，就不用记得是谁。"],lore3:["它自己也不记得，它只知道火不能灭。", "火灭了，泉就凉了。村里人会发现泉水的味道变了。"]},
+tophat:{t:"魔术",td:"每回合把你抽牌堆里的 1 张牌变没（本场战斗）",lore:["塔顶的魔术师，最拿手的魔术是让东西消失。", "观众席上，每一场都会空出几个座位。"],lore2:["他是阿岳最信任的帮手，帮阿岳让那些不够强的人安静地消失。", "他做得很漂亮，从来不留痕迹。"],lore3:["他也是唯一一个劝过阿岳的人。", "他说：放手吧，你等的人不会来了。阿岳没有回答。他就继续表演，一场接一场。"]},
 
-king:{t:"泥沼领主",td:"你的奶蛙池里每有 1 块泥巴，它受到的伤害 -2",lore:["很久以前，他是村里的渔夫。","有一年泉水变少，他说去塔里看看。","村里给他留了一盏灯。后来灯油用完了，就没再点。"]},
-snakeking:{t:"蜕皮",td:"每受到 40 点伤害，蜕一次皮：清掉身上的负面状态，获得 15 护盾",lore:["沼泽里没有别的吃的。","它吃过很多往上爬的东西。","它说它记得每一个的味道。"]},
-count:{t:"吸血",td:"它的攻击造成多少伤害，就回复多少生命",lore:["古堡里挂着一百多幅画。","每幅画下面都写着日期。","最早的那幅，画的是一只年轻的修行奶蛙。"]},
-buddha:{t:"金身",td:"单次 5 点及以下的伤害对它无效；一次受到 20 点以上伤害会晕一回合",lore:["他相信只要一直不动，塔就找不到他。","他坐了很多年。","塔确实没有找过他。是他自己忘了怎么站起来。"]},
-iceking:{t:"冰甲",td:"护盾回合结束时只消失一半；每回合冻住你池里 1 只奶蛙",lore:["他的王国在冰下面。","每一只都保持着那天的样子。","他每天早上都会跟他们说早上好。"]},
-snowking:{t:"越滚越大",td:"每回合力气 +1，体型越来越大",lore:["一开始只是一个滚雪球的孩子。","雪球越滚越大。","现在没人知道，雪球里面还有没有他。"]},
-lavagiant:{t:"熔岩之躯",td:"你每用一张攻击牌打它，自己就会烫伤 1",lore:["奶茶厂的锅炉工。","锅炉从来没有停过。","工友们说，他和锅炉是同一天开始发烫的。"]},
-pearlqueen:{t:"杯杯护主",td:"场上还有奶茶杯时，它受到的伤害减半",lore:["奶茶厂的厂长。","厂里的奶茶很受欢迎，原料从来不缺。","仓库门口贴着一张纸：原料自备。"]},
-shadow:{t:"影步",td:"每次被攻击有 25% 几率闪开",lore:["一只修行奶蛙的影子。","那只奶蛙下山的时候，没有回头。","影子在塔顶学会了很多招式，没有一招是自己的。"]},
-cosmicegg:{t:"孵化倒计时",td:"倒计时归零时孵化爆发，造成大量伤害，然后重新倒数",lore:["塔顶的一颗蛋。","它听得见每一个爬上来的心跳。","等它孵出来，塔就会有新的主人。"]},
-demon:{t:"塔顶不能没有人",td:"第一次被打倒时，会以 35% 生命站起来",lore:["第一只爬上塔顶的奶蛙。","上来以后，他发现塔顶不能空着。","他在上面等了很久，等下一个上来的。"]}};
+king:{t:"泥沼领主",td:"你的奶蛙池里每有 1 块泥巴，它受到的伤害 -2",lore:["他是阿岳的朋友，村里的渔夫，大旱那年和阿岳一起出发的。", "他在第一层就走不动了，阿岳让他在这里等。"],lore2:["阿岳说：等我下山，我们一起回家。", "他就一直等，等到沼泽长满了他，等到大家开始叫他沼泽之王。", "他拦每一个往上爬的，是怕有人抢在阿岳前面，打乱他们的约定。"],lore3:["他其实知道阿岳不会下来了。", "可是只要还守着这里，约定就还算数。", "被你打倒的时候，他问你：你上去以后，能不能帮我跟阿岳说一声，我还在等。"]},
+snakeking:{t:"蜕皮",td:"每受到 40 点伤害，蜕一次皮：清掉身上的负面状态，获得 15 护盾",lore:["沼泽里没有别的吃的，它就吃往上爬的。", "它说它记得每一个的味道。"],lore2:["它没有什么承诺，也没有什么执念。", "阿岳给它的唯一的话是：别让太弱的上来。它只是照做，顺便填饱肚子。"],lore3:["塔里的每个守门人都给自己找了一个理由，只有它没有。", "它说：我就是饿。这大概是整座塔里最诚实的一句话。"]},
+count:{t:"吸血",td:"它的攻击造成多少伤害，就回复多少生命",lore:["古堡的主人，一个怕被忘记的收藏家。", "他给每一只路过的奶蛙画一幅像，挂在墙上，日期写在下面。"],lore2:["他觉得只要画还在，人就不算消失。", "墙上最早的那幅，画的是一只年轻的修行奶蛙，眼睛很亮。"],lore3:["那只修行奶蛙是唯一一个爬到塔顶又下山的人。伯爵是送他走的。", "他一直在等他回来，想问一句为什么。", "后来他看见了你，认出你的招式是那个人教的。他没有问你，只是又画了一幅。"]},
+buddha:{t:"金身",td:"单次 5 点及以下的伤害对它无效；一次受到 20 点以上伤害会晕一回合",lore:["他相信只要一动不动，塔就找不到他。", "他是一个逃兵，在第二层就不想再走了。"],lore2:["他坐了很多年，身上慢慢镀了一层金。", "他不是在拦你，只是坐在了路中间，挪不开了。"],lore3:["塔确实没有找过他，是他自己忘了怎么站起来。", "你把他推开的时候，他说：原来我一直在等有人推我一下。"]},
+iceking:{t:"冰甲",td:"护盾回合结束时只消失一半；每回合冻住你池里 1 只奶蛙",lore:["他的王国在冰下面，每一只都保持着那天的样子。", "他每天早上都会跟他们说早上好。"],lore2:["有一年泉断了，他的家人都没有熬过去。", "他把最后那一天，大家都还在笑的那一刻，冻了起来。"],lore3:["他拦人，是不想再有人走到塔顶，再弄断一次泉。", "这和阿岳正好相反。他们为这件事吵了很多年，谁也没说服谁。他输给你的时候说：也许你能做到我们都没做到的事。"]},
+snowking:{t:"越滚越大",td:"每回合力气 +1，体型越来越大",lore:["一开始只是一个在山坡上滚雪球的孩子。", "雪球越滚越大，把他也裹了进去。"],lore2:["他不知道自己在守什么，只知道停下来就会冷。", "他一直以为自己在往山下滚，往家的方向。"],lore3:["其实他一直在往上。", "雪球被你打散的时候，里面的小家伙揉了揉眼睛，问：到家了吗？"]},
+lavagiant:{t:"熔岩之躯",td:"你每用一张攻击牌打它，自己就会烫伤 1",lore:["奶茶厂的锅炉工，锅炉从来没有停过。", "工友们说，他和锅炉是同一天开始发烫的。"],lore2:["他不坏，只是累。", "他不敢停手，因为一停，锅炉就会凉。"],lore3:["打败他的时候，他慢慢坐了下来，身上的火一点点暗下去。", "他说：终于可以歇一下了。"]},
+pearlqueen:{t:"杯杯护主",td:"场上还有奶茶杯时，它受到的伤害减半",lore:["奶茶厂的厂长，塔里最清醒的一个。", "厂里的奶茶很受欢迎，原料从来不缺。"],lore2:["仓库门口那张「原料自备」，是他写的。", "他知道原料是什么，也知道村里人喝的是什么，他觉得大家喝得开心就行。"],lore3:["阿岳管塔顶，他管账。阿岳说这是没办法的事，他说这是生意。", "他是唯一一个从来没有犹豫过的人。"]},
+shadow:{t:"影步",td:"每次被攻击有 25% 几率闪开",lore:["一只修行奶蛙的影子。那只奶蛙下山的时候走得太快，没有带上它。", "影子就这样留在了塔顶。"],lore2:["它恨那个人。", "它学会了每一个爬上来的人的招式，想证明自己比主人强，没有一招是自己的。"],lore3:["阿岳收留了它，说：你跟着我吧，我也在等人。", "它见到你的第一眼，就认出了你的招式。那是它主人的招式。"]},
+cosmicegg:{t:"孵化倒计时",td:"倒计时归零时孵化爆发，造成大量伤害，然后重新倒数",lore:["塔顶的一颗蛋，它听得见每一个爬上来的心跳。", "它在长大。"],lore2:["这是塔给自己准备的下一任守灯人。", "如果一直没人来换班，它孵出来以后，就会自己去守那盏灯。它守灯，用不着泉水，也用不着村子。"],lore3:["到那时，塔就不再需要村子了，泉也会停。", "这是阿岳一直瞒着所有人的事。他拦人、挑人、等人，其实是在跟这颗蛋赛跑。"]},
+demon:{t:"塔顶不能没有人",td:"第一次被打倒时，会以 35% 生命站起来",lore:["他叫阿岳，是村里第一只爬上塔顶的奶蛙。", "那年大旱，泉眼快干了，没人敢去，他说：我去吧，我力气大。", "走的那天他背了一袋干粮，答应大家，找到泉水就回来。"],lore2:["塔顶点着一盏灯。灯亮着，泉水就不会冻住，一路流到村子里；灯一灭，泉就结成冰。", "灯油要一直有人添，守灯的人也走不出灯光照着的那一圈。", "他留下来添油，想着过几年村里会派人来换他。来的人不少，可大部分太弱了。有一次他把灯交给一个累坏了的年轻人，自己往下走了几级台阶，回头时灯已经灭了。那年冬天，泉冻了三个月，村里走了很多人。"],lore3:["从那以后，他在每一层都安排了守门的，说是替村子挑一个够强的人。", "被拦下的那些去了哪里，他没有再问，只说这是没办法的事。", "其实他早就不只是在挑人了。每一个走到他面前的，他都会先问一句：你是来换我的吗？几十年里，只有一个人走到这里，那个人说：不。"]}};
 /* 每层：层末首领（最有压迫感的两个）与守关首领 */
 [[["rockfrog","king"],["fogwhite","snakeking"]],[["fallen","count"],["witch","buddha","fogwhite","snakeking"]],[["thunderking","iceking"],["bloodbeast","snowking"]],[["fourhead","boilerdragon"],["lavagiant","pearlqueen"]],[["abyssdragon","shadow"],["tophat","cosmicegg"]]].forEach(([f,gd],i)=>{ENCS[i].bosses=f.map(x=>[x]);ENCS[i].guards=gd});
 /* ===================== 成就 ===================== */
@@ -775,11 +830,12 @@ const META=[
 /* 回忆散进游戏：一部分写进首领图鉴，村子与长老的那几段在结局和事件里随机出现 */
 {const T=Object.fromEntries(ELDER_TALES.map(x=>[x.t,x.l]));
  const put={king:["渔夫"],count:["画"],thunderking:["钟声"],iceking:["冰"],pearlqueen:["原料","杯杯们"],shadow:["影子"],fogwhite:["回来的人"],lavagiant:["泉水的味道"],fourhead:["布娃娃"],tophat:["名字"],demon:["留下的人","大魔王","等人","换班"]};
- for(const id in put)if(BOSS_LORE[id])put[id].forEach(k=>{if(T[k])BOSS_LORE[id].lore.push("",...T[k])});}
+}
 const VILLAGE_TALES=ELDER_TALES.filter(x=>["泉水","人数","塔来的晚上","小七","长老的手","长老的影子","下一次","你","最后一片"].includes(x.t));
 
 /* 登顶时讲的旧事要暖一点；发凉的那几段只在路上的事件里出现 */
 const WARM_TALES=[
+{"t": "阿岳", "l": ["阿岳下山走得很慢。走到沼泽的时候，天已经黑了，雾里有一盏灯亮着，是那个渔夫点的。渔夫看见他，愣了一下，然后说：你胖了。阿岳说：你老了。两个人站在那里笑了很久，谁也没提这些年的事。第二天，有人在村口看见两只老奶蛙并排坐着钓鱼，一条也没钓上来，但看起来很高兴。"]},
 {t:"小七",l:["小七是在一个下雨的早上回来的。他站在门口，浑身湿透，比走的时候瘦了一圈，看见大家的时候愣了好一会儿，才想起来该笑。他没有先说话，而是走到墙边，把那个等了他很久的布娃娃抱起来，抱得很紧。那天晚上他吃了两碗饭，吃着吃着就哭了，大家谁也没劝他，就陪他坐着，等他哭完。"]},
 {t:"泉水",l:["泉水是慢慢满回来的。最开始只是没过桶底，后来能打上半桶，再后来，早上去挑水的人又排起了队。大家在队伍里说着家长里短，说谁家的孩子又长高了，说今年的雨水不错，好像中间那段日子从来没有发生过。只有在轮到自己弯腰打水的时候，很多人会停一下，看着水面，想起那些没能回来排队的人。"]},
 {t:"晚饭",l:["你回村的那天，家家户户都多做了一个菜，端着碗挤到你家门口来。你说吃不下了，他们就说再吃一口，就一口。后来你真的吃撑了，躺在院子里看月亮。还是那个月亮，可是你看着它，第一次觉得它只是一个月亮，挂在天上，安安静静地照着这个村子，照着屋檐下还没收的衣服，照着你。"]},
