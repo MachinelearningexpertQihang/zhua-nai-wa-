@@ -1426,7 +1426,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 .fighter .body img,.en .body img{will-change:transform;backface-visibility:hidden}
 
 /* ===== 奶蛙魔法师 ===== */
-#title .tmage{position:absolute;right:335px;bottom:72px;width:220px;height:290px;z-index:1;animation:bob 4.2s ease-in-out infinite}
+#title .tmage{position:absolute;right:300px;bottom:62px;width:270px;height:350px;z-index:1;animation:bob 4.2s ease-in-out infinite}
 #title .tmage img{width:100%;height:100%;object-fit:contain;transform:scaleX(-1);filter:drop-shadow(8px 8px 0 rgba(13,13,13,.85))}
 @keyframes castA{0%{transform:none}35%{transform:translateY(-14px) rotate(-4deg) scale(1.04);filter:drop-shadow(0 0 18px #b07cff)}100%{transform:none}}
 .castA .body{animation:castA .5s ease-out}
@@ -1437,3 +1437,10 @@ img{-webkit-user-drag:none;pointer-events:none}
 .spellOrb.sp-ice{border-radius:10%;transform-origin:center;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .spellHit{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;background:radial-gradient(circle,#fff 0 12%,var(--c1) 35%,transparent 68%);pointer-events:none;z-index:45;animation:spellHit .45s ease-out forwards}
 @keyframes spellHit{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.4);opacity:0}}
+/* 简介框：不挡点击，点哪都能关，几秒后自己消失 */
+.tipBox{pointer-events:none;max-width:280px!important;font-size:15px!important;line-height:1.45!important;padding:10px 14px!important;z-index:95}
+.tipBox b{font-size:17px}
+/* 首领带小弟时，整体缩一点，别被挤出屏幕 */
+#enemies.crowd{gap:6px;left:520px;right:14px}
+#enemies.crowd .bossEn .body img{width:300px!important;height:300px!important}
+#enemies.crowd .en:not(.bossEn) .body img{max-width:160px;max-height:160px}

@@ -42,6 +42,11 @@ const INST={
  erhu:(m,t,l)=>tone({type:"sawtooth",f:mtof(m),t,dur:l*1.1,vol:.11,att:.04,dest:D(),filt:"lowpass",ff:1800,q:2,vib:5.5,vibD:mtof(m)*.012,vibDelay:.08,sus:.7,wet:.35}),
  brass:(m,t,l)=>{tone({type:"sawtooth",f:mtof(m),t,dur:l*1.05,vol:.11,att:.03,dest:D(),filt:"lowpass",ff:1100,sus:.7,wet:.25});tone({type:"sawtooth",f:mtof(m)*1.006,t,dur:l*1.05,vol:.06,att:.03,dest:D(),filt:"lowpass",ff:900,sus:.7})},
  bell:(m,t,l)=>{tone({type:"sine",f:mtof(m),t,dur:1.4,vol:.16,dest:D(),wet:.6});tone({type:"sine",f:mtof(m)*2.76,t,dur:.4,vol:.05,dest:D()});tone({type:"sine",f:mtof(m)*5.4,t,dur:.15,vol:.025,dest:D()})},
+ organ:(m,t,l)=>{[1,2,3].forEach((h,i)=>tone({type:"sine",f:mtof(m)*h,t,dur:l*1.02,vol:[.12,.06,.035][i],att:.02,dest:D(),sus:.85,wet:.5}))},
+ harpsi:(m,t,l)=>{tone({type:"square",f:mtof(m),t,dur:.28,vol:.07,dest:D(),filt:"lowpass",ff:3200,wet:.25});tone({type:"sawtooth",f:mtof(m)*2,t,dur:.12,vol:.03,dest:D(),filt:"highpass",ff:1200})},
+ celesta:(m,t,l)=>{tone({type:"sine",f:mtof(m),t,dur:.9,vol:.18,dest:D(),wet:.55});tone({type:"sine",f:mtof(m)*4,t,dur:.18,vol:.04,dest:D(),wet:.4})},
+ keys:(m,t,l)=>{tone({type:"sine",f:mtof(m),t,dur:l*1.1+.15,vol:.18,dest:D(),wet:.25,vib:4,vibD:2});tone({type:"triangle",f:mtof(m)*2,t,dur:.25,vol:.05,dest:D()})},
+ synth:(m,t,l)=>{tone({type:"sawtooth",f:mtof(m),t,dur:l*.95,vol:.09,dest:D(),filt:"lowpass",ff:2600,q:4,sus:.6,wet:.2});tone({type:"sawtooth",f:mtof(m)*1.01,t,dur:l*.95,vol:.06,dest:D(),filt:"lowpass",ff:2000,sus:.6})},
  flute:(m,t,l)=>{tone({type:"sine",f:mtof(m),t,dur:l*1.2,vol:.16,att:.05,dest:D(),vib:5,vibD:mtof(m)*.008,vibDelay:.12,sus:.7,wet:.45});noise({t,dur:.08,vol:.02,f:mtof(m)*2,q:6,dest:D()})},
 };
 const BASS={
@@ -63,9 +68,32 @@ const DRUM={
  wood:(t,e,bar)=>{if(e===2||e===6||e===7)wood(t,e===7?.07:.12);if(e===0)kick(t,.25);if(e===4&&bar%2)noise({t,dur:.2,vol:.05,filt:"highpass",f:5000,dest:D()})},
  crickets:(t,e,bar)=>{if(e%4===1&&Math.random()<.6)for(let i=0;i<3;i++)tone({type:"sine",f:4200+Math.random()*300,t:t+i*.04,dur:.03,vol:.015,dest:D()})},
  doom:(t,e,bar)=>{if(e===0)kick(t,.75);if(e===3)kick(t,.45);if(e===4){kick(t,.6);snare(t,.18)}if(e===6&&bar%2)tom(t,110,.35);if(bar%4===3&&e>=4)tom(t,[160,130,110,90][e-4],.42);if(e%2===1)hat(t,.025);if(e===0&&bar%2===0)tone({type:"sine",f:41,t,dur:1.6,vol:.22,dest:D()})},
+ factory:(t,e,bar)=>{if(e===0||e===4)kick(t,.42);if(e===2||e===6)snare(t,.14);if(e%2===1)tone({type:"square",f:2100,t,dur:.03,vol:.035,dest:D(),filt:"bandpass",ff:2400,q:8});if(e===7&&bar%2)noise({t,dur:.25,vol:.06,filt:"bandpass",f:800,f2:3000,q:3,dest:D()})},
+ ice:(t,e,bar)=>{if(e===0||e===5)kick(t,.36);if(e===4)snare(t,.12);hat(t,e%2?.025:.045);if(e===7&&bar%2===1)tone({type:"sine",f:2637,t,dur:.4,vol:.04,dest:D(),wet:.5})},
+ sparkle:(t,e,bar)=>{if(e%4===2&&Math.random()<.7)tone({type:"sine",f:mtof(88+[0,2,4,7,9][Math.floor(Math.random()*5)]),t,dur:.5,vol:.025,dest:D(),wet:.7});if(e===0&&bar%2===0)kick(t,.15)},
+ waltz:(t,e,bar)=>{if(e===0)kick(t,.3);if(e===3||e===6)noise({t,dur:.08,vol:.05,filt:"highpass",f:4000,dest:D()})},
  none:()=>{}};
 const CH=(r,q)=>{const iv={M:[0,4,7],m:[0,3,7],7:[0,4,7,10],m7:[0,3,7,10],M7:[0,4,7,11],sus:[0,5,7]}[q||"M"];return iv.map(i=>r+i)};
 
+/* ---- 层主题曲 ---- */
+const TR2={
+ map1:{bpm:92,sw:0,lead:"organ",bass:"soft",dr:"waltz",pad:.05,ch:[[50,"m"],[46,"M"],[43,"m"],[45,"7"],[50,"m"],[53,"M"],[43,"m7"],[45,"7"]],
+  mel:[62,0,65,69,0,74,72,69, 70,-1,-1,0,69,67,65,0, 67,0,70,74,0,77,76,74, 73,-1,-1,0,0,0,0,0, 74,0,77,81,0,79,77,76, 77,-1,74,0,72,-1,69,0, 70,0,74,72,70,69,67,65, 64,-1,-1,0,61,-1,-1,0]},
+ battle1:{bpm:144,sw:0,lead:"harpsi",bass:"drive",dr:"drive",pad:.03,ch:[[50,"m"],[43,"m"],[45,"7"],[50,"m"]],
+  mel:[74,73,74,77,74,73,74,0, 70,69,70,74,70,69,70,0, 69,0,73,76,79,0,76,73, 74,0,0,0,69,0,0,0, 77,76,77,81,77,76,77,0, 74,73,74,77,74,73,74,0, 73,74,76,77,79,77,76,73, 74,0,69,0,62,0,0,0]},
+ map2:{bpm:76,sw:0,lead:"celesta",bass:"soft",dr:"none",pad:.06,bell:1,ch:[[52,"m"],[48,"M"],[43,"M"],[50,"M"],[52,"m"],[45,"m"],[47,"7"],[52,"m"]],
+  mel:[76,0,0,79,0,0,83,0, 81,0,79,0,76,-1,-1,0, 72,0,0,76,0,0,79,0, 78,0,76,0,74,-1,-1,0, 76,0,79,0,83,0,88,0, 86,-1,84,0,83,0,81,0, 78,0,81,0,79,0,78,0, 76,-1,-1,-1,0,0,0,0]},
+ battle2:{bpm:138,sw:0,lead:"square",bass:"drive",dr:"ice",pad:.03,bell:1,ch:[[52,"m"],[48,"M"],[50,"M"],[47,"7"]],
+  mel:[76,0,79,0,83,0,79,76, 72,0,76,0,79,0,76,72, 74,0,78,0,81,0,78,74, 75,0,78,0,83,0,0,0, 88,0,86,83,0,79,83,0, 84,0,83,79,0,76,79,0, 81,79,78,0,74,0,78,0, 75,78,81,83,0,0,0,0]},
+ map3:{bpm:112,sw:.2,lead:"keys",bass:"walk",dr:"factory",pad:.03,ch:[[53,"M"],[50,"m7"],[43,"m7"],[48,"7"]],
+  mel:[72,0,69,72,0,74,0,77, 76,0,74,72,0,69,0,0, 70,0,74,77,0,74,70,0, 72,-1,-1,0,0,0,67,69, 72,0,77,0,76,74,72,0, 74,0,72,69,0,65,0,0, 67,0,70,74,72,70,67,64, 65,-1,-1,0,0,0,0,0]},
+ battle3:{bpm:146,sw:0,lead:"synth",bass:"drive",dr:"factory",pad:0,ch:[[53,"m"],[49,"M"],[51,"M"],[48,"7"]],
+  mel:[77,0,77,80,0,77,75,0, 73,0,73,77,0,75,73,72, 75,0,75,79,0,75,73,72, 72,0,76,0,79,0,76,0, 77,80,84,0,82,80,77,0, 80,77,73,0,75,73,77,0, 79,0,75,0,82,0,79,75, 76,0,72,0,76,79,84,0]},
+ map4:{bpm:84,sw:0,lead:"flute",bass:"soft",dr:"sparkle",pad:.06,arp:1,ch:[[57,"M"],[54,"m"],[50,"M"],[52,"M"],[57,"M"],[49,"m"],[50,"M"],[52,"M"]],
+  mel:[76,-1,-1,0,81,-1,80,0, 78,-1,76,0,73,-1,-1,0, 74,-1,78,0,81,-1,85,0, 83,-1,-1,-1,0,0,0,0, 88,-1,85,0,83,-1,81,0, 80,-1,81,0,83,-1,-1,0, 85,-1,83,0,81,-1,78,0, 80,-1,-1,-1,0,0,0,0]},
+ battle4:{bpm:132,sw:0,lead:"brass",bass:"drive",dr:"drive",pad:.04,ch:[[57,"m"],[53,"M"],[48,"M"],[55,"M"]],
+  mel:[81,0,0,84,0,83,81,0, 77,0,0,81,0,79,77,0, 76,0,79,84,0,83,79,0, 79,0,83,0,86,0,0,0, 88,0,86,84,0,83,81,0, 84,0,83,81,0,77,76,0, 77,79,81,0,83,0,84,0, 83,0,79,0,74,0,0,0]},
+};
 /* ---- 原创曲目（每首 64 个八分音符；0 = 休止，-1 = 延长） ---- */
 const TR={
  // 标题「月下尖塔」：音乐盒，慢
@@ -96,13 +124,18 @@ const TR={
  event:{bpm:88,sw:0,lead:"flute",bass:"soft",dr:"none",pad:.05,bell:1,ch:[[50,"m"],[48,"M"],[46,"M7"],[45,"sus"]],
   mel:[74,-1,-1,0,77,-1,76,0, 74,-1,72,0,69,-1,-1,0, 70,-1,72,0,74,-1,77,0, 76,-1,-1,-1,0,0,0,0, 81,-1,79,0,77,-1,76,0, 74,-1,76,0,77,-1,-1,0, 79,-1,77,0,76,-1,74,0, 73,-1,-1,-1,0,0,0,0]},
 };
+Object.assign(TR,TR2);
+function harmUnder(m,chord){let best=null;for(const c of chord)for(const o of [12,24,36]){const n=c+o;if(n<m-2&&n>=m-9&&(best===null||n>best))best=n}return best}
 function sched(h=.15){const c=A.ctx;if(!c)return;if(A.next<c.currentTime-.2)A.next=c.currentTime+.05;
- while(A.next<c.currentTime+h){const T=TR[A.cur];const q=60/(T?T.bpm:100)/2;
+ while(A.next<c.currentTime+h){const T=TR[A.cur];const q=60/(T?T.bpm*(A.rage?1.18:1):100)/2;
   if(T&&A.music&&(c.state==="running"||A.offline)){const s=A.step%64,bar=Math.floor(s/8),e=s%8,t=A.next+(e%2?q*T.sw:0);const [r,ty]=T.ch[bar%T.ch.length];const chord=CH(r,ty);
-   const m=T.mel[s];if(m>0){let l=1;while(T.mel[(s+l)%64]===-1&&l<8)l++;INST[T.lead](m,t,q*l)}
+   const loop=Math.floor(A.step/64);const m=T.mel[s];if(m>0){let l=1;while(T.mel[(s+l)%64]===-1&&l<8)l++;INST[T.lead](m,t,q*l);if(loop%2===1||A.rage){const hm=harmUnder(m,chord);if(hm)tone({type:"triangle",f:mtof(hm),t,dur:q*l*.9,vol:.05,dest:D(),wet:.3})}}
+   if(loop%4===2&&!T.arp&&e%2===0)tone({type:"triangle",f:mtof(chord[(e/2)%chord.length]+12),t,dur:q*1.5,vol:.04,dest:D(),wet:.4});
+   if(A.rage){hat(t,.05);if(e===2||e===6)kick(t,.4);if(e===7)snare(t,.1);tone({type:"sawtooth",f:mtof(r+(e%2?7:0)),t,dur:q*.8,vol:.035,dest:D(),filt:"lowpass",ff:900})}
    BASS[T.bass](r,t,e,q);DRUM[T.dr](t,e,bar);
    if(T.pad&&e===0)chord.forEach(n=>tone({type:"sine",f:mtof(n),t,dur:q*8.2,vol:T.pad,att:.4,dest:D(),wet:.3}));
    if(T.arp)tone({type:"triangle",f:mtof(chord[e%chord.length]+(e>=4?12:0)),t,dur:q*2,vol:.07,dest:D(),wet:.4});
    if(T.bell&&e===0&&bar%2===0)INST.bell(r+24,t,q)}
   A.next+=q;A.step++}}
-function playMusic(n){const map={swing:"map",tense:"battle",space:"event",country:"shop",home:"rest"};n=map[n]||n;if(A.cur===n)return;A.cur=n;A.step=0;if(A.ctx)A.next=A.ctx.currentTime+.08}
+function musicRage(on){A.rage=on?1:0}
+function playMusic(n){const map={swing:"map",tense:"battle",space:"event",country:"shop",home:"rest"};n=map[n]||n;const act=(typeof S!=="undefined"&&S&&S.act)||0;if((n==="map"||n==="battle")&&act&&TR[n+act])n=n+act;if(A.cur===n)return;A.rage=0;A.cur=n;A.step=0;if(A.ctx)A.next=A.ctx.currentTime+.08}
