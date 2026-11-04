@@ -1249,3 +1249,55 @@ img{-webkit-user-drag:none;pointer-events:none}
 
 /* 最终首领：剪影 */
 .mn.boss img.sil{filter:brightness(0) drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--p5r))}
+
+/* ================= 每层地图主题 ================= */
+.bgmap .parch{overflow:hidden;background:#111}
+.bgmap .parch::before,.bgmap .parch::after{display:none}
+.mPhoto{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:saturate(.8) contrast(1.1)}
+.mGrade{position:absolute;inset:0}
+.mKanji{position:absolute;right:120px;top:40px;font:900 380px/1 'NW Black';color:transparent;-webkit-text-stroke:3px rgba(255,255,255,.22);transform:skewX(-10deg) rotate(-6deg);pointer-events:none}
+.mFx,.mDeco{position:absolute;pointer-events:none}.mFx{inset:0}
+.mFx i{position:absolute;display:block}
+#mapSvg path{stroke:#fff;filter:drop-shadow(0 2px 0 #0d0d0d)}
+#mapSvg path.done{stroke:var(--p5r);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 2px 0 #0d0d0d)}
+#map .legend,#map .mapHead{z-index:3}
+#map .skyCol{z-index:2}
+/* 1 泥沼 */
+.ma0 .mGrade{background:linear-gradient(180deg,rgba(10,40,20,.35),rgba(20,50,20,.75)),repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 3px,rgba(0,0,0,.12) 3px 4px)}
+.ma0 .ff{width:7px;height:7px;border-radius:50%;background:#f5ff8a;box-shadow:0 0 10px 4px rgba(220,255,90,.6);animation:mffly 6s ease-in-out infinite alternate}
+@keyframes mffly{0%{transform:translate(0,0);opacity:.2}50%{opacity:1}100%{transform:translate(40px,-60px);opacity:.3}}
+.reeds{left:-10px;bottom:-10px;width:300px;height:220px}.reeds.r2{left:auto;right:-20px;transform:scaleX(-1)}
+#map.ma0 #mapSvg path{stroke:#d9f28a;stroke-dasharray:2 14;stroke-width:7}
+#map.ma0 #mapSvg path.next{stroke:#fff}
+/* 2 古堡 */
+.ma1 .mGrade{background:linear-gradient(160deg,rgba(60,0,40,.45),rgba(20,0,30,.8)),radial-gradient(circle at 80% 18%,rgba(229,25,28,.35),transparent 40%)}
+.moonBig{right:300px;top:60px;width:150px;height:150px;border-radius:50%;background:#f3e8d0;box-shadow:0 0 0 10px #0d0d0d,0 0 60px 20px rgba(229,25,28,.55);opacity:.5}
+.rose{left:-50px;bottom:-60px;width:230px;height:230px;opacity:.85;animation:mspin 60s linear infinite}
+.ma1 .bat{left:-60px;width:44px;animation:mbatfly 12s linear infinite}
+@keyframes mbatfly{0%{transform:translate(0,0)}25%{transform:translate(400px,-30px) scaleY(.5)}50%{transform:translate(800px,10px)}75%{transform:translate(1100px,-20px) scaleY(.5)}100%{transform:translate(1400px,0)}}
+#map.ma1 #mapSvg path{stroke:#ff3b3e;stroke-dasharray:none;stroke-width:3;opacity:.8}
+#map.ma1 #mapSvg path.done{stroke:#fff;stroke-width:6;opacity:1}
+/* 3 冰封钟楼 */
+.ma2 .mGrade{background:linear-gradient(180deg,rgba(150,210,255,.25),rgba(10,40,80,.7))}
+.ma2 .sn{top:-10px;border-radius:50%;background:#fff;opacity:.85;animation:msnow 9s linear infinite}
+@keyframes msnow{to{transform:translate(60px,700px)}}
+.bell{right:40px;bottom:30px;width:150px;height:175px;transform:rotate(-12deg);animation:mswing 3s ease-in-out infinite alternate;transform-origin:50% 0}
+@keyframes mswing{from{transform:rotate(-12deg)}to{transform:rotate(10deg)}}
+.cracks{inset:0;width:100%;height:100%}
+#map.ma2 #mapSvg path{stroke:#dff4ff;stroke-dasharray:14 6 3 6;stroke-width:4}
+/* 4 奶茶厂 */
+.ma3 .mGrade{background:linear-gradient(180deg,rgba(80,30,0,.45),rgba(40,10,0,.75)),linear-gradient(rgba(255,180,90,.12) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(255,180,90,.12) 1px,transparent 1px) 0 0/40px 40px}
+.ma3 .st{bottom:-40px;width:70px;height:70px;border-radius:50%;background:radial-gradient(rgba(255,240,220,.55),transparent 70%);animation:msteam 7s ease-in infinite}
+@keyframes msteam{0%{transform:translateY(0) scale(.5);opacity:0}30%{opacity:.9}100%{transform:translateY(-700px) scale(2.2);opacity:0}}
+.gear{width:200px;height:200px;animation:mspin 14s linear infinite}.g1{left:-60px;bottom:-60px}.g2{left:110px;bottom:-90px;width:150px;height:150px;animation-direction:reverse;animation-duration:10s}
+.pipe{right:0;top:0;bottom:0;width:46px;background:repeating-linear-gradient(0deg,#3a2414 0 80px,#0d0d0d 80px 92px);border-left:5px solid #0d0d0d}
+#map.ma3 #mapSvg path{stroke:#ffb15a;stroke-dasharray:none;stroke-width:9;opacity:.75}
+#map.ma3 #mapSvg path.done{stroke:var(--p5r);opacity:1}
+/* 5 星空之顶 */
+.ma4 .mGrade{background:radial-gradient(ellipse at 60% 40%,rgba(60,20,110,.25),rgba(0,0,10,.85))}
+.ma4 .tw{width:3px;height:3px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff;animation:mtw 2.4s ease-in-out infinite alternate}
+@keyframes mtw{from{opacity:.15}to{opacity:1}}
+.orbit{right:-40px;top:-40px;width:420px;height:420px;animation:mspin 80s linear infinite}
+#map.ma4 #mapSvg path{stroke:#fff;stroke-dasharray:none;stroke-width:1.6;filter:drop-shadow(0 0 4px #9fd0ff)}
+#map.ma4 #mapSvg path.done{stroke:#ffe07a;stroke-width:3}
+@keyframes mspin{to{transform:rotate(360deg)}}
