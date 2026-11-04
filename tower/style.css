@@ -1426,7 +1426,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 .fighter .body img,.en .body img{will-change:transform;backface-visibility:hidden}
 
 /* ===== 奶蛙魔法师 ===== */
-#title .tmage{position:absolute;right:390px;bottom:70px;width:220px;height:290px;z-index:2;animation:bob 4.2s ease-in-out infinite}
+#title .tmage{position:absolute;right:335px;bottom:72px;width:220px;height:290px;z-index:1;animation:bob 4.2s ease-in-out infinite}
 #title .tmage img{width:100%;height:100%;object-fit:contain;transform:scaleX(-1);filter:drop-shadow(8px 8px 0 rgba(13,13,13,.85))}
 @keyframes castA{0%{transform:none}35%{transform:translateY(-14px) rotate(-4deg) scale(1.04);filter:drop-shadow(0 0 18px #b07cff)}100%{transform:none}}
 .castA .body{animation:castA .5s ease-out}
