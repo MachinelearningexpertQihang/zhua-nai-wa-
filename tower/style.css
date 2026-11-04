@@ -1179,3 +1179,11 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 span.rn3{background:var(--p5r);color:var(--p5w);clip-path:polygon(0 4%,97% 0,100% 97%,3% 100%);transform:rotate(4deg) translateY(6px);filter:drop-shadow(8px 8px 0 var(--p5w))}
 #title .logo::after{right:-40px;top:-14px}
 #title .tsub{margin-top:30px}
+
+.yardBtn{position:absolute;right:22px;top:130px;z-index:3;display:flex;align-items:center;gap:8px;padding:4px 14px 4px 4px;font:900 17px 'NW Black',sans-serif;color:var(--p5k);background:var(--p5w);border:3px solid var(--p5k);box-shadow:5px 5px 0 var(--p5r);transform:skewX(-10deg);cursor:pointer}
+.yardBtn>*{transform:skewX(10deg)}
+.yardBtn img{width:46px;height:46px;object-fit:contain;background:var(--p5r);border:2px solid var(--p5k)}
+.yardBtn em{display:flex;align-items:center;gap:2px;font:800 15px var(--num);font-style:normal;color:var(--p5r)}
+.yardBtn em svg,.yardBtn em .ico{width:15px;height:15px}
+.yardBtn:hover{background:var(--p5k);color:var(--p5w)}
+#title .zsBtn{top:66px}
