@@ -1032,10 +1032,10 @@ isekaigate:{n:"异世界之门",img:"yjx",rare:1,t:"墙上裂开一道缝，透�
  {t:"帮它回去",d:"<span class='good'>获得遗物「另一个世界的奶蛙球」</span>，<span class='bad'>花 30 金币修门</span>",ok:S.gold>=30,f:()=>{S.gold-=30;if(!has("otherball"))gainRelic("otherball");else S.gold+=60;return"你帮它把门撑开。它钻回去之前，塞给你一个圆圆的球：「那边的人就是用这个抓我的。送你吧，我用不上了。」光一下子合上了。"}},
  {t:"让它跟着你",d:"<span class='good'>伙伴卡「异世界传送」和 1 张异世界招式加入牌组</span>，<span class='bad'>失去 6 生命</span>",ok:S.hp>6,f:()=>{S.hp-=6;addCard(mk("p_yjx"));addCard(mk(pick(["x_reborn","x_rules","x_otherside","x_tray","x_nekoimpact"])));return"它想了想：「反正回去也是被抓，我先跟你走一段。」它跳下来的时候踩了你一脚，又塞给你一张它那边的招式。"}},
  {t:"把它抓了",d:"<span class='bad'>和它打一场</span>，<span class='good'>赢了有稀有遗物；抓住它有隐藏成就</span>",f:async()=>{await talk([["yjx","异世界奶蛙","……"],["yjx","异世界奶蛙","怎么到哪都一样啊。"]]);S.cur={t:"E",rs:S.rs};S.pendGrp=["isekaiX"];S.isekaiFight=1;startCombat("E");return null}}]},
-emptychair:{n:"旧灯",img:"bx",act:4,t:"塔顶边上挂着一排熄掉的旧灯。每一盏的灯座上，都刻着一个名字。",o:()=>[
- {t:"在灯下歇一会儿",d:"<span class='good'>回复 20 生命，+3 经验</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+20);await gainXP(3);return"灯虽然灭了，底下还是暖的。暖得有点不想起来。"}},
- {t:"看看那些名字",d:"<span class='good'>立刻选一个天赋</span>",f:async()=>{await levelUp("灯座上的名字");return"最上面的名字已经磨平了。最下面那个还很新。"}},
- {t:"离开",d:"",f:()=>"你走开以后，远处那盏还亮着的灯晃了一下。"}]},
+emptychair:{n:"空王座",img:"bx",act:4,t:"塔顶边上立着一张旧王座，靠背上刻着很多名字。",o:()=>[
+ {t:"坐一会儿",d:"<span class='good'>回复 20 生命，+3 经验</span>",f:async()=>{S.hp=Math.min(S.max,S.hp+20);await gainXP(3);return"王座是温的，坐上去就不想起来。你赶紧站了起来。"}},
+ {t:"看看那些名字",d:"<span class='good'>立刻选一个天赋</span>",f:async()=>{await levelUp("靠背上的名字");return"最上面的名字已经磨平了。最下面那个还很新。"}},
+ {t:"离开",d:"",f:()=>"你走开以后，王座还在原地，靠背上好像多了一道划痕。"}]},
 candykid:{n:"卖糖的小奶鼠",img:"msj",t:"路边有一只小奶鼠在卖糖，一块 10 金币。",o:()=>[
  {t:"买一块",d:"<span class='good'>回复 10 生命</span>，花 10 金币",ok:S.gold>=10,f:()=>{S.gold-=10;S.hp=Math.min(S.max,S.hp+10);return"糖很甜。"}},
  {t:"全买了",d:"<span class='good'>获得遗物「方糖」</span>，花 40 金币",ok:S.gold>=40,f:()=>{S.gold-=40;if(!has("sugarcube"))gainRelic("sugarcube");else S.hp=S.max;return"它数钱数了很久。"}},
