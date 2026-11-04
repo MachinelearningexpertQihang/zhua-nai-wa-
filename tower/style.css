@@ -763,16 +763,41 @@ img{-webkit-user-drag:none;pointer-events:none}
 .en.bossEn.hit .body img,.en.bossEn .body img.hitting{animation:hitA .35s!important}
 .en.bossEn .itw{position:absolute;left:-46px;top:34%;z-index:3}
 .en.bossEn .itw .intent{animation:none}
-.en.bossEn{transform:translate(45px,26px)}
+.en.bossEn{transform:translate(45px,-4px)}
 .en.bossEn .btrait{position:absolute;left:-46px;top:calc(34% - 34px);z-index:3}
 .en.bossEn .sts{position:absolute;left:-60px;top:calc(34% + 54px);z-index:3;flex-direction:column;align-items:flex-start;width:max-content}
 .mn.t-K{width:78px;height:78px;margin:-39px 0 0 -39px;background:#7a2a8a;border-width:4px;box-shadow:0 5px 0 var(--ink),inset 0 0 0 5px #a85ab8,0 0 22px rgba(200,60,120,.6)}
 .mn.t-K svg,.mn.t-K .ico{width:44px;height:44px;color:#fff;fill:#fff}
 
 /* 层末首领：更大、更暗、红色脉动；守关首领小一号 */
-.en.guardEn{transform:translate(45px,20px)}
-.en.finalEn{transform:translate(45px,20px)}
+.en.guardEn{transform:translate(45px,-10px)}
+.en.finalEn{transform:translate(45px,-10px)}
 .en.finalEn .body img{filter:drop-shadow(0 0 22px rgba(220,20,50,.75)) drop-shadow(0 12px 0 rgba(10,0,20,.6));animation:bossBreath 3s ease-in-out infinite}
 .en.finalEn .plat::before{box-shadow:inset 0 -10px 0 #261a32,0 0 60px 18px rgba(160,0,40,.6),0 6px 0 rgba(20,10,30,.6)}
 #battle.finalFight::before{background:radial-gradient(ellipse 70% 65% at 60% 45%,transparent 38%,rgba(40,0,10,.75) 100%);animation:finPulse 4s ease-in-out infinite}
 @keyframes finPulse{50%{opacity:.75}}
+
+/* 标题页：四个小按钮排两行；云存档状态 */
+.tmenu .sub{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cloudSt{position:absolute;left:100px;bottom:28px;z-index:3;font-size:16px;color:#cfc4f2;letter-spacing:1px}
+/* 首领名字挪到左侧，不被手牌挡住 */
+.en.bossEn .ename{position:absolute;left:-46px;top:calc(34% - 72px);z-index:3;white-space:nowrap}
+/* 成就 */
+.achGrid{position:absolute;left:60px;right:60px;top:118px;bottom:100px;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;grid-auto-rows:min-content}
+.achC{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:#fff6e0;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);color:var(--ink)}
+.achC i{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--gold);border:3px solid var(--ink)}
+.achC i svg,.achC i .ico{width:30px;height:30px}
+.achC b{display:block;font-weight:400;font-size:21px}
+.achC span{display:block;font:600 13px/1.4 var(--body);opacity:.8}
+.achC em{display:inline-block;margin-top:3px;font:700 12px var(--body);font-style:normal;color:#fff;background:#7a2a8a;padding:1px 8px;border-radius:8px}
+.achC.lock{background:#3a2e66;color:#cfc4f2;box-shadow:0 4px 0 var(--ink)}
+.achC.lock i{background:#4e3c8a;filter:grayscale(1)}
+.achPop{position:absolute;left:50%;top:70px;z-index:95;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:10px 22px 10px 12px;border-radius:40px;background:linear-gradient(#fff6c8,#ffd84a);border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink),0 0 30px rgba(255,210,63,.6);color:var(--ink);animation:achIn .45s cubic-bezier(.2,1.6,.4,1);pointer-events:none}
+.achPop.out{transition:all .5s;opacity:0;transform:translate(-50%,-30px)}
+.achPop i{width:54px;height:54px;border-radius:50%;background:#d8383f;border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;color:#fff}
+.achPop i svg{width:30px;height:30px}
+.achPop small{display:block;font-size:14px;color:#a8541a}
+.achPop b{display:block;font-weight:400;font-size:26px;line-height:1.1}
+.achPop span{display:block;font:700 13px var(--body);opacity:.85}
+@keyframes achIn{from{transform:translate(-50%,-40px) scale(.6);opacity:0}}
+.toyKeys{max-width:1000px;margin:0 auto 8px;font:600 11px/1.4 var(--body);color:#cfc4f2;word-break:break-all;opacity:.8}

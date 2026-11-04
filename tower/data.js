@@ -661,3 +661,35 @@ cosmicegg:{t:"孵化倒计时",td:"倒计时归零时孵化爆发，造成大量
 demon:{t:"塔顶不能没有人",td:"第一次被打倒时，会以 35% 生命站起来",lore:["第一只爬上塔顶的奶蛙。","上来以后，他发现塔顶不能空着。","他在上面等了很久，等下一个上来的。"]}};
 /* 每层：层末首领（最有压迫感的两个）与守关首领 */
 [[["rockfrog","king"],["fogwhite","snakeking"]],[["fallen","count"],["witch","buddha","fogwhite","snakeking"]],[["thunderking","iceking"],["bloodbeast","snowking"]],[["fourhead","boilerdragon"],["lavagiant","pearlqueen"]],[["abyssdragon","shadow"],["tophat","cosmicegg"]]].forEach(([f,gd],i)=>{ENCS[i].bosses=f.map(x=>[x]);ENCS[i].guards=gd});
+/* ===================== 成就 ===================== */
+const ACH=[
+{id:"first",n:"第一步",d:"开始第一次爬塔",ic:"star"},
+{id:"oops",n:"出师未捷",d:"在第一层倒下",ic:"skull"},
+{id:"act3",n:"半山腰",d:"走到第三层",ic:"up"},
+{id:"win",n:"登顶",d:"第一次登上塔顶",ic:"star"},
+{id:"win_naiwa",n:"肚皮最厚",d:"用奶蛙登顶",ic:"shield"},
+{id:"win_kungfu",n:"拳拳到肉",d:"用功夫奶蛙登顶",ic:"sword"},
+{id:"win_knight",n:"铁甲不倒",d:"用骑士奶蛙登顶",ic:"shield"},
+{id:"asc2",n:"又回来了",d:"通关第 2 周目",ic:"swirl"},
+{id:"asc4",n:"越来越重",d:"通关第 4 周目",ic:"swirl"},
+{id:"asc8",n:"塔顶的常客",d:"通关第 8 周目",ic:"skull"},
+{id:"demon",n:"塔顶不能没有人",d:"打倒奶蛙大魔王",ic:"skull"},
+{id:"allboss",n:"首领图鉴",d:"打败全部 21 个首领",ic:"skull"},
+{id:"guard",n:"守关人",d:"打败第一个守关首领",ic:"shield"},
+{id:"chain4",n:"连锁反应",d:"一次触发 4 连锁",ic:"boom"},
+{id:"chain6",n:"停不下来",d:"一次触发 6 连锁",ic:"boom"},
+{id:"hit50",n:"一拳 50",d:"一下打出 50 点以上伤害",ic:"sword"},
+{id:"hit100",n:"一拳 100",d:"一下打出 100 点以上伤害",ic:"sword"},
+{id:"rush",n:"手速",d:"一回合打出 12 张牌",ic:"deck"},
+{id:"kill100",n:"一百只",d:"累计打倒 100 个敌人",ic:"skull"},
+{id:"kill1000",n:"一千只",d:"累计打倒 1000 个敌人",ic:"skull"},
+{id:"pals",n:"朋友很多",d:"累计抓到 20 个伙伴",ic:"net"},
+{id:"rich",n:"有钱",d:"身上同时有 500 金币",ic:"coin"},
+{id:"goldcard",n:"三合一",d:"合成一张金卡",ic:"star"},
+{id:"shiny",n:"闪闪发光",d:"拿到一张闪卡",ic:"star"},
+{id:"mimic",n:"宝箱会咬人",d:"打倒宝箱怪",ic:"chest"},
+{id:"goldfrog",n:"金色的",d:"在金色奶蛙逃跑前打倒它",ic:"coin"},
+{id:"slim",n:"少即是多",d:"牌组不超过 12 张时登顶",ic:"deck"},
+{id:"close",n:"差一点",d:"生命低于 10 时登顶",ic:"heart"},
+{id:"tales",n:"长老的故事",d:"收集全部 7 片记忆碎片",ic:"q"},
+{id:"stubborn",n:"不服输",d:"累计倒下 10 次",ic:"heart"}];
