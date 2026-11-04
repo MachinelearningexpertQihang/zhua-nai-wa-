@@ -1043,7 +1043,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 .rn1{background:var(--p5w);color:var(--p5k);transform:rotate(4deg) translateY(16px);box-shadow:6px 6px 0 var(--p5k);font-size:92px}
 #title .logo h1 .rn2{background:var(--p5r);color:var(--p5w);transform:rotate(-3deg) translateY(-2px);box-shadow:6px 6px 0 var(--p5k);font-size:84px}
 #title .logo h1 .rn3{transform:rotate(7deg) translateY(10px);font-size:112px;border:4px solid var(--p5w)}
-#title .logo::after{content:"VER 3.0";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
+#title .logo::after{content:"VER 3.1";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
 #title .tsub{margin:30px 0 0 4px}
 #title .tsub .ribbon{font-family:'NW Black';font-weight:900;font-size:20px;letter-spacing:6px;color:var(--p5k);background:var(--p5w);border:0;padding:6px 18px;transform:skewX(-12deg);box-shadow:5px 5px 0 var(--p5r)}
 #title .tmenu{top:330px;gap:14px}
@@ -1444,3 +1444,34 @@ img{-webkit-user-drag:none;pointer-events:none}
 #enemies.crowd{gap:6px;left:520px;right:14px}
 #enemies.crowd .bossEn .body img{width:300px!important;height:300px!important}
 #enemies.crowd .en:not(.bossEn) .body img{max-width:160px;max-height:160px}
+
+/* ===== 卡牌说明弹窗 ===== */
+#cinfo{position:absolute;inset:0;z-index:130;background:rgba(10,10,10,.72);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s}
+@keyframes fadeIn{from{opacity:0}}
+.ciBox{position:relative;display:flex;gap:30px;align-items:center;max-width:1040px;max-height:640px;padding:28px 34px;background:var(--p5w);border:6px solid var(--p5k);box-shadow:14px 14px 0 var(--p5r),14px 14px 0 6px var(--p5k)}
+.ciX{position:absolute;right:-22px;top:-22px;width:52px;height:52px;border:4px solid var(--p5w);background:var(--p5k);color:#fff;font:900 34px/1 'NW Black';transform:rotate(45deg);box-shadow:4px 4px 0 var(--p5r);cursor:pointer}
+.ciX{transform:none}
+.ciCard{flex:none}
+.ciCard .card{cursor:default}
+.ciTxt{width:560px;max-height:580px;overflow-y:auto;color:#151515;font:600 17px/1.55 var(--body)}
+.ciTxt h3{display:inline-block;font:900 34px 'NW Black';background:var(--p5k);color:#fff;padding:0 18px;transform:skewX(-10deg);margin-bottom:8px}
+.ciTags{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.ciTags span{font:900 14px 'NW Black';background:var(--p5r);color:#fff;padding:1px 10px;transform:skewX(-10deg)}
+.ciD{margin:6px 0}.ciD b,.ciKw b,.ciFam b{display:inline-block;margin-right:8px;font:900 15px 'NW Black';background:var(--p5k);color:#fff;padding:0 8px;transform:skewX(-10deg)}
+.ciD.up b{background:#11923a}
+.ciType{color:#555;font-size:15px;margin:8px 0}
+.ciFam{border-left:8px solid var(--fc);padding:6px 10px;background:#f2f2f2;margin:8px 0}
+.ciFam b{background:var(--fc);color:#111}
+.ciKw p{margin:5px 0;font-size:15px}
+.ciLock{color:#555;margin:10px 0}
+.ciHint{display:block;margin-top:10px;color:#888;font:700 13px 'NW Black'}
+/* 图鉴里没收集到的牌：黑色剪影 */
+.card.unk .art img{filter:brightness(0) opacity(.85)}
+.card.unk .art{background:#2a2a2a!important}
+.card.unk .rib span{color:transparent!important;position:relative}
+.card.unk .rib span::after{content:"？？？";position:absolute;left:50%;top:0;transform:translateX(-50%);color:#888}
+.card.unk .ds,.card.unk .tpc,.card.unk .cost{visibility:hidden}
+.card.unk .in{background:#3a3a3a!important}
+.card.unk .cf{background:#555!important}
+.ovTip{color:#ddd;font:700 14px 'NW Black';margin-right:16px}
+.ovGrid .card{cursor:pointer}

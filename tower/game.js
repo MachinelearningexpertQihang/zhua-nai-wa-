@@ -1,6 +1,6 @@
 /* ===================== 奶蛙之塔 · 主程序 ===================== */
 "use strict";
-const VER="3.0";
+const VER="3.1";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 /* 图片：把内嵌的 base64 一次性转成 blob 地址，之后每次渲染只传一个短链接，切页面和出牌都快很多 */
 const IMG_CACHE={};
@@ -88,13 +88,14 @@ function cardHTML(c,cls=""){const D=CARDS[c.id],fam=FAM[D.fam];let cost=B&&cls.i
  let cc="";if(D.cost===-2)cc="na";else if(B&&cls.includes("inhand")&&D.cost>=0){if(cost<baseCost(c))cc="dn";else if(cost>baseCost(c))cc="upc"}
  const cs=D.cost===-1?"X":cost;
  const extra=[D.exh||(D.exhU&&!c.u)?"消耗":"",D.eth?"虚无":""].filter(Boolean);
- return`<div class="card r-${D.r} t-${D.type}${c.u?" up":""}${c.g?" gold":""}${c.sh?" shiny":""} ${cls}" data-k="${c.k}">${c.sh?`<span class="shtag">闪·${SHINY[c.sh]}</span>`:""}${c.g?`<span class="gtag">效果×2</span>`:""}<div class="cf"><div class="in"><div class="art"><img src="${IMG(D.img)}" alt=""></div><div class="tpc"><em>${TYPE[D.type].n}</em>${D.spell?`<i style="--famc:#c9b2ff">法术</i>`:""}${D.fam!=="none"?`<i style="--famc:${fam.c}">${fam.n}</i>`:""}</div><div class="ds"><span>${descHTML(c,!!B&&cls.includes("inhand"))}</span></div></div><div class="rib"><span>${esc(cname(c))}</span></div></div><div class="cost ${cc}">${cs}</div><i class="gem"></i><span class="tri">三连！</span></div>`}
+ return`<div class="card r-${D.r} t-${D.type}${c.u?" up":""}${c.g?" gold":""}${c.sh?" shiny":""} ${cls}" data-k="${c.k}" data-id="${c.id}" data-u="${c.u?1:0}">${c.sh?`<span class="shtag">闪·${SHINY[c.sh]}</span>`:""}${c.g?`<span class="gtag">效果×2</span>`:""}<div class="cf"><div class="in"><div class="art"><img src="${IMG(D.img)}" alt=""></div><div class="tpc"><em>${TYPE[D.type].n}</em>${D.spell?`<i style="--famc:#c9b2ff">法术</i>`:""}${D.fam!=="none"?`<i style="--famc:${fam.c}">${fam.n}</i>`:""}</div><div class="ds"><span>${descHTML(c,!!B&&cls.includes("inhand"))}</span></div></div><div class="rib"><span>${esc(cname(c))}</span></div></div><div class="cost ${cc}">${cs}</div><i class="gem"></i><span class="tri">三连！</span></div>`}
 function relicHTML(id,extra=""){const R=RELICS[id];return`<div class="rl ${extra}" data-rl="${id}"><img src="${IMG(R.img)}" alt=""></div>`}
 function potHTML(id){if(!id)return`<div class="pot"></div>`;return`<div class="pot full" data-pot="${id}"><i class="flask" style="--pc:${POTIONS[id].c}"></i></div>`}
+function gotCard(id){if(!CARDS[id])return;M.got=M.got||{};if(!M.got[id]){M.got[id]=1;saveMeta()}}
 function seeCard(id){if(!M.seen[id]){M.seen[id]=1;saveMeta()}}
 
 /* ---------- 顶栏 ---------- */
-function renderTop(){if(S&&S.gold>=500)ach("rich");if(!S)return;const t=$("#top");const fl=S.row<0?0:S.row+1;
+function renderTop(){if(S&&S.deck){if(!M.got){M.got={};Object.keys(M.seen||{}).forEach(k=>{if(CARDS[k])M.got[k]=1})}S.deck.forEach(c=>{if(!M.got[c.id])gotCard(c.id)})}if(S&&S.gold>=500)ach("rich");if(!S)return;const t=$("#top");const fl=S.row<0?0:S.row+1;
  t.innerHTML=`<div class="face"><img src="${IMG(HI())}"></div><div class="lvB" id="lvB"><b>Lv.${S.lv||1}</b><i style="width:${S.lv>=LV_XP.length-1?100:Math.min(100,((S.xp||0)-LV_XP[S.lv||1])/(LV_XP[(S.lv||1)+1]-LV_XP[S.lv||1])*100)}%"></i></div><span class="hpIco">${ICON.heart}</span><div class="hpPill"><i style="width:${S.hp/S.max*100}%"></i><span>${S.hp}/${S.max}</span></div><div class="goldBox">${ICON.coin}${S.gold}</div><div class="pots">${[...Array(S.potSlots)].map((_,i)=>potHTML(S.pots[i])).join("")}</div><div class="relics">${S.relics.map(r=>relicHTML(r)).join("")}</div><div class="floor">${actN().n}<b>${S.atBoss?"首领":fl?fl+"/"+ROWS:"入口"}</b></div>${S.mod&&MODS[S.mod]?`<button class="tbtn modChip" id="modBtn">${MODS[S.mod].n}</button>`:""}<button class="tbtn" id="deckBtn">${ICON.deck}${S.deck.length}</button><button class="tbtn" id="setBtn">${ICON.gear}</button>`;
  $$("#top .rl").forEach(e=>e.onclick=ev=>{ev.stopPropagation();const R=RELICS[e.dataset.rl];tipAt(e,`<b>${R.n}</b><p>${R.d}</p>`)});
  $$("#top .pot.full").forEach((e,i)=>e.onclick=ev=>{ev.stopPropagation();potMenu(e,[...$$("#top .pot")].indexOf(e))});
@@ -120,7 +121,7 @@ function confirmBox(t,p,yes){ov(`<div class="modal"><h3>${t}</h3><p>${p}</p><div
 function ov(h){const o=$("#ov");o.innerHTML=h;o.classList.add("on")}
 function closeOv(){$("#ov").classList.remove("on");$("#ov").innerHTML=""}
 function viewCards(list,title,sub,sort=true){let arr=[...list];if(sort)arr.sort((a,b)=>"SCRELXTK".indexOf(CARDS[a.id].r)-"SCRELXTK".indexOf(CARDS[b.id].r)||a.id.localeCompare(b.id));
- ov(`<div class="ovHead"><span class="ribbon b">${title}</span><small>${sub||""}</small></div><div class="ovGrid">${arr.length?arr.map(c=>cardHTML(c,"mid")).join(""):`<div class="ovEmpty">这里还空空的</div>`}</div><div class="ovFoot"><button class="btn sm" id="ovX">返回</button></div>`);$("#ovX").onclick=closeOv}
+ ov(`<div class="ovHead"><span class="ribbon b">${title}</span><small>${sub||""}</small></div><div class="ovGrid">${arr.length?arr.map(c=>cardHTML(c,"mid")).join(""):`<div class="ovEmpty">这里还空空的</div>`}</div><div class="ovFoot"><small class="ovTip">点卡牌看详细说明</small><button class="btn sm" id="ovX">返回</button></div>`);$("#ovX").onclick=closeOv;$$("#ov .ovGrid .card").forEach((e,i)=>e.onclick=()=>cardInfo(arr[i]))}
 /* 选牌：list=牌实例, opts:{title,sub,n,cancel,filter,confirm(c)->html} */
 function pickCards(list,opts){return new Promise(res=>{let sel=[];const n=opts.n||1;
  const draw=()=>{ov(`<div class="ovHead"><span class="ribbon b">${opts.title}</span><small>${opts.sub||""}</small></div><div class="ovGrid">${list.length?list.map(c=>cardHTML(c,"mid"+(sel.includes(c)?" pk":""))).join(""):`<div class="ovEmpty">没有可以选的牌</div>`}</div><div class="ovFoot">${opts.cancel!==false?`<button class="btn sm ghost" id="pkX">${opts.cancelTxt||"算了"}</button>`:""}${n>1?`<button class="btn sm" id="pkOk" ${sel.length?"":"disabled"}>确定</button>`:""}</div>`);
@@ -129,9 +130,11 @@ function pickCards(list,opts){return new Promise(res=>{let sel=[];const n=opts.n
   if(!list.length&&opts.cancel===false)setTimeout(()=>{closeOv();res([])},900)};
  const confirmPick=c=>{ov(`<div class="ovHead"><span class="ribbon b">${opts.title}</span><small>确认一下</small></div><div class="cmpRow">${opts.confirm(c)}</div><div class="ovFoot"><button class="btn sm ghost" id="pkB">换一张</button><button class="btn sm" id="pkY">就它了</button></div>`);$("#pkB").onclick=draw;$("#pkY").onclick=()=>{closeOv();res([c])}};
  draw()})}
-function codex(){let up=false,tab="hero";const tabs={hero:["家族牌",POOL_HERO],x:["无色牌",POOL_X],pal:["伙伴卡",POOL_PAL]};const total=[...POOL_HERO,...POOL_X,...POOL_PAL];const d=()=>{const all=tabs[tab][1];const list=all.map(id=>({id,u:up?1:0,k:id}));
- ov(`<div class="ovHead"><span class="ribbon b">卡牌图鉴</span><small>已见过 ${total.filter(i=>M.seen[i]).length} / ${total.length} 张${tab==="pal"?"　伙伴卡只能在战斗里抓敌人获得":""}</small></div><div class="tabs">${Object.entries(tabs).map(([k,v])=>`<button class="${tab===k?"on":""}" data-t="${k}">${v[0]}</button>`).join("")}<button class="${up?"on":""}" id="cxu" style="margin-left:18px">${up?"升级后":"原版"}</button></div><div class="ovGrid" style="top:150px">${list.map(c=>M.seen[c.id]?cardHTML(c,"mid"):`<div class="card mid cback"><div class="cf"><div class="in"><b>?</b><small>${tab==="pal"?"还没抓到":"还没遇到"}</small></div></div></div>`).join("")}</div><div class="ovFoot"><button class="btn sm" id="ovX">返回</button></div>`);
- $$("#ov .tabs button[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;d()});$("#cxu").onclick=()=>{up=!up;d()};$("#ovX").onclick=()=>{closeOv();if(S&&$("#top").classList.contains("on"))settings()}};d()}
+function codex(){let up=false,tab="fam";const H=POOL_HERO.filter(id=>!CARDS[id].hero),HH=POOL_HERO.filter(id=>CARDS[id].hero);
+ const tabs={fam:["家族牌",H],hero:["角色专属",HH],x:["通用牌",POOL_X],pal:["伙伴卡",POOL_PAL]};const total=[...POOL_HERO,...POOL_X,...POOL_PAL];M.got=M.got||{};
+ const d=()=>{const all=tabs[tab][1];const list=all.map(id=>({id,u:up?1:0,k:"cx"+id}));const got=total.filter(i=>M.got[i]).length;const tg=all.filter(i=>M.got[i]).length;
+ ov(`<div class="ovHead"><span class="ribbon b">卡牌图鉴</span><small>已收集 ${got} / ${total.length} 张　这一页 ${tg} / ${all.length}${tab==="pal"?"　伙伴卡要在战斗里抓敌人获得":""}</small></div><div class="tabs">${Object.entries(tabs).map(([k,v])=>`<button class="${tab===k?"on":""}" data-t="${k}">${v[0]}</button>`).join("")}<button class="${up?"on":""}" id="cxu" style="margin-left:18px">${up?"升级后":"原版"}</button></div><div class="ovGrid" style="top:150px">${list.map(c=>cardHTML(c,"mid"+(M.got[c.id]?"":" unk"))).join("")}</div><div class="ovFoot"><small class="ovTip">拿到过的牌会亮起来，点卡牌看详细说明</small><button class="btn sm" id="ovX">返回</button></div>`);
+ $$("#ov .tabs button[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;d()});$("#cxu").onclick=()=>{up=!up;d()};$$("#ov .ovGrid .card").forEach((e,i)=>e.onclick=()=>cardInfo(list[i],!M.got[list[i].id]));$("#ovX").onclick=()=>{closeOv();if(S&&$("#top").classList.contains("on"))settings()}};d()}
 
 /* ---------- 对话 ---------- */
 function talk(lines){return new Promise(res=>{const T=$("#talk");let i=0;const L=lines.map(l=>({img:l[0]==="n1"?HI():l[0],who:l[0]==="n1"?HN():l[1],say:l[2],side:l[0]==="n1"?"l":"r"}));
@@ -381,8 +384,7 @@ function clickCard(k){if(busy||!B.myTurn||B.over)return;const c=B.hand.find(x=>x
  if(B.sel&&B.sel.k===k){ // 再点一次
   if(!D.tgt){playCard(c)}else{const al=B.alive();if(al.length===1)playCard(c,al[0]);else hint("点一个敌人")}return}
  B.sel={k};sfx("click");const kw=kwText(c);hint((D.tgt?(B.alive().length===1?"再点一次这张牌，或点敌人":"点一个敌人"):"再点一次打出")+(kw?"　｜　"+kw:""));renderBattle()}
-const KW={"保留":"回合结束时不会被弃掉","消耗":"打出后本场战斗移除","连击":"本回合打出的攻击牌数","易伤":"受到的伤害 +50%","虚弱":"造成的伤害 -25%","荆棘":"被攻击时反弹伤害","敏捷":"每层让护盾 +1","三连":"同家族连出 3 张，效果翻倍"};
-function kwText(c){const t=CARDS[c.id].d(!!c.u);return Object.keys(KW).filter(k=>t.includes(k)).slice(0,2).map(k=>k+"："+KW[k]).join("　")}
+function kwText(c){const t=CARDS[c.id].d(!!c.u);return Object.keys(KW).filter(k=>t.includes(k)).slice(0,2).map(k=>(k==="池"?"奶蛙池":k)+"："+KW[k].split("。")[0]).join("　")}
 function clickEnemy(e){if(e.hp<=0)return;if(B.sel&&!busy){if(B.sel.pot!=null){const i=B.sel.pot;const id=S.pots[i];B.sel=null;hint();S.pots.splice(i,1);POTIONS[id].fx(B,e);afterAction();return}
   const c=B.hand.find(x=>x.k===B.sel.k);if(c){if(CARDS[c.id].tgt)playCard(c,e);else playCard(c);return}}
  const el=$(`.en[data-k="${e.k}"]`);tipAt(el.querySelector(".body"),`<b>${e.n}</b><p>${intentTip(e)}</p>${["str","vuln","weak","mud","burn"].filter(k=>e[k]).map(k=>`<p>${STAT[k].n} ${e[k]}：${STAT[k].d}</p>`).join("")}`)}
@@ -581,6 +583,25 @@ async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=cu
 const SPELLC={arc:["#b07cff","#efe2ff"],fire:["#ff6a2a","#ffd27a"],ice:["#6fd3ff","#e8fbff"],thunder:["#ffe14a","#fff8c8"]};
 function castRing(){const el=$("#player .body");if(!el)return;const c=center(el);const d=document.createElement("div");d.className="castRing";d.style.left=c.x+"px";d.style.top=(c.y+(c.y-c.top)*.8)+"px";$("#fx").appendChild(d);setTimeout(()=>d.remove(),700)}
 function spellFx(t,k){try{const C=SPELLC[k]||SPELLC.arc;const from=$("#player .body"),to=enEl(t);if(!from||!to)return;const a=center(from),b=center(to.querySelector(".body")||to);const o=document.createElement("div");o.className="spellOrb sp-"+k;o.style.setProperty("--c1",C[0]);o.style.setProperty("--c2",C[1]);o.style.left=(a.x+40)+"px";o.style.top=(a.top+40)+"px";$("#fx").appendChild(o);requestAnimationFrame(()=>{o.style.transform=`translate(${b.x-a.x-40}px,${(b.top+60)-(a.top+40)}px) scale(1.3)`});setTimeout(()=>{o.remove();sparks(b.x,b.top+70,C[0],14);const s=document.createElement("div");s.className="spellHit sp-"+k;s.style.setProperty("--c1",C[0]);s.style.left=b.x+"px";s.style.top=(b.top+70)+"px";$("#fx").appendChild(s);setTimeout(()=>s.remove(),450)},260)}catch(e){}}
+const KW={消耗:"打出后这场战斗里就拿掉了，不进弃牌堆。",虚无:"回合结束时还在手里，就会被消耗掉。",保留:"回合结束时不会被弃掉，留到下回合。",护盾:"先替你挡伤害。通常每回合开始清空，骑士奶蛙只掉一半。",力气:"每层让攻击伤害 +1。“本回合力气”到回合结束就没了。",敏捷:"每层让获得的护盾 +1。",易伤:"受到的伤害 +50%。每回合 -1 层。",虚弱:"造成的伤害 -25%。每回合 -1 层。",泥巴:"身上的泥巴：回合开始扣等量生命，然后 -1。池子里的泥巴会把同家族隔开。",烫伤:"回合开始扣等量生命，然后 -1。",荆棘:"被攻击时，对攻击者造成等量伤害。",反弹:"被攻击时，对攻击者造成等量伤害。",奶力:"打牌要花的能量，每回合开始恢复到 3 点。",连击:"这回合已经打出过的攻击牌数量，每回合清零。",池:"奶蛙池：打出家族牌会放一只进去，3 只同家族挨在一起就消除，触发家族爆发；消除后又凑成三连叫连锁，每次连锁多给 1 点奶力。",彩虹奶蛙:"万能的奶蛙，可以当任何家族凑三连。",法术:"魔法师的攻击。无视敌人护盾，伤害加魔力，不吃力气和虚弱。",魔力:"每层让法术伤害 +1。魔法师回合结束时，没用完的奶力会变成魔力。",伙伴:"在战斗里把血量打到很低的敌人抓住，它就会变成伙伴卡。",抽:"从抽牌堆拿牌到手里，手牌最多 10 张。",经验:"攒够了会升级，升级时选一个天赋。",天赋:"升级时选的被动能力，这一局一直有效。"};
+const FAMINFO={frog:"奶蛙家族：乱拳型。三连爆发：随机乱拳 9 下，每下 3 伤害。下雨时奶蛙牌伤害 +2。",horse:"奶马家族：速攻群伤。三连爆发：所有敌人各受 5 伤害。刮风时奶马牌伤害 +3。",chick:"奶鸡家族：护盾防守。三连爆发：获得 6 护盾。下雪时奶鸡牌护盾 +3。",cat:"奶猫家族：回复和抽牌。三连爆发：回复 3 生命，抽 1 张。起雾时每回合第一张奶猫牌多抽 1 张。",pal:"伙伴：抓来的敌人。三连爆发：随机打一个敌人 8 伤害。",none:"通用牌：不属于任何家族，不进奶蛙池，不触发三连。"};
+const TYPEINFO={atk:"攻击牌：打敌人。打出会让连击 +1。",skl:"技能牌：护盾、回复、抽牌等。",pow:"能力牌：打出后整场战斗一直生效。",cur:"诅咒：坏牌，通常不能打出，占手牌位置。",sts:"状态：战斗里临时塞进来的牌。"};
+const RARN={S:"起始",C:"普通",R:"稀有",E:"史诗",L:"传说",X:"特殊",P:"伙伴",T:"临时",K:"诅咒"};
+const HERON={naiwa:"奶蛙",kungfu:"功夫奶蛙",knight:"骑士奶蛙",mage:"奶蛙魔法师"};
+function cardInfo(c,locked){closeCardInfo();const D=CARDS[c.id];if(!D)return;sfx("click");
+ const strip=s=>String(s).replace(/<[^>]+>/g,"");const t0=strip(D.d(0)),t1=strip(D.d(1));const txt=t0+t1+(D.exh?"消耗":"")+(D.eth?"虚无":"")+(D.ret?"保留":"")+(D.spell?"法术":"")+(D.fam==="pal"?"伙伴":"");
+ const kws=Object.keys(KW).filter(k=>txt.includes(k)||(k==="池"&&/池/.test(txt)));const fam=FAM[D.fam]||FAM.none;
+ const d=document.createElement("div");d.id="cinfo";d.innerHTML=`<div class="ciBox"><button class="ciX" aria-label="关闭">×</button><div class="ciCard">${cardHTML({id:c.id,u:c.u,k:"ci"},"big"+(locked?" unk":""))}</div><div class="ciTxt">${locked?`<h3>？？？</h3><p class="ciLock">还没收集到这张牌。拿到一次以后，这里会亮起来。</p><div class="ciFam" style="--fc:${fam.c}"><b>${fam.n==="无"?"通用":fam.n}</b>${FAMINFO[D.fam]||FAMINFO.none}</div>`:`<h3>${D.n}${c.u?"+":""}</h3><div class="ciTags"><span>${(TYPE[D.type]||{}).n||""}</span><span>${RARN[D.r]||D.r}</span>${D.hero?`<span>${HERON[D.hero]||""}专属</span>`:""}<span>${D.cost===-1?"X":D.cost<0?"不能打出":D.cost+" 费"}</span></div><p class="ciD"><b>效果</b>${t0}</p><p class="ciD up"><b>升级后</b>${t1}</p><p class="ciType">${TYPEINFO[D.type]||""}</p><div class="ciFam" style="--fc:${fam.c}"><b>${fam.n==="无"?"通用":fam.n}</b>${FAMINFO[D.fam]||FAMINFO.none}${D.spell?"<br>这是一张法术牌：无视敌人护盾，伤害加魔力。":""}</div>${kws.length?`<div class="ciKw">${kws.map(k=>`<p><b>${k==="池"?"奶蛙池":k}</b>${KW[k]}</p>`).join("")}</div>`:""}`}<small class="ciHint">点空白处或右上角关闭</small></div></div>`;
+ $("#stage").appendChild(d);d.onclick=e=>{if(e.target===d||e.target.closest(".ciX"))closeCardInfo()};}
+function closeCardInfo(){$$("#cinfo").forEach(x=>x.remove())}
+addEventListener("keydown",e=>{if(e.key==="Escape")closeCardInfo()});
+/* 长按任何卡牌：看说明（不会触发出牌） */
+{let lpT=0,lpX=0,lpY=0,lpSkip=0;
+ addEventListener("pointerdown",e=>{const el=e.target.closest&&e.target.closest(".card[data-id]");if(!el||el.closest("#cinfo"))return;lpX=e.clientX;lpY=e.clientY;clearTimeout(lpT);lpT=setTimeout(()=>{lpSkip=Date.now();cardInfo({id:el.dataset.id,u:+el.dataset.u},el.classList.contains("unk"))},480)},true);
+ addEventListener("pointermove",e=>{if(Math.abs(e.clientX-lpX)+Math.abs(e.clientY-lpY)>14)clearTimeout(lpT)},true);
+ ["pointerup","pointercancel"].forEach(ev=>addEventListener(ev,()=>clearTimeout(lpT),true));
+ addEventListener("click",e=>{if(Date.now()-lpSkip<700){lpSkip=0;e.stopPropagation();e.preventDefault()}},true);
+ addEventListener("contextmenu",e=>{const el=e.target.closest&&e.target.closest(".card[data-id]");if(el){e.preventDefault();cardInfo({id:el.dataset.id,u:+el.dataset.u},el.classList.contains("unk"))}},true)}
 function findRun(P,need){for(let i=0;i<P.length;i++){let f=null,j=i;while(j<P.length){const t=P[j];if(t.ice&&!has("warmscarf"))break;if(t.f==="any"){if(f==="mud")break;j++;continue}if(f===null){if(t.f==="mud"&&j>i)break;f=t.f;j++;continue}if(t.f===f){j++;continue}break}
   const n=j-i;if(n>=need&&!(f==="mud"&&P.slice(i,j).some(x=>x.f==="any")))return{i,n,f:f||"any"}}return null}
 function chainBanner(lv){const d=document.createElement("div");d.className="triBan chain";d.innerHTML=`<b>${["","","二","三","四","五","六"][Math.min(lv,6)]}连锁！</b><small>爆发 ×${lv}，奶力 +1</small>`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),1200);sparks(640,260,"#f7c948",36);stageShake()}
