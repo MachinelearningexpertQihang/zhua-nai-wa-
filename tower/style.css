@@ -1187,3 +1187,62 @@ img{-webkit-user-drag:none;pointer-events:none}
 .yardBtn em svg,.yardBtn em .ico{width:15px;height:15px}
 .yardBtn:hover{background:var(--p5k);color:var(--p5w)}
 #title .zsBtn{top:66px}
+
+/* 成就弹窗挪到右下角，不压住内容 */
+.achPop{left:auto;right:24px;top:auto;bottom:24px;transform:skewX(-10deg)}
+.achPop.out{transform:skewX(-10deg) translateY(30px)}
+@keyframes achIn{from{transform:skewX(-10deg) translateX(60px);opacity:0}}
+
+/* ---------- 地图：P5 边框，路线不动 ---------- */
+.bgmap{background:repeating-linear-gradient(-30deg,#c8141a 0 22px,#b30f14 22px 44px)}
+.parch{border-radius:0;border:5px solid var(--p5k);box-shadow:inset 0 0 0 6px #f8e9c8,12px 12px 0 var(--p5k);transform:rotate(-.6deg)}
+.parch::after{border-radius:0}
+.mapHead .ribbon{font-size:24px}
+.legend{border-radius:0;background:var(--p5k);color:var(--p5w);border:3px solid var(--p5w);box-shadow:6px 6px 0 var(--p5r);transform:skewX(-8deg);font-family:'NW Black'}
+.legend span{transform:skewX(8deg)}
+.mn{border-radius:0!important;transform:rotate(45deg);border-color:var(--p5k)!important}
+.mn>*{transform:rotate(-45deg)}
+.mn.av{box-shadow:0 0 0 4px var(--p5w),0 0 0 8px var(--p5r)!important}
+.mn.boss{border-radius:50%!important;transform:none;background:var(--p5k)!important;box-shadow:0 0 0 5px var(--p5w),10px 10px 0 5px var(--p5r)!important}
+.mn.boss>*{transform:none}
+.mn.boss b{background:var(--p5r);color:var(--p5w);border-radius:0;transform:skewX(-12deg);font-family:'NW Black';box-shadow:4px 4px 0 var(--p5k)}
+/* 守关首领：剪影 */
+.mn.t-K{width:88px;height:88px;margin:-44px 0 0 -44px;background:var(--p5k)!important;box-shadow:0 0 0 4px var(--p5w),7px 7px 0 4px var(--p5r)!important}
+.mn.t-K img.sil{width:118px;height:118px;object-fit:contain;filter:brightness(0) drop-shadow(0 0 2px #fff) drop-shadow(0 0 6px var(--p5r));margin-top:-16px}
+.mn.t-K b{position:absolute;bottom:-30px;font:900 15px 'NW Black';color:var(--p5w);background:var(--p5r);padding:1px 10px;white-space:nowrap;box-shadow:3px 3px 0 var(--p5k)}
+.skyCol{filter:drop-shadow(3px 3px 0 var(--p5k))}
+
+/* ---------- 战斗：P5 元素，布局不动 ---------- */
+#top{background:var(--p5k);border-bottom:4px solid var(--p5r);box-shadow:0 4px 0 var(--p5w)}
+#top .face{border-radius:0;transform:rotate(-6deg);border-color:var(--p5w);background:var(--p5r)}
+#top .floor b{border-radius:0;background:var(--p5r);color:var(--p5w);border-color:var(--p5w);transform:skewX(-12deg);font-family:'NW Black'}
+#top .floor{color:#fff;font-family:'NW Black'}
+#endBtn{border-radius:0;background:var(--p5r);border:4px solid var(--p5k);box-shadow:7px 7px 0 var(--p5k),0 0 0 3px var(--p5w);transform:skewX(-12deg) rotate(-2deg);font-family:'NW Black';font-weight:900;letter-spacing:4px;text-shadow:none;-webkit-text-stroke:0;color:var(--p5w)}
+#endBtn:hover{background:var(--p5k)}
+#endBtn:active{transform:skewX(-12deg) rotate(-2deg) translateY(4px);box-shadow:3px 3px 0 var(--p5k)}
+#energy{border-color:var(--p5w);box-shadow:0 0 0 4px var(--p5k),8px 8px 0 4px var(--p5r)}
+#energyLbl{font-family:'NW Black';background:var(--p5k);color:var(--p5w);padding:0 8px;transform:skewX(-12deg)}
+.pile .back{border-radius:0!important;border-color:var(--p5w)!important;background:repeating-linear-gradient(-45deg,var(--p5k) 0 6px,#2a2a2a 6px 12px)!important;box-shadow:5px 5px 0 var(--p5r)!important}
+.pile b{border-radius:0!important;background:var(--p5r)!important;color:#fff!important}
+.pile i{font-family:'NW Black';font-style:normal}
+#pool{border-radius:0;background:var(--p5k);border:3px solid var(--p5w);box-shadow:6px 6px 0 var(--p5r);transform:translateX(-50%) skewX(-6deg)}
+#pool>*{transform:skewX(6deg)}
+.hpbar{border-radius:0;border-color:var(--p5k);transform:skewX(-14deg);box-shadow:3px 3px 0 var(--p5k)}
+.hpbar i{background:linear-gradient(#ff5a5e 0 45%,var(--p5r) 45%)}
+.intent{border-radius:0;background:var(--p5w);border-color:var(--p5k);box-shadow:4px 4px 0 var(--p5r);transform:skewX(-10deg)}
+.intent>*{transform:skewX(10deg)}
+.ename{border-radius:0!important;font-family:'NW Black';background:var(--p5k)!important;color:var(--p5w)!important;transform:skewX(-10deg)}
+.en.bossEn .ename{background:var(--p5r)!important;box-shadow:4px 4px 0 var(--p5k)}
+.btrait{border-radius:0;background:var(--p5w);color:var(--p5k);border-color:var(--p5k);font-family:'NW Black';transform:skewX(-10deg)}
+.eCnt{border-radius:0;background:var(--p5k);color:var(--p5w);transform:skewX(-10deg)}
+#hint{border-radius:0;background:var(--p5k);color:var(--p5w);border:2px solid var(--p5w);transform:translateX(-50%) skewX(-10deg);box-shadow:4px 4px 0 var(--p5r);font-family:'NW Black'}
+.skyPill{border-radius:0!important;transform:skewX(-10deg);box-shadow:3px 3px 0 var(--p5k)}
+.fnum{-webkit-text-stroke-color:var(--p5k)}
+.ono{-webkit-text-stroke-color:var(--p5k);font-family:'NW Black';font-weight:900}
+.ono.big{color:var(--p5r);text-shadow:5px 5px 0 var(--p5w)}
+#comboCt b{font-family:'NW Black';color:var(--p5r);-webkit-text-stroke-color:var(--p5k);text-shadow:6px 6px 0 var(--p5w)}
+#comboCt small{font-family:'NW Black'}
+.triBan b,.triBan{font-family:'NW Black'}
+#energy{background:var(--p5k)!important}
+#energy i,#energy .liq{background:linear-gradient(#ff4549,var(--p5r))!important}
+#energy b{font-family:'NW Black';color:var(--p5w);-webkit-text-stroke:0;text-shadow:3px 3px 0 var(--p5k)}
