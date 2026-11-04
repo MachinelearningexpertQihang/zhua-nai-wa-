@@ -98,7 +98,26 @@ function inkTitleSVG(){
  <g fill="#0a0910"><ellipse cx="194" cy="586" rx="4" ry="11"/><ellipse cx="238" cy="616" rx="4" ry="11"/><ellipse cx="1068" cy="606" rx="4" ry="11"/></g>
  <rect width="1280" height="720" filter="url(#ik_grain)"/>
  <rect width="1280" height="720" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="120" filter="url(#ik_soft)"/></svg>`}
-function sceneSVG(kind,moon){if(kind==="title")return inkTitleSVG();const P=PAL[kind]||PAL.swamp,I=INK;
+function p5TitleSVG(){
+ let rays="";for(let i=0;i<18;i++){const a0=i*20,a1=a0+9;const r=1600,cx=980,cy=300;const p=(a)=>`${cx+r*Math.cos(a*Math.PI/180)} ${cy+r*Math.sin(a*Math.PI/180)}`;rays+=`<path d="M${cx} ${cy} L${p(a0)} L${p(a1)} Z"/>`}
+ let shards="";[[120,90,40],[300,620,-20],[1180,120,30],[620,40,10],[860,660,-35],[40,420,60]].forEach(([x,y,r],i)=>shards+=`<path transform="translate(${x} ${y}) rotate(${r})" d="M0 0 L${60+i*10} -8 L${46+i*8} 14 Z" fill="${i%2?"#fff":"#0d0d0d"}" class="tw" style="animation-delay:${i*.5}s"/>`);
+ return `<svg class="scene p5Scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice"><defs>
+ <pattern id="p5dot" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="4" cy="4" r="2.6" fill="#0d0d0d"/></pattern>
+ <pattern id="p5dotW" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3" cy="3" r="1.8" fill="#fff" opacity=".18"/></pattern>
+ <linearGradient id="p5fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="1"/><stop offset=".55" stop-color="#000" stop-opacity="0"/></linearGradient>
+ <mask id="p5m"><rect width="1280" height="720" fill="url(#p5fade)"/></mask></defs>
+ <rect width="1280" height="720" fill="#d8141a"/>
+ <g fill="#b80f14" class="p5rays">${rays}</g>
+ <rect width="1280" height="720" fill="url(#p5dot)" opacity=".22" mask="url(#p5m)"/>
+ <circle cx="980" cy="300" r="190" fill="#0d0d0d"/><circle cx="980" cy="300" r="172" fill="#fff"/><circle cx="1010" cy="276" r="172" fill="#d8141a"/>
+ <path d="M0 0 H560 L380 720 H0 Z" fill="#0d0d0d"/>
+ <path d="M560 0 L590 0 L410 720 L380 720 Z" fill="#fff"/>
+ <rect x="0" y="0" width="580" height="720" fill="url(#p5dotW)"/>
+ <g fill="#0d0d0d"><path d="M770 720 L800 430 L790 430 L812 360 L834 430 L824 430 L854 720 Z"/><path d="M752 720 L790 520 L834 520 L872 720 Z"/></g>
+ <g fill="#ffd84a"><rect x="808" y="460" width="8" height="14"/><rect x="806" y="560" width="8" height="14"/></g>
+ <path d="M380 720 L1280 560 L1280 720 Z" fill="#0d0d0d"/>
+ ${shards}</svg>`}
+function sceneSVG(kind,moon){if(kind==="title")return p5TitleSVG();const P=PAL[kind]||PAL.swamp,I=INK;
  const mx={factory:1060,pipes:220,bossfac:640,snowfield:1000,belltower:220,bellE:1060,bossice:640,demon:640,castle:1040,gate:200,boss1:1030,cosmos:980,summit:640,boss2:640,swamp:1040,reed:640,ruin:300,elite:1000,boss:640,title:760,rest:1060,event:980,shop:1100}[kind]||1000,mr={bossfac:120,bossice:120,demon:150,boss:96,title:84,reed:84,boss1:110,boss2:120,summit:70}[kind]||56,my={bossfac:170,bossice:170,demon:190,boss:150,reed:200,boss1:140,boss2:170}[kind]||118;
  let stars="";for(let i=0;i<56;i++){const x=(i*277)%1280,y=(i*131)%340,r=i%7===0?2.4:1.2;stars+=`<circle class="${i%3?"":"tw"}" style="animation-delay:${i%5*.6}s" cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${.35+(i%4)*.18}"/>`}
  const cloud=(x,y,s,o)=>`<g class="cloud" style="animation-duration:${60+s*30}s"><g transform="translate(${x} ${y}) scale(${s})" fill="#fff" opacity="${o}"><ellipse cx="0" cy="0" rx="60" ry="16"/><ellipse cx="-20" cy="-12" rx="28" ry="18"/><ellipse cx="18" cy="-16" rx="34" ry="22"/></g></g>`;

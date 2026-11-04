@@ -7,7 +7,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms*.72));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S=null,B=null,busy=false;
 let M={wins:0,runs:0,shards:0,tale:0,best:0,seen:{}};
-try{Object.assign(M,JSON.parse(localStorage.getItem("nwt-meta")||"{}"))}catch(e){}
+try{Object.assign(M,JSON.parse(localStorage.getItem("nwt-meta")||"{}"))}catch(e){}if(typeof M.pals!=="object"||!M.pals){M.palN=typeof M.pals==="number"?M.pals:0;M.pals={}}
 const saveMeta=()=>{M.t=Date.now();try{localStorage.setItem("nwt-meta",JSON.stringify(M))}catch(e){}if(window.CLOUD)CLOUD.mark()};
 const saveRun=()=>{if(window.CLOUD)CLOUD.mark();try{if(S)localStorage.setItem("nwt-run",JSON.stringify(S));else localStorage.removeItem("nwt-run")}catch(e){}};
 const loadRun=()=>{try{const s=JSON.parse(localStorage.getItem("nwt-run")||"null");return s&&s.v===2?s:null}catch(e){return null}};
@@ -55,7 +55,9 @@ function toast(h){const d=document.createElement("div");d.innerHTML=h;$("#toast"
 function show(id){$$(".scr").forEach(s=>s.classList.toggle("on",s.id===id));$("#stage").classList.toggle("inBattle",id==="battle");$("#top").classList.toggle("on",!!S&&!["title","heroSel","ending","none"].includes(id));closeTip()}
 function setBg(kind,moon){const b=$("#bg");const fl=[...Array(7)].map((_,i)=>`<i class="ffly" style="left:${8+i*13}%;bottom:${10+(i*37)%24}%;animation-delay:${i*.9}s"></i>`).join("");
  if(kind==="map"){b.className="bgmap";b.innerHTML=`<div class="parch"></div>`;return}
+ const im=BGIMG[kind];if(im){b.className="photoBg";b.innerHTML=`<div class="bgPhoto" style="background-image:url(bg/${im}.jpg)"></div><div class="bgGrade"></div>`+fl;return}
  b.className="";b.innerHTML=sceneSVG(kind,moon)+(kind==="shop"?"":fl)}
+const BGIMG={swamp:"forest",reed:"forest",elite:"forest",ruin:"swamp",boss:"swamp",castle:"castle",gate:"gate",boss1:"gate",snowfield:"ice",belltower:"ice",bellE:"ice",bossice:"ice",factory:"gears",pipes:"gears",bossfac:"lava",cosmos:"sky",summit:"sky",boss2:"void",demon:"void",event:"temple"};
 function closeTip(){$$(".tipBox").forEach(t=>t.remove())}
 function tipAt(el,html){closeTip();const r=rectIn(el),d=document.createElement("div");d.className="tipBox";d.innerHTML=html;$("#stage").appendChild(d);
  let x=r.x+r.w/2-130,y=r.y+r.h+8;x=Math.max(10,Math.min(1010,x));if(y>560)y=r.y-d.offsetHeight-8;d.style.left=x+"px";d.style.top=y+"px";setTimeout(()=>addEventListener("pointerdown",closeTip,{once:true}),10)}
@@ -161,7 +163,7 @@ function yardScreen(){
  $("#ydB").innerHTML=`<div class="upGrid">${META.map(u=>{const l=mlv(u.id),mx=l>=u.max,c=mx?0:u.cost(l);return`<div class="upItem ${mx?"max":""}"><div class="uiH"><b>${u.n}</b><span>${"●".repeat(l)}${"○".repeat(u.max-l)}</span></div><p>${u.d(Math.max(1,l))}</p><button class="uiBuy" data-id="${u.id}" ${mx||(M.shards||0)<c?"disabled":""}>${mx?"已满":`${ICON.star}${c}`}</button></div>`}).join("")}</div>`;
  $$(".uiBuy").forEach(b=>b.onclick=()=>{const u=META.find(x=>x.id===b.dataset.id),l=mlv(u.id),c=u.cost(l);if(l>=u.max||(M.shards||0)<c)return;M.shards-=c;M.up=M.up||{};M.up[u.id]=l+1;saveMeta();sfx("relic");yardScreen()})}
 function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("title");const sv=loadRun();
- $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map(c=>`<span data-c="${c}">${c}</span>`).join("")}</h1><div class="tsub"><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div></div>
+ $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map((c,i)=>`<span class="rn rn${i}" data-c="${c}">${c}</span>`).join("")}</h1><div class="tsub"><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div></div>
  <div class="tmenu">${sv?(()=>{const H=HEROES.find(h=>h.id===sv.hero)||HEROES[0],a=sv.act||0,stp=sv.atBoss?"首领":(sv.row>=0?`第 ${sv.row+1}/${ROWS} 步`:"入口");return`<div class="saveWrap"><button class="saveCard" id="tCont"><div class="svPic"><img src="${IMG(H.img)}" alt=""></div><div class="svInfo"><div class="svT"><b>回到塔里</b><span>${H.n}</span></div><div class="svL">第${"一二三四五"[a]||a+1}层 · ${ACTS[a]?ACTS[a].n:""}　${stp}</div><div class="svS"><span>${ICON.heart}${sv.hp}/${sv.max}</span><span>${ICON.deck}${(sv.deck||[]).length} 张</span><span>${ICON.coin}${sv.gold||0}</span><span>第 ${(sv.asc||0)+1} 周目</span></div></div><i class="svGo">▶</i></button><button class="newLink" id="tNew">重新开始</button></div>`})():`<button class="gbtn" id="tNew"><i class="pl"></i><b>开始冒险</b></button>`}<div class="sub"><button class="gbtn sm" id="tCodex"><b>卡牌图鉴</b></button><button class="gbtn sm" id="tBoss"><b>首领图鉴</b></button><button class="gbtn sm" id="tYard"><b>长老的小院${(()=>{const n=META.filter(u=>mlv(u.id)<u.max&&(M.shards||0)>=u.cost(mlv(u.id))).length;return n?`<i class="dot"></i>`:""})()}</b></button><button class="gbtn sm" id="tAch"><b>成就</b></button><button class="gbtn sm" id="tSet"><b>${A.music?"♪ 音乐开":"♪ 音乐关"}</b></button></div></div>
  <div class="tknight"><img src="${IMG("kn")}"></div><div class="thero"><img src="${IMG(HI())}"><i class="plat"></i></div>
  ${window.toy?"":`<button class="zsBtn" id="zsBtn"><img src="zanshang.jpg" alt=""><span>赞赏作者</span></button>`}<div class="cloudSt" id="cloudSt">${CLOUD.txt()}</div><div class="tmeta"><span>通关 <b>${M.wins}</b> 次</span><span>成就 <b>${ACH.filter(a=>(M.ach||{})[a.id]).length}/${ACH.length}</b></span></div>`;
@@ -494,14 +496,15 @@ if((ENEMY[t.id].flee||t.timid)&&t.hp>0&&t.hp<=t.max/2){t.fled=1;t.hp=0;if(t.timi
   setTimeout(()=>{if(el)bubble(el,"泥巴们，起来！");for(let j=0;j<2;j++){if(B.alive().length>=4)break;const m=mkEnemy("mudling",j);m.intent=ENEMY.mudling.ai(m,0);B.enemies.unshift(m)}renderBattle()},400)}
  if(t.hp<=0)killEnemy(t)}
 function canCatch(e){if(!e)return false;const E=ENEMY[e.id];return!!B&&B.myTurn&&!busy&&e.hp>0&&!e.fled&&!E.boss&&E.pal&&B.catchLeft>0&&e.hp<=Math.ceil(e.max*.35)}
-async function catchEnemy(e){if(!canCatch(e))return;const cc=S.mod==="pal"?0:1;if(B.p.energy<cc){toast("抓它需要 1 点奶力");shakeEl($("#energy"));return}
+async function catchEnemy(e){try{await catchEnemy0(e)}catch(err){console.log("catch err",err)}finally{busy=false;try{afterAction()}catch(x){}}}
+async function catchEnemy0(e){if(!canCatch(e))return;const cc=S.mod==="pal"?0:1;if(B.p.energy<cc){toast("抓它需要 1 点奶力");shakeEl($("#energy"));return}
  busy=true;B.p.energy-=cc;B.catchLeft--;const el=enEl(e);const c=center(el.querySelector(".body"));
  const n=document.createElement("div");n.className="netFx";n.innerHTML=ICON.net;n.style.left=c.x+"px";n.style.top=c.y+"px";$("#fx").appendChild(n);sfx("buff");
  await sleep(500);e.hp=0;e.caught=1;el.classList.add("caught");n.remove();sparks(c.x,c.y,"#b392ff",18);sfx("relic");
- const pal=ENEMY[e.id].pal;B.caught.push(pal);S.stats.caught++;if(S.stats.caught>=5)ach("pals5");M.pals=(M.pals||0)+1;if(M.pals>=20)ach("pals");M.pals=M.pals||{};M.pals[pal]=1;seeCard(pal);saveMeta();
+ const pal=ENEMY[e.id].pal;B.caught.push(pal);S.stats.caught++;if(S.stats.caught>=5)ach("pals5");M.palN=(M.palN||0)+1;if(M.palN>=20)ach("pals");if(typeof M.pals!=="object"||!M.pals)M.pals={};M.pals[pal]=1;seeCard(pal);saveMeta();
  if(e.stolen){S.gold+=e.stolen;toast(`拿回了 <b>${e.stolen}</b> 金币`);e.stolen=0}
  toast(`抓到了 <b>${e.n}</b>！战斗结束后，伙伴卡「${CARDS[pal].n}」会加入牌组`);
- await sleep(500);busy=false;afterAction()}
+ await sleep(500)}
 function killEnemy(t){S.stats.kills++;if(ENEMY[t.id].boss&&!t.guard)S.stats.endb=(S.stats.endb||0)+1;if(ENEMY[t.id].boss)S.stats.bosses=(S.stats.bosses||0)+1;M.kills=(M.kills||0)+1;if(M.kills>=100)ach("kill100");if(M.kills>=1000)ach("kill1000");if(t.id==="demon")ach("demon");if(t.guard)ach("guard");if(t.id==="mimic")ach("mimic");if(t.id==="goldfrog")ach("goldfrog");if(has("vampfang"))S.hp=Math.min(S.max,S.hp+4);if(ENEMY[t.id].boss&&BOSS_LORE[t.id]){M.boss=M.boss||{};const r=M.boss[t.id]=M.boss[t.id]||{};r.k=(r.k||0)+1;saveMeta();if(Object.keys(BOSS_LORE).every(k=>(M.boss[k]||{}).k))ach("allboss")}if(has("pearlbag"))B.extraGold+=8;if(t.af==="rich"){B.extraGold+=60;toast("富有的敌人掉了 <b>60</b> 金币")}if(t.af==="glitter")B.shinyLoot=1;if(t.id==="goldfrog"){B.goldKill=1;toast("打倒了<b>金色奶蛙</b>！金币哗啦啦地掉了一地")}B.alive().forEach(a=>{if(a.af==="vengeful"&&a!==t){a.str+=3;const el2=enEl(a);if(el2)say(el2.querySelector(".body"),"你竟敢！（力气 +3）")}});if(rnd()<.3)setTimeout(()=>heroSay(pick(HERO_LINE.kill)),500);if(t.stolen){S.gold+=t.stolen;toast(`抢回了 <b>${t.stolen}</b> 金币`);t.stolen=0}
  if(has("cape")){relicPulse("cape");setTimeout(()=>B&&B.heal(3),300)}
  if(t.id==="king")B.enemies.forEach(e=>{if(e.hp>0){e.hp=0}})}
@@ -580,6 +583,8 @@ async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;busy=true;B.myTur
   if(e.id==="snowking"){e.str=(e.str||0)+1;e.grow=(e.grow||0)+1;const el=enEl(e);if(el){const bd=el.querySelector(".body");bd.style.transform=`scale(${Math.min(1.35,1+e.grow*.04)})`;bd.style.transformOrigin="50% 100%"}}
   if(e.id==="iceking"){const l=B.pool.filter(x=>!x.ice&&x.f!=="mud");if(l.length){pick(l).ice=2;renderPool()}}
   if(e.id==="buddha"&&e.stunCD>0)e.stunCD--;
+  if(e.id==="timefrog"&&e.turn%3===2){const back=B.disc.splice(-2,2);B.dp.push(...back);say(enEl(e).querySelector(".body"),"时间倒流");toast(`${e.n}拨回了时钟：${back.length} 张牌回到抽牌堆`);await enemyAct(e);renderBattle();await sleep(300)}
+  if(e.id==="plague"){B.apply(B.p,"mud",2);await sleep(200)}
   if(e.id==="fallen"){e.mode=e.mode==="holy"?"dark":"holy";const el=enEl(e);if(e.mode==="holy"){e.hp=Math.min(e.max,e.hp+Math.round(e.max*.06));B.apply(B.p,"weak",1);if(el)say(el.querySelector(".body"),"愿你平安")}else{e.str=(e.str||0)+2;if(el)say(el.querySelector(".body"),"（翅膀张开了）")}renderBattle();await sleep(250)}
   if(e.id==="thunderking"){lightning();dmgPlayer(5,null,true);toast("落雷：受到 <b>5</b> 伤害");renderBattle();await sleep(350);if(S.hp<=0)return lose()}
   if(e.id==="abyssdragon"&&B.disc.length){const c=B.disc.pop();B.exh.push(c);e.hp=Math.min(e.max,e.hp+6);toast(`${e.n}吞掉了你的「${cname(c)}」`);renderBattle();await sleep(250)}
@@ -1062,5 +1067,11 @@ function eventScreen(){show("event");setBg("event");playMusic("space");
 
 /* ===================== 启动 ===================== */
 $("#stage").addEventListener("scroll",e=>{e.target.scrollTop=0;e.target.scrollLeft=0});
-fit();titleScreen();CLOUD.init().then(()=>{const c=$("#cloudSt");if(c)c.textContent=CLOUD.txt()});
+fit();titleScreen();
+/* 防卡死：任何报错都不该让游戏永远停住 */
+let busySince=0;setInterval(()=>{if(!busy){busySince=0;return}if(!busySince){busySince=Date.now();return}
+ const talking=$("#talk").classList.contains("on")||$("#ov").classList.contains("on");
+ if(!talking&&Date.now()-busySince>8000){busy=false;busySince=0;try{if(B&&!B.over){if(!B.alive().length)win();else{B.myTurn=true;$("#endBtn").classList.remove("wait");renderBattle()}}}catch(e){}}},1000);
+addEventListener("error",()=>{setTimeout(()=>{if(busy&&!$("#talk").classList.contains("on")&&!$("#ov").classList.contains("on")){busy=false;try{if(B&&!B.over&&!B.alive().length)win();else if(B&&!B.over){B.myTurn=true;renderBattle()}}catch(e){}}},1500)});
+addEventListener("unhandledrejection",()=>{setTimeout(()=>{if(busy&&!$("#talk").classList.contains("on")&&!$("#ov").classList.contains("on")){busy=false;try{if(B&&!B.over&&!B.alive().length)win();else if(B&&!B.over){B.myTurn=true;renderBattle()}}catch(e){}}},1500)});CLOUD.init().then(()=>{const c=$("#cloudSt");if(c)c.textContent=CLOUD.txt()});
 window.__dbg={get S(){return S},get B(){return B},startCombat,openMap,enterNode,newRun,win:()=>{B.enemies.forEach(e=>e.hp=0);afterAction()},CARDS};
