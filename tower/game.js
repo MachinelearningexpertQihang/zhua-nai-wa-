@@ -231,13 +231,13 @@ function openMap(){B=null;show("map");setBg("map");renderTop();playMusic("swing"
  svg.innerHTML=p;let h="";
  for(const row of S.map)for(const n of row){if(!n)continue;const T=NODE[n.t];const isAv=Array.isArray(av)&&av.includes(n);const vis=S.path.some(q=>q[0]===n.r&&q[1]===n.c);const past=!isAv&&n.r<=S.row&&!vis;
   h+=`<div class="mn t-${n.t} ${isAv?"av":""} ${vis?"visited":""} ${past?"past":""} ${S.row===n.r&&S.col===n.c?"cur":""}" data-r="${n.r}" data-c="${n.c}" style="left:${mx(n.r)+n.jx}px;top:${my(n.c)+n.jy}px">${n.t==="K"&&S.guard&&ENEMY[S.guard]?`<img class="sil" src="${IMG(ENEMY[S.guard].img)}"><b>？？？</b>`:T.ic?`<img src="${IMG(T.ic)}">`:ICON[T.e]}</div>`}
- h+=`<div class="mn boss ${av==="boss"?"av":""}" id="bossNode" style="left:1180px;top:400px"><img src="${IMG(ENEMY[curBoss()].img)}"><b>${ENEMY[curBoss()].n}</b></div>`;
+ h+=`<div class="mn boss ${av==="boss"?"av":""}" id="bossNode" style="left:1180px;top:400px"><img class="sil" src="${IMG(ENEMY[curBoss()].img)}"><b>？？？</b></div>`;
  for(let r=0;r<=ROWS;r++){const k=S.sky[r];h+=`<div class="skyCol ${r===S.row+1?"nx":""}" data-r="${r}" style="left:${r===ROWS?1180:mx(r)}px">${moonSVG(k.moon)}${WXICON[k.wx]}</div>`}
  h+=`<div class="mapHead"><span class="ribbon">第${"一二三四五"[S.act]}层 · ${actN().n}</span><small>${av==="boss"?"首领就在前面":"选择下一个房间"}</small></div><div class="legend">${Object.values(NODE).map(t=>`<span>${t.ic?`<img src="${IMG(t.ic)}">`:ICON[t.e]}${t.n}</span>`).join("")}</div>`;
  $("#mapNodes").innerHTML=h;$("#map").style.setProperty("--hero",`url(${IMG(HI())})`);
  $$(".mn.av").forEach(e=>e.onclick=()=>{sfx("click");if(e.id==="bossNode"){S.atBoss=true;enterNode("B")}else{const r=+e.dataset.r,c=+e.dataset.c;S.row=r;S.col=c;S.path.push([r,c]);enterNode(S.map[r][c].t)}});
  $$(".skyCol").forEach(e=>e.onclick=()=>{const k=S.sky[+e.dataset.r];tipAt(e,`<b>${MOON[k.moon].n} · ${WX[k.wx].n}</b><p>${MOON[k.moon].d}</p><p>${WX[k.wx].d}</p>`)});
- $("#mapTip").textContent=S.row<0?"往右一路爬到首领，中途要过守关首领。顶上是每一步的月相和天气。":"点顶上的月亮可以查看那一层的月相和天气。"}
+ $("#mapTip").textContent=S.row<0?"往右爬，过守关首领，打最终首领。":"点顶上的月亮可以查看那一层的月相和天气。"}
 
 /* ===================== 进入房间 ===================== */
 function enterNode(t,resumed,cur){S.cur=cur||{t,rs:S.rs};if(resumed&&cur){S.rs=cur.rs;if(cur.snap){S.hp=cur.snap.hp;S.gold=cur.snap.gold;S.pots=[...cur.snap.pots];S.uid=cur.snap.uid}}saveRun();

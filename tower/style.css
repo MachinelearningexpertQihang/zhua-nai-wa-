@@ -1246,3 +1246,6 @@ img{-webkit-user-drag:none;pointer-events:none}
 #energy{background:var(--p5k)!important}
 #energy i,#energy .liq{background:linear-gradient(#ff4549,var(--p5r))!important}
 #energy b{font-family:'NW Black';color:var(--p5w);-webkit-text-stroke:0;text-shadow:3px 3px 0 var(--p5k)}
+
+/* 最终首领：剪影 */
+.mn.boss img.sil{filter:brightness(0) drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--p5r))}
