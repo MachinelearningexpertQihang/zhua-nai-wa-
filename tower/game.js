@@ -1,6 +1,6 @@
 /* ===================== 奶蛙之塔 · 主程序 ===================== */
 "use strict";
-const VER="3.5";
+const VER="3.6";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 /* 图片：把内嵌的 base64 一次性转成 blob 地址，之后每次渲染只传一个短链接，切页面和出牌都快很多 */
 const IMG_CACHE={};
