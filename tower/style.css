@@ -1043,7 +1043,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 .rn1{background:var(--p5w);color:var(--p5k);transform:rotate(4deg) translateY(16px);box-shadow:6px 6px 0 var(--p5k);font-size:92px}
 #title .logo h1 .rn2{background:var(--p5r);color:var(--p5w);transform:rotate(-3deg) translateY(-2px);box-shadow:6px 6px 0 var(--p5k);font-size:84px}
 #title .logo h1 .rn3{transform:rotate(7deg) translateY(10px);font-size:112px;border:4px solid var(--p5w)}
-#title .logo::after{content:"VER 3.2";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
+#title .logo::after{content:"VER 3.3";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
 #title .tsub{margin:30px 0 0 4px}
 #title .tsub .ribbon{font-family:'NW Black';font-weight:900;font-size:20px;letter-spacing:6px;color:var(--p5k);background:var(--p5w);border:0;padding:6px 18px;transform:skewX(-12deg);box-shadow:5px 5px 0 var(--p5r)}
 #title .tmenu{top:330px;gap:14px}
@@ -1603,3 +1603,46 @@ img{-webkit-user-drag:none;pointer-events:none}
 .card .dmgB .ico,.card .dmgB svg{width:1em;height:1em}
 .card .dmgB b{font:900 1.15em/1 'NW Black';color:#ffd200}
 .card .dmgB{left:auto;right:-.35em;bottom:auto;top:4.1em}
+.wsEnd{display:inline-block;font:900 16px "NW Black";background:#0d0d0d;color:#ffd200;padding:2px 14px;transform:skewX(-10deg);margin:4px 0 8px}
+/* 熟练度 */
+.mast{margin-top:6px;cursor:pointer}
+.mast b{display:inline-block;font:900 13px 'NW Black';background:#0d0d0d;color:#ffd200;padding:0 8px;transform:skewX(-10deg)}
+.mast i{display:block;height:6px;margin-top:3px;background:#333;border:1px solid #fff}
+.mast i u{display:block;height:100%;background:#ffd200;text-decoration:none}
+#player.skin .body img{filter:hue-rotate(200deg) saturate(1.3) brightness(.95)}
+/* 元素伤害数字 */
+.fnum.el-fire{color:#ff3b2f;-webkit-text-stroke:8px #fff3c4;paint-order:stroke;text-shadow:0 0 14px #ff7a1a,4px 4px 0 #0d0d0d}
+.fnum.el-thunder{color:#b46bff;-webkit-text-stroke:8px #fff;paint-order:stroke;text-shadow:0 0 14px #c99bff,4px 4px 0 #0d0d0d}
+.fnum.el-ice{color:#5fd0ff;-webkit-text-stroke:8px #fff;paint-order:stroke;text-shadow:0 0 14px #bff0ff,4px 4px 0 #0d3a5a}
+.fnum.el-arc{color:#ff8ce8;-webkit-text-stroke:8px #fff;paint-order:stroke;text-shadow:0 0 14px #ffb8f0,4px 4px 0 #0d0d0d}
+/* 首领登场标题 */
+.bossTitle{position:absolute;inset:0;z-index:120;pointer-events:none;overflow:hidden}
+.btBar{position:absolute;left:-10%;right:-10%;top:250px;height:200px;background:#0d0d0d;transform:skewY(-7deg) translateX(-110%);box-shadow:0 -12px 0 var(--p5r),0 12px 0 #fff;animation:btBar .38s cubic-bezier(.2,.9,.3,1) forwards}
+@keyframes btBar{to{transform:skewY(-7deg) translateX(0)}}
+.btTxt{position:absolute;left:0;right:0;top:250px;height:200px;display:flex;flex-direction:column;justify-content:center;align-items:center;transform:skewY(-7deg)}
+.btTxt small{font:900 22px 'NW Black';color:#0d0d0d;background:#fff;padding:2px 18px;transform:skewX(-12deg) translateX(400px);opacity:0;animation:btIn .3s .18s forwards}
+.btTxt b{font:900 92px/1.05 'NW Black';color:#fff;letter-spacing:6px;text-shadow:7px 7px 0 var(--p5r);transform:skewX(-12deg) translateX(-500px);opacity:0;animation:btIn .32s .22s cubic-bezier(.2,1.3,.4,1) forwards}
+.btTxt em{font:900 24px 'NW Black';font-style:normal;color:#fff;background:var(--p5r);padding:0 16px;transform:skewX(-12deg) translateX(400px);opacity:0;animation:btIn .3s .3s forwards}
+@keyframes btIn{to{transform:skewX(-12deg) translateX(0);opacity:1}}
+.bossTitle.out{animation:btOut .4s forwards}
+@keyframes btOut{to{opacity:0;transform:translateX(120px)}}
+/* 稀有卡飞进牌组 */
+.flyGet{transition:transform .7s cubic-bezier(.5,0,.7,1),opacity .7s;pointer-events:none}
+.flyGet.fg-R{filter:drop-shadow(0 0 8px #6fb4ff)}
+.flyGet.fg-E{filter:drop-shadow(0 0 12px #c08cff)}
+.flyGet.fg-L{filter:drop-shadow(0 0 16px #ffd200) drop-shadow(0 0 4px #fff)}
+#deckBtn.got{animation:deckGot .45s}
+@keyframes deckGot{40%{transform:scale(1.25)}}
+/* 熟练度：头像右上角的小徽章 */
+.hcard .pic{position:relative}
+.mast{position:absolute;right:4px;top:4px;z-index:3;display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:3px 8px 4px;border:2px solid #fff;background:#0d0d0d;box-shadow:3px 3px 0 var(--p5r);transform:skewX(-10deg);cursor:pointer}
+.mast b{font:900 15px/1 'NW Black';color:#fff;letter-spacing:1px}
+.mast i{display:block;width:44px;height:4px;background:#444}
+.mast i u{display:block;height:100%;background:#ffd200}
+.mast.lv0 b{color:#aaa}
+.mast.lv3 b,.mast.lv4 b{color:#ffd200}
+.mast.lv5{background:linear-gradient(135deg,#ffd200,#ff8a00);border-color:#0d0d0d}.mast.lv5 b{color:#0d0d0d}.mast.lv5 i{display:none}
+.mast:hover{filter:brightness(1.2)}
+.mast.lv5{background:#0d0d0d!important;border-color:#ffd200!important;box-shadow:0 0 10px #ffd200,3px 3px 0 var(--p5r)}
+.mast.lv5 b{color:#ffd200!important}
+.mast.lv5 b::after{content:" ★"}
