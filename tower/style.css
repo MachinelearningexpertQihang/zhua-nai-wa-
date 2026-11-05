@@ -1674,3 +1674,38 @@ img{-webkit-user-drag:none;pointer-events:none}
 .hcard.mframe .tag{background:linear-gradient(90deg,#5a3dff,#2a8aff)!important}
 .hcard.mframe h3{color:#fff;text-shadow:0 0 10px #8fb4ff}
 .hcard.mframe p{color:#dfe6ff}
+/* ===== 打击感 ===== */
+.hitBig .body img{animation:hitBig .5s cubic-bezier(.2,.8,.3,1)!important}
+@keyframes hitBig{0%{filter:brightness(4) saturate(0);transform:none}10%{filter:brightness(4) saturate(0);transform:translateX(46px) scale(.84,1.14) rotate(10deg)}35%{filter:brightness(1.3);transform:translateX(26px) scale(1.06,.95) rotate(4deg)}60%{transform:translateX(-6px) scale(.98,1.02) rotate(-2deg)}100%{filter:none;transform:none}}
+.hit .plat,.hitBig .plat{animation:platSq .3s}
+@keyframes platSq{30%{transform:scaleX(1.12) scaleY(.85)}}
+#arena.hitstop *{animation-play-state:paused!important}
+.impRing{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:5px solid var(--ic);box-shadow:0 0 14px var(--ic);pointer-events:none;z-index:9;animation:impR .42s ease-out forwards}
+.impRing.big{border-width:8px}
+@keyframes impR{from{transform:scale(.4);opacity:1}to{transform:scale(4.2);opacity:0}}
+.impRing.big{animation:impR2 .45s ease-out forwards}
+@keyframes impR2{from{transform:scale(.5);opacity:1}to{transform:scale(6);opacity:0}}
+.shard{position:absolute;width:9px;height:9px;margin:-4px 0 0 -4px;pointer-events:none;z-index:9;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);box-shadow:0 0 6px #fff;animation:shard .5s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes shard{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rt)) scale(.3);opacity:0}}
+/* 出拳残影 */
+.lungeR .body{animation:lungeR2 .38s cubic-bezier(.3,1.4,.5,1)!important}
+@keyframes lungeR2{0%{transform:none}35%{transform:translateX(110px) rotate(8deg) scale(1.05);filter:drop-shadow(-30px 0 0 rgba(255,255,255,.35)) drop-shadow(-60px 0 0 rgba(255,255,255,.15))}100%{transform:none}}
+/* ===== 排行榜 ===== */
+.lbBox{position:absolute;inset:0}
+.lbTabs{position:absolute;top:92px;left:0;right:0;display:flex;justify-content:center;gap:8px;align-items:center}
+.lbTabs button{font:900 17px 'NW Black';padding:4px 16px;background:#0d0d0d;color:#fff;border:3px solid #fff;transform:skewX(-12deg);cursor:pointer}
+.lbTabs button.on{background:var(--p5r)}
+.lbSep{width:22px}
+.lbDesc{position:absolute;top:138px;left:0;right:0;text-align:center;font:700 14px 'NW Black';color:#ddd}
+.lbList{position:absolute;left:50%;top:168px;transform:translateX(-50%);width:640px;height:420px;overflow-y:auto;background:#fff;border:5px solid #0d0d0d;box-shadow:10px 10px 0 var(--p5r);padding:8px 12px}
+.lbMsg{text-align:center;margin-top:160px;font:900 18px 'NW Black';color:#333}
+.lbRow{display:flex;align-items:center;gap:12px;padding:6px 6px;border-bottom:2px solid #eee}
+.lbR{width:44px;text-align:center;font:900 22px 'NW Black';color:#0d0d0d}
+.lbRow.top1 .lbR{color:#e5a800}.lbRow.top2 .lbR{color:#9aa4b0}.lbRow.top3 .lbR{color:#c0783a}
+.lbRow.top1{background:linear-gradient(90deg,rgba(255,210,0,.25),transparent)}
+.lbAv{width:38px;height:38px;border-radius:50%;overflow:hidden;background:#0d0d0d;color:#fff;display:flex;align-items:center;justify-content:center;font:900 16px 'NW Black';flex:none}
+.lbAv img{width:100%;height:100%;object-fit:cover}
+.lbN{flex:1;font:700 17px var(--body);color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbS{font:900 20px 'NW Black';color:var(--p5r)}.lbS small{font-size:12px;color:#666}
+.lbMe{position:absolute;left:50%;top:604px;transform:translateX(-50%) skewX(-10deg);font:900 16px 'NW Black';background:#0d0d0d;color:#fff;padding:3px 16px}
+.lbMe b{color:#ffd200}
