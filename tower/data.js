@@ -839,6 +839,7 @@ const ACH=[
 {id:"win_kungfu",n:"拳拳到肉",d:"用功夫奶蛙登顶",ic:"sword"},
 {id:"win_knight",n:"铁甲不倒",d:"用骑士奶蛙登顶",ic:"shield"},
 {id:"win_mage",n:"星星落下来",d:"用奶蛙魔法师登顶",ic:"star"},
+{id:"win_hard",n:"迎难而上",d:"在困难模式下登顶",ic:"skull"},
 {id:"asc2",n:"又回来了",d:"通关第 2 周目",ic:"swirl"},
 {id:"asc4",n:"越来越重",d:"通关第 4 周目",ic:"swirl"},
 {id:"asc8",n:"塔顶的常客",d:"通关第 8 周目",ic:"skull"},

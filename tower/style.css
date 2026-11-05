@@ -1043,7 +1043,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 .rn1{background:var(--p5w);color:var(--p5k);transform:rotate(4deg) translateY(16px);box-shadow:6px 6px 0 var(--p5k);font-size:92px}
 #title .logo h1 .rn2{background:var(--p5r);color:var(--p5w);transform:rotate(-3deg) translateY(-2px);box-shadow:6px 6px 0 var(--p5k);font-size:84px}
 #title .logo h1 .rn3{transform:rotate(7deg) translateY(10px);font-size:112px;border:4px solid var(--p5w)}
-#title .logo::after{content:"VER 3.3";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
+#title .logo::after{content:"VER 3.5";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
 #title .tsub{margin:30px 0 0 4px}
 #title .tsub .ribbon{font-family:'NW Black';font-weight:900;font-size:20px;letter-spacing:6px;color:var(--p5k);background:var(--p5w);border:0;padding:6px 18px;transform:skewX(-12deg);box-shadow:5px 5px 0 var(--p5r)}
 #title .tmenu{top:330px;gap:14px}
@@ -1646,3 +1646,31 @@ img{-webkit-user-drag:none;pointer-events:none}
 .mast.lv5{background:#0d0d0d!important;border-color:#ffd200!important;box-shadow:0 0 10px #ffd200,3px 3px 0 var(--p5r)}
 .mast.lv5 b{color:#ffd200!important}
 .mast.lv5 b::after{content:" ★"}
+/* 熟练度 Lv2：星夜卡框；Lv5：金框 */
+.hcard.mframe{background:linear-gradient(160deg,#1b2a6b,#0d0d2a 60%,#3a1d6b)!important;box-shadow:0 0 0 3px #8fb4ff,6px 6px 0 #ffd200!important}
+.hcard.mframe .pic{background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.35) 0 1px,transparent 2px) 0 0/22px 22px,radial-gradient(circle at 70% 60%,rgba(255,255,255,.25) 0 1px,transparent 2px) 0 0/31px 31px,linear-gradient(#22357a,#121a40)!important}
+.hcard.mframe h3,.hcard.mframe p{color:#fff}
+.hcard.mframe5{box-shadow:0 0 0 3px #ffd200,0 0 18px rgba(255,210,0,.7),6px 6px 0 var(--p5r)!important}
+/* 难度选择 */
+.diffSel{display:flex;gap:8px;margin-right:14px}
+.dBtn{display:flex;flex-direction:column;align-items:center;min-width:92px;padding:4px 10px;background:#0d0d0d;border:3px solid #fff;color:#fff;transform:skewX(-10deg);cursor:pointer;box-shadow:3px 3px 0 #555}
+.dBtn b{font:900 18px 'NW Black'}
+.dBtn small{font:700 11px 'NW Black';color:#bbb}
+.dBtn.on{background:var(--p5r);box-shadow:4px 4px 0 #fff}
+.dBtn.on small{color:#fff}
+/* 难度印章 */
+.wsDiff{position:absolute;right:120px;top:18px;font:900 22px 'NW Black';color:#fff;background:#0d0d0d;padding:4px 16px;border:3px solid #fff;transform:rotate(-8deg);box-shadow:4px 4px 0 var(--p5r)}
+.wsDiff.d-hard{background:var(--p5r);box-shadow:4px 4px 0 #0d0d0d}
+.wsDiff.d-easy{background:#2a8a4a}
+/* 星夜卡框：星空璀璨 */
+.hcard.mframe{position:relative;overflow:hidden;background:radial-gradient(ellipse at 20% 15%,rgba(140,110,255,.55),transparent 45%),radial-gradient(ellipse at 85% 70%,rgba(60,170,255,.45),transparent 50%),radial-gradient(ellipse at 50% 110%,rgba(255,120,200,.35),transparent 50%),linear-gradient(165deg,#120c3a,#06061a 55%,#1a0d3d)!important;box-shadow:0 0 0 3px #b9d4ff,0 0 22px rgba(140,170,255,.65),6px 6px 0 #ffd200!important}
+.hcard.mframe::before,.hcard.mframe::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0}
+.hcard.mframe::before{background-image:radial-gradient(1.6px 1.6px at 12% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 32% 62%,#fff,transparent),radial-gradient(2px 2px at 78% 22%,#fff,transparent),radial-gradient(1.3px 1.3px at 62% 84%,#fff,transparent),radial-gradient(1.7px 1.7px at 90% 52%,#cfe0ff,transparent),radial-gradient(1.1px 1.1px at 45% 35%,#fff,transparent),radial-gradient(1.5px 1.5px at 22% 88%,#ffe9a8,transparent),radial-gradient(1px 1px at 70% 45%,#fff,transparent),radial-gradient(1.4px 1.4px at 8% 55%,#fff,transparent),radial-gradient(1.8px 1.8px at 55% 8%,#fff,transparent);animation:twk 2.6s ease-in-out infinite alternate}
+.hcard.mframe::after{background-image:radial-gradient(1.3px 1.3px at 18% 40%,#fff,transparent),radial-gradient(1.8px 1.8px at 66% 30%,#fff,transparent),radial-gradient(1.2px 1.2px at 85% 88%,#fff,transparent),radial-gradient(1.5px 1.5px at 38% 75%,#ffe9a8,transparent),radial-gradient(1.1px 1.1px at 95% 12%,#fff,transparent),linear-gradient(115deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);background-size:auto,auto,auto,auto,auto,250% 100%;animation:twk 3.4s ease-in-out infinite alternate-reverse,shine 5s linear infinite}
+@keyframes twk{from{opacity:.35}to{opacity:1}}
+@keyframes shine{from{background-position:0 0,0 0,0 0,0 0,0 0,150% 0}to{background-position:0 0,0 0,0 0,0 0,0 0,-150% 0}}
+.hcard.mframe>*{position:relative;z-index:1}
+.hcard.mframe .pic{background:radial-gradient(circle at 50% 75%,rgba(160,190,255,.35),transparent 60%),transparent!important}
+.hcard.mframe .tag{background:linear-gradient(90deg,#5a3dff,#2a8aff)!important}
+.hcard.mframe h3{color:#fff;text-shadow:0 0 10px #8fb4ff}
+.hcard.mframe p{color:#dfe6ff}
