@@ -62,8 +62,8 @@ function setBg(kind,moon){const b=$("#bg");const fl=[...Array(7)].map((_,i)=>`<i
  b.className="";b.innerHTML=sceneSVG(kind,moon)+(kind==="shop"?"":fl)}
 const BGIMG={swamp:"forest",reed:"forest",elite:"forest",ruin:"swamp",boss:"swamp",castle:"castle",gate:"gate",boss1:"gate",snowfield:"ice",belltower:"ice",bellE:"ice",bossice:"ice",factory:"gears",pipes:"gears",bossfac:"lava",cosmos:"sky",summit:"sky",boss2:"void",demon:"void",event:"temple"};
 let TIP_EL=null,TIP_T=0,TIP_SKIP=0;function closeTip(){clearTimeout(TIP_T);$$(".tipBox").forEach(t=>t.remove());removeEventListener("pointerdown",tipOutside,true)}
-function tipOutside(e){if(TIP_EL&&e&&e.target&&TIP_EL.contains(e.target))TIP_SKIP=Date.now();closeTip()}
-function tipAt(el,html){if(TIP_EL===el&&Date.now()-TIP_SKIP<800){TIP_SKIP=0;return}closeTip();TIP_EL=el;TIP_T=setTimeout(closeTip,4500);const r=rectIn(el),d=document.createElement("div");d.className="tipBox";d.innerHTML=html;$("#stage").appendChild(d);
+function tipOutside(e){if(e&&e.target&&e.target.closest&&e.target.closest(".tipBox.act"))return;if(TIP_EL&&e&&e.target&&TIP_EL.contains(e.target))TIP_SKIP=Date.now();closeTip()}
+function tipAt(el,html){if(TIP_EL===el&&Date.now()-TIP_SKIP<800){TIP_SKIP=0;return}closeTip();TIP_EL=el;TIP_T=setTimeout(closeTip,4500);const r=rectIn(el),d=document.createElement("div");const act=/<button/.test(html);d.className="tipBox"+(act?" act":"");d.innerHTML=html;if(act){clearTimeout(TIP_T);TIP_T=setTimeout(closeTip,9000)}$("#stage").appendChild(d);
  let x=r.x+r.w/2-130,y=r.y+r.h+8;x=Math.max(10,Math.min(1010,x));if(y>560)y=r.y-d.offsetHeight-8;d.style.left=x+"px";d.style.top=y+"px";setTimeout(()=>addEventListener("pointerdown",tipOutside,true),30)}
 function rectIn(el){const st=$("#stage").getBoundingClientRect(),r=el.getBoundingClientRect(),port=document.body.classList.contains("port");
  const sc=port?st.width/720:st.width/1280;
@@ -90,7 +90,7 @@ function cardHTML(c,cls=""){const D=CARDS[c.id],fam=FAM[D.fam];let cost=B&&cls.i
  const extra=[D.exh||(D.exhU&&!c.u)?"消耗":"",D.eth?"虚无":""].filter(Boolean);
  return`<div class="card r-${D.r} t-${D.type}${c.u?" up":""}${c.g?" gold":""}${c.sh?" shiny":""} ${cls}" data-k="${c.k}" data-id="${c.id}" data-u="${c.u?1:0}">${c.sh?`<span class="shtag">闪·${SHINY[c.sh]}</span>`:""}${c.g?`<span class="gtag">效果×2</span>`:""}<div class="cf"><div class="in"><div class="art"><img src="${IMG(D.img)}" alt=""></div><div class="tpc"><em>${TYPE[D.type].n}</em>${D.spell?`<i style="--famc:#c9b2ff">法术</i>`:""}${D.fam!=="none"?`<i style="--famc:${fam.c}">${fam.n}</i>`:""}</div><div class="ds"><span>${descHTML(c,!!B&&cls.includes("inhand"))}</span></div></div><div class="rib"><span>${esc(cname(c))}</span></div></div><div class="cost ${cc}">${cs}</div><i class="gem"></i><span class="tri">三连！</span></div>`}
 function relicHTML(id,extra=""){const R=RELICS[id];return`<div class="rl ${extra}" data-rl="${id}"><img src="${IMG(R.img)}" alt=""></div>`}
-function potHTML(id){if(!id)return`<div class="pot"></div>`;return`<div class="pot full" data-pot="${id}"><i class="flask" style="--pc:${POTIONS[id].c}"></i></div>`}
+function potHTML(id){if(!id)return`<div class="pot"></div>`;return`<div class="pot full" data-pot="${id}"><i class="flask2" style="--pc:${POTIONS[id].c}"><i class="cork"></i><i class="neck"></i><i class="body"><i class="liq"></i><i class="shine"></i><i class="bub b1"></i><i class="bub b2"></i></i></i></div>`}
 function gotCard(id){if(!CARDS[id])return;M.got=M.got||{};if(!M.got[id]){M.got[id]=1;saveMeta()}}
 function seeCard(id){if(!M.seen[id]){M.seen[id]=1;saveMeta()}}
 
@@ -110,9 +110,9 @@ function usePotion(i){const id=S.pots[i],P=POTIONS[id];M.pots=(M.pots||0)+1;if(M
  if(!B||B.over||!$("#battle").classList.contains("on")){if(id==="pheal"){S.pots.splice(i,1);S.hp=Math.min(S.max,S.hp+20);sfx("heal");toast("回复了 <b>20</b> 生命");renderTop();saveRun()}return}
  if(P.tgt){const al=B.alive();if(al.length===1){S.pots.splice(i,1);P.fx(B,al[0]);afterAction()}else{B.sel={pot:i};hint("点一个敌人使用 "+P.n);renderBattle()}return}
  S.pots.splice(i,1);P.fx(B);sfx("buff");afterAction()}
-function settings(){ov(`<div class="modal"><h3>设置</h3><div class="row" style="flex-direction:column;align-items:center;gap:14px"><button class="btn sm ${A.music?"":"ghost"}" id="sMus" style="min-width:240px">音乐：${A.music?"开":"关"}</button><button class="btn sm ${A.sfx?"":"ghost"}" id="sSfx" style="min-width:240px">音效：${A.sfx?"开":"关"}</button><button class="btn sm ghost" id="sCodex" style="min-width:240px">卡牌图鉴</button><button class="btn sm ghost" id="sQuit" style="min-width:240px">保存并回到标题</button><button class="btn sm pink" id="sGive" style="min-width:240px">放弃这次冒险</button><button class="btn sm" id="sClose" style="min-width:240px">继续</button></div><p class="credit">乐器音色：FluidR3 GM（Frank Wen），CC BY 3.0</p></div>`);
+function settings(){ov(`<div class="modal"><h3>设置</h3><div class="row" style="flex-direction:column;align-items:center;gap:14px"><button class="btn sm ${A.music?"":"ghost"}" id="sMus" style="min-width:240px">音乐：${A.music?"开":"关"}</button><button class="btn sm ${A.sfx?"":"ghost"}" id="sSfx" style="min-width:240px">音效：${A.sfx?"开":"关"}</button><button class="btn sm ghost" id="sCodex" style="min-width:240px">卡牌图鉴</button><button class="btn sm ghost" id="sTrain" style="min-width:240px">再听一次长老特训</button><button class="btn sm ghost" id="sQuit" style="min-width:240px">保存并回到标题</button><button class="btn sm pink" id="sGive" style="min-width:240px">放弃这次冒险</button><button class="btn sm" id="sClose" style="min-width:240px">继续</button></div><p class="credit">乐器音色：FluidR3 GM（Frank Wen），CC BY 3.0</p></div>`);
  $("#sMus").onclick=()=>{A.music=!A.music;audioSave();settings()};$("#sSfx").onclick=()=>{A.sfx=!A.sfx;audioSave();settings()};
- $("#sCodex").onclick=()=>codex();$("#sClose").onclick=closeOv;
+ $("#sCodex").onclick=()=>codex();$("#sTrain").onclick=async()=>{closeOv();const b=M.trainBase;M.trainBase=0;await training((S&&S.hero)||"naiwa");M.trainBase=b||1;saveMeta()};$("#sClose").onclick=closeOv;
  $("#sQuit").onclick=()=>{saveRun();closeOv();B=null;titleScreen()};
  $("#sGive").onclick=()=>confirmBox("放弃这次冒险？","这一次爬塔的进度会消失。",()=>{closeOv();gameOver(true)})}
 function confirmBox(t,p,yes){ov(`<div class="modal"><h3>${t}</h3><p>${p}</p><div class="row"><button class="btn sm ghost" id="cNo" style="color:#5a3a1a">再想想</button><button class="btn sm pink" id="cYes">确定</button></div></div>`);$("#cNo").onclick=closeOv;$("#cYes").onclick=yes}
@@ -187,7 +187,7 @@ function heroSelect(){show("heroSel");setBg("title");let cur=0;
  $$(".hcard").forEach((e,i)=>e.onclick=()=>{if(!HEROES[i].on){toast(`${HEROES[i].n}还在路上，<b>之后的版本</b>开放`);return}cur=i;sfx("click");$$(".hcard").forEach((x,j)=>x.classList.toggle("on",j===i))});
  $("#hsB").onclick=titleScreen;let ac=Math.min(M.ascSel||0,M.ascMax||0);const ascUI=()=>{const n=$("#ascN");if(!n)return;n.textContent=`第 ${ac+1} 周目`;$("#ascD").innerHTML=ac?ASC.slice(1,ac+1).map(x=>x.n).join("　·　"):"标准难度";$("#ascL").disabled=ac<=0;$("#ascR").disabled=ac>=(M.ascMax||0)};
  if($("#ascL")){$("#ascL").onclick=()=>{if(ac>0){ac--;sfx("click");ascUI()}};$("#ascR").onclick=()=>{if(ac<(M.ascMax||0)){ac++;sfx("click");ascUI()}};ascUI()}
- $("#hsGo").onclick=()=>{sfx("click");M.ascSel=ac;saveMeta();newRun(HEROES[cur].id,ac)}}
+ $("#hsGo").onclick=async()=>{sfx("click");M.ascSel=ac;saveMeta();const hid=HEROES[cur].id;M.train=M.train||{};if(!M.train[hid]){await training(hid);M.train[hid]=1;M.tut=1;saveMeta()}newRun(hid,ac)}}
 
 /* ===================== 新冒险 ===================== */
 async function newRun(hero,ascLv){const seed=(Math.random()*2**31)|0;
@@ -291,6 +291,24 @@ function startCombat(kind){{const bt=$("#battle");bt.classList.toggle("bossFight
  renderBattle(true);
  if(has("feather"))B.block(8,1);
  setTimeout(async()=>{if(!B)return;if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(!B)return;if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();if(rnd()<.3)heroSay(pick(HERO_LINE.start));startTurn()},300)}
+/* ===================== 长老特训：每个角色第一次出发前 ===================== */
+const TRAIN_BASE=[
+ {t:"出牌和奶力",l:["每回合你有 3 点奶力。卡牌左上角的数字是它要花的奶力。","点一张牌出牌；要选目标的牌，再点一个敌人。","用不完的牌回合结束会弃掉，下回合重新抽 5 张。"],c:"strike"},
+ {t:"看敌人想干嘛",l:["敌人头顶的牌子是它下一步要做的事：剑是攻击，后面的数字是伤害，盾是加护盾。","看到它要打你，就先出护盾牌挡一挡。","点敌人可以看它的特性，点别处就关掉。"]},
+ {t:"奶蛙池和三连",l:["奶蛙、奶马、奶鸡、奶猫这些家族牌，打出去会往上方的奶蛙池里放一只同家族的小家伙。","同家族 3 只挨在一起就会消除，触发家族爆发：奶蛙乱拳、奶马群踏、奶鸡加盾、奶猫回血抽牌。","凑成三连的那张牌会打两次。池子里快凑齐时会发光晃动，手里能凑成三连的牌也会发光。"],c:"frogslam"},
+ {t:"连锁和连击",l:["消除以后池子合拢，如果又凑成一组，就是连锁。每次连锁爆发更强，还会多给 1 点奶力。","连击是这回合打出的攻击牌数量。有的牌写着「连击 ≥3 时」，要先垫几张攻击牌再打它。","池子满了会溢出，挤掉最前面 3 只，你还要挨 6 点伤害。"]},
+ {t:"抓奶蛙",l:["敌人血量打到很低时，它身上会出现「抓」的按钮，花 1 点奶力就能抓住它，每场战斗能抓 1 次。","抓到的敌人会变成伙伴卡加入牌组，图鉴里也会记下来。","首领抓不了。"]},
+ {t:"爬塔",l:["地图从左往右走：小怪、精英、事件、休息、商店、宝箱，每层中间有守关首领，最后是这一层的首领。","顶上的月亮和天气会改变规则，点一下就能看。","看不懂某张牌？长按它，就能看到完整说明和家族介绍。"]}];
+const TRAIN_HERO={
+ naiwa:{t:"奶蛙：厚肚皮",l:["你的肚皮最厚，生命 80，每场战斗开局自带 6 点护盾。","稳稳地挡，慢慢地打。专属牌「枕头大战」会把护盾的一半变成伤害。","打不过就回来，没人会笑你。"],c:"n_pillow"},
+ kungfu:{t:"功夫奶蛙：快手连击",l:["每场战斗第一回合多抽 2 张，起手就是一整套。","你的起始牌组多一张「奶蛙拳」：连击 ≥3 时再打一次。先出便宜的攻击牌，再出它。","专属牌「一气呵成」，这回合出的牌越多，打得越多下。"],c:"fist"},
+ knight:{t:"骑士奶蛙：铁甲",l:["开局自带 8 护盾，回合开始时护盾只掉一半，越守越厚。","每回合第一张攻击牌，会额外加上你护盾 1/4 的伤害，最多 +10。","「盾击」「审判」这些牌都吃护盾，先堆盾，再反打。"],c:"kn_bash"},
+ mage:{t:"奶蛙魔法师：法术",l:["你的攻击是法术：无视敌人护盾，伤害加魔力，不吃力气。","回合结束时，没用完的奶力会变成魔力，整场一直留着。省一点，下回合放大招。","法术牌不进奶蛙池。「冥想」攒魔力，「陨石术」一口气把魔力全打出去。"],c:"m_fire"}};
+function training(hid){return new Promise(res=>{const pages=[...(M.trainBase?[]:TRAIN_BASE),TRAIN_HERO[hid]].filter(Boolean);let i=0;const H=HEROES.find(h=>h.id===hid)||HEROES[0];
+ const done=()=>{M.trainBase=1;saveMeta();closeOv();res()};
+ const draw=()=>{const P=pages[i];ov(`<div class="trainBox"><div class="trHead"><span class="ribbon b">长老特训</span><small>${i+1} / ${pages.length}</small></div><div class="trBody"><div class="trElder"><img src="${IMG("m6")}"><b>奶蛙长老</b></div><div class="trTxt"><h3>${P.t}</h3>${P.l.map(x=>`<p>${x}</p>`).join("")}</div>${P.c?`<div class="trCard">${cardHTML({id:P.c,u:0,k:"tr"},"mid")}</div>`:`<div class="trCard trHero"><img src="${IMG(H.img)}"></div>`}</div><div class="trFoot"><button class="btn sm ghost" id="trSkip">跳过特训</button>${i>0?`<button class="btn sm ghost" id="trPrev">上一步</button>`:""}<button class="btn sm" id="trNext">${i===pages.length-1?"出发！":"下一步"}</button></div></div>`);
+  $("#trSkip").onclick=()=>{sfx("click");done()};if($("#trPrev"))$("#trPrev").onclick=()=>{i--;sfx("click");draw()};$("#trNext").onclick=()=>{sfx("click");if(i>=pages.length-1)done();else{i++;draw()}}};
+ draw()})}
 function tutorial(){return new Promise(res=>{ov(`<div class="modal" style="max-width:820px;text-align:left"><h3 style="text-align:center">奶蛙池怎么玩</h3><p>1. 打出的每张家族牌，都会往上方的<b>奶蛙池</b>里放一只奶蛙，它会自动排到同家族旁边。</p><p>2. <b>3 只相邻的同家族</b>就会消除：这张牌效果翻倍，再触发一次<b>家族爆发</b>。</p><p>3. 消除后后面的奶蛙会往前补位，补位又凑成 3 只就继续消，这就是<b>连锁</b>。每多一环，爆发翻一倍，还多给 1 点奶力。</p><p>4. 敌人会往池里<b>丢泥巴</b>把你的奶蛙隔开、<b>冻住</b>奶蛙、甚至<b>吸走</b>奶蛙。泥巴凑够 3 块也会消掉，常常能顺势连锁。池子满 7 格会溢出受伤。</p><p>5. 敌人血量低于 35% 时可以<b>抓</b>回去当伙伴卡；每层的<b>月相天气</b>在左上角；集齐 3 张同名牌会合成<b>金卡</b>。</p><div class="row"><button class="btn" id="tutOk">开打！</button></div></div>`);$("#tutOk").onclick=()=>{closeOv();res()}})}
 function relicPulse(id){const e=$(`#top .rl[data-rl="${id}"]`);if(e){e.classList.remove("pulse");void e.offsetWidth;e.classList.add("pulse")}}
 async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.hitStreak=0;B.palTurn=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
@@ -362,7 +380,7 @@ function renderPool(){if(B&&B.pool){if(B.pool.filter(x=>x.f==="mud").length>=5)a
  for(let i=0;i<P.length;){let j=i;while(j<P.length&&P[j].f===P[i].f&&!P[j].ice)j++;if(j===i){i++;continue}if(j-i===need-1&&P[i].f!=="mud")for(let k=i;k<j;k++)hot.add(k);i=j}
  let h=`<b class="plbl">奶蛙池<small>${P.length}/${B.poolCap}</small></b><div class="slots">`;
  for(let i=0;i<B.poolCap;i++){const t=P[i];h+=t?`<span class="tok ${hot.has(i)?"hot":""} ${t.f==="mud"?"mudt":""} ${t.f==="any"?"anyt":""} ${t.ice?"ice":""}" style="--fc:${(FAM[t.f]||{c:"#fff"}).c}"><img src="${IMG(TOKEN[t.f])}">${t.ice?`<i>${t.ice}</i>`:""}</span>`:`<span class="tok empty ${i>=B.poolCap-1&&P.length>=B.poolCap-1?"warn":""}"></span>`}
- el.innerHTML=h+`</div><span class="prule">${need} 只相邻就消除</span>`;el.classList.toggle("danger",P.length>=B.poolCap-1)}
+ const hotF=[...new Set([...hot].map(i=>P[i].f))].filter(f=>f!=="mud");el.innerHTML=h+`</div><span class="prule">${need} 只相邻就消除</span>${hotF.length?`<span class="phot">再来 1 只${hotF.map(f=>(FAM[f]||{}).n||"").join("/")}就消除！</span>`:""}`;el.classList.toggle("danger",P.length>=B.poolCap-1)}
 function renderSky(){if(!B)return;$("#skyBar").innerHTML=`<button class="skyPill" data-k="m">${moonSVG(B.moon)}<span>${MOON[B.moon].n}</span></button><button class="skyPill" data-k="w">${WXICON[B.wx]}<span>${WX[B.wx].n}</span></button>`;
  $$("#skyBar .skyPill").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const m=b.dataset.k==="m";tipAt(b,m?`<b>${MOON[B.moon].n}</b><p>${MOON[B.moon].d}</p>`:`<b>${WX[B.wx].n}</b><p>${WX[B.wx].d}</p>`)});
  const w=$("#wxfx");w.className="wx-"+B.wx}
@@ -396,7 +414,7 @@ function fnum(x,y,t,cls="",delay=0){setTimeout(()=>{const d=document.createEleme
 function fxAt(el,cls,delay=0,html=""){if(!el)return;setTimeout(()=>{const c=center(el);const d=document.createElement("div");d.className=cls;d.innerHTML=html;d.style.left=c.x+"px";d.style.top=c.y+"px";$("#fx").appendChild(d);setTimeout(()=>d.remove(),900)},delay)}
 function sparks(x,y,col,n=14){for(let i=0;i<n;i++){const d=document.createElement("i");d.className="spark";const a=Math.random()*Math.PI*2,r=60+Math.random()*90;d.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r}px;--c:${col}`;$("#fx").appendChild(d);setTimeout(()=>d.remove(),850)}}
 function hitFx(x,y,big,blocked,fam){const F=$("#fx");
- if(B&&B.curType){B.hitStreak=(B.hitStreak||0)+1;if(B.hitStreak>=2){let cb=$("#comboCt");if(!cb){cb=document.createElement("div");cb.id="comboCt";F.appendChild(cb)}cb.innerHTML=`<b>${B.hitStreak}</b><small>连击</small>`;cb.style.setProperty("--k",Math.min(1.6,1+B.hitStreak*.06));cb.classList.remove("pop");void cb.offsetWidth;cb.classList.add("pop");clearTimeout(cb._t);cb._t=setTimeout(()=>cb.remove(),1400)}}
+ if(B&&B.curType){B.hitStreak=(B.hitStreak||0)+1;if(B.hitStreak>=2){let cb=$("#comboCt");if(!cb){cb=document.createElement("div");cb.id="comboCt";F.appendChild(cb)}cb.innerHTML=`<small>连击</small><i>×</i><b>${B.hitStreak}</b>`;cb.style.setProperty("--k",Math.min(1.5,1+B.hitStreak*.05));cb.classList.remove("pop");void cb.offsetWidth;cb.classList.add("pop");clearTimeout(cb._t);cb.classList.remove("out");cb._t=setTimeout(()=>{cb.classList.add("out");setTimeout(()=>{if(cb.classList.contains("out"))cb.remove()},450)},2400)}}
  {const o=document.createElement("div");o.className="ono"+(big?" big":"")+(blocked?" blk":"");o.textContent=blocked?pick(["叮！","铛！"]):big?pick(["砰！！","轰！！","嘭！！"]):pick(["啪！","咚！","嘿！","哒！"]);o.style.cssText=`left:${x+(Math.random()*80-40)}px;top:${y-70-Math.random()*30}px;--r:${Math.random()*24-12}deg`;F.appendChild(o);setTimeout(()=>o.remove(),620)}
  if(big&&!blocked){const fl=document.createElement("div");fl.className="flashW";F.appendChild(fl);setTimeout(()=>fl.remove(),220);const ar=$("#arena");if(ar){ar.classList.remove("punch");void ar.offsetWidth;ar.classList.add("punch")}}const add=(cls,html,st,ms)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html||"";d.style.cssText=`left:${x}px;top:${y}px;${st||""}`;F.appendChild(d);setTimeout(()=>d.remove(),ms)};
  const rot=-40+Math.random()*30;const col=blocked?"#8fd4ff":big?"#ffd23f":"#fff6d8";
@@ -542,7 +560,7 @@ function nextIntent(e,t){const E=ENEMY[e.id];if(e.waitTurns>0)return{k:"wait"};i
  let I,n=0;do{I=E.ai(e,t+Math.floor(rnd()*8))}while(n++<6&&e.lastI&&JSON.stringify(I)===e.lastI);e.lastI=JSON.stringify(I);return I}
 function dmgPlayer(v,src,raw){const p=B.p;let d=v;if(!raw){if(src){d+=src.str;if(src.weak>0)d*=.75}if(p.vuln>0)d*=1.5}d=Math.max(0,Math.floor(d));
  const blk=raw?0:B._pierce?0:Math.min(p.block,d);B._lastSrc=src;if(B._pierce&&p.block){p.block=0;toast("护盾被打穿了！")}p.block-=blk;const loss=d-blk;S.hp=Math.max(0,S.hp-loss);if(loss>0&&B)B.hurt=1;if(src&&has("thornvest")&&src.hp>0&&!raw){setTimeout(()=>{if(B&&!B.over&&src.hp>0)dealEnemy(src,3)},80)}if(loss>0&&B)B.enemies.forEach(x=>{if(x.id==="bloodbeast"&&x.hp>0)x.str=(x.str||0)+1});if(src&&src.id==="count"&&loss>0&&src.hp>0){src.hp=Math.min(src.max,src.hp+loss)}
- const el=$("#player");const c=center(el.querySelector(".body"));anim(el,"hit");sfx(loss?"hurt":"block");fnum(c.x,c.top+30,loss||"格挡",loss?"":"blk");if(loss>=12)stageShake();
+ const el=$("#player");const c=center(el.querySelector(".body"));anim(el,"hit");sfx(loss?"hurt":"block");fnum(c.x,c.top+30,loss?"-"+loss:"格挡",loss?"me":"blk");if(loss>=12)stageShake();
  if(S.hp<=0&&B.p.pw.rebirth&&!B.rebirthUsed){B.rebirthUsed=1;S.hp=Math.ceil(S.max*.5);toast("<b>凤凰涅槃</b>！你从火里站了起来");sfx("relic")}
  if(S.hp<=0&&has("phoenix")&&!S.flags.phoenix){S.flags.phoenix=1;S.hp=Math.ceil(S.max*.3);relicPulse("phoenix");toast("<b>不死羽</b>燃烧了！你又站了起来");sfx("relic")}
  if(src&&!raw&&p.thorn&&src.hp>0){const t=src;setTimeout(()=>{if(t.hp>0){dealEnemy(t,p.thorn);renderBattle()}},150)}

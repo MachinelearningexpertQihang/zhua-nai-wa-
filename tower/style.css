@@ -1476,3 +1476,61 @@ img{-webkit-user-drag:none;pointer-events:none}
 .ovTip{color:#ddd;font:700 14px 'NW Black';margin-right:16px}
 .ovGrid .card{cursor:pointer}
 .modal .credit{font:600 12px var(--body);color:#888;margin-top:14px}
+/* 带按钮的提示框可以点 */
+.tipBox.act{pointer-events:auto}
+/* ===== 药水瓶 ===== */
+.pot{width:40px;height:46px;border-radius:0;transform:skewX(-6deg)}
+.pot.full{background:#141414;border:3px solid #fff;box-shadow:3px 3px 0 var(--p5r)}
+.pot.full:hover{background:#2a2a2a}
+.flask2{position:relative;display:block;width:26px;height:36px;transform:skewX(6deg)}
+.flask2 i{position:absolute;display:block}
+.flask2 .cork{left:9px;top:0;width:8px;height:6px;background:#b07a45;border:2px solid #111;border-radius:2px 2px 0 0}
+.flask2 .neck{left:8px;top:6px;width:10px;height:8px;background:rgba(220,235,255,.55);border:2px solid #111;border-top:0;border-bottom:0}
+.flask2 .body{left:0;bottom:0;width:26px;height:24px;border-radius:50% 50% 46% 46%;border:2.5px solid #111;background:rgba(220,235,255,.35);overflow:hidden}
+.flask2 .liq{left:-4px;right:-4px;bottom:0;height:68%;background:var(--pc);box-shadow:inset 0 3px 0 rgba(255,255,255,.45),inset 0 -4px 0 rgba(0,0,0,.25);animation:liq 2.4s ease-in-out infinite}
+@keyframes liq{50%{transform:translateY(-1.5px) rotate(-4deg)}}
+.flask2 .shine{left:4px;top:3px;width:5px;height:10px;border-radius:50%;background:rgba(255,255,255,.85)}
+.flask2 .bub{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.8);bottom:2px;animation:bub 2.2s ease-in infinite}
+.flask2 .b1{left:9px}.flask2 .b2{left:15px;animation-delay:1.1s}
+@keyframes bub{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+.shopRow2 .pot{width:62px;height:72px}.shopRow2 .pot .flask2{transform:skewX(6deg) scale(1.55)}
+.rwList .pot .flask2,.rw .pot .flask2{transform:skewX(6deg) scale(.9)}
+/* 自己掉血：红色数字 */
+.fnum.me{color:#ff2a2a;-webkit-text-stroke:8px #fff;paint-order:stroke;text-shadow:4px 4px 0 #0d0d0d;font-size:58px}
+/* 连击计数：更大、停留更久 */
+#comboCt{left:640px;top:250px;gap:4px;align-items:flex-end}
+#comboCt b{font:900 120px/1 'NW Black'!important;color:#ffd200!important;-webkit-text-stroke:12px #0d0d0d!important;paint-order:stroke;text-shadow:8px 8px 0 var(--p5r)!important}
+#comboCt i{font:900 60px/1.6 'NW Black';font-style:normal;color:#fff;-webkit-text-stroke:8px #0d0d0d;paint-order:stroke}
+#comboCt small{font:900 38px/2.4 'NW Black'!important;color:#fff;background:#0d0d0d;padding:0 12px;transform:skewX(-12deg);-webkit-text-stroke:0!important;align-self:center}
+#comboCt.out{transition:opacity .45s,transform .45s;opacity:0;transform:translate(-50%,-80%) scale(var(--k))}
+/* 即将三连：池子里那几只发光晃动，手里能凑成三连的牌上下浮动发光 */
+.tok.hot{box-shadow:0 0 0 3px #ffd200,0 0 16px 4px rgba(255,210,0,.85)!important;animation:hotWig .5s ease-in-out infinite alternate!important}
+@keyframes hotWig{from{transform:rotate(-7deg) translateY(0)}to{transform:rotate(7deg) translateY(-3px)}}
+#pool .phot{position:absolute;left:50%;bottom:-48px;transform:translateX(-50%) skewX(-10deg);white-space:nowrap;font:900 15px 'NW Black';background:#ffd200;color:#0d0d0d;padding:2px 12px;box-shadow:3px 3px 0 #0d0d0d;animation:triP .8s ease-in-out infinite}
+.card .tri{right:auto;left:50%;top:-1.5em;transform:translateX(-50%);border-radius:0;background:#ffd200;font-family:'NW Black'}
+@keyframes triP2{50%{transform:translateX(-50%) scale(1.15)}}
+.card.willtri .tri{animation:triP2 .8s ease-in-out infinite}
+#hand .card.willtri .cf{background:#ffd200!important;animation:triGlow .7s ease-in-out infinite alternate}
+@keyframes triGlow{from{filter:brightness(1)}to{filter:brightness(1.3)}}
+#hand .card.willtri .in{animation:triBob .7s ease-in-out infinite alternate}
+@keyframes triBob{to{transform:translateY(-4px)}}
+/* ===== 长老特训 ===== */
+.trainBox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1060px;padding:26px 34px 22px;background:var(--p5w);border:6px solid var(--p5k);box-shadow:14px 14px 0 var(--p5r),14px 14px 0 6px var(--p5k);color:#151515}
+.trHead{position:absolute;left:30px;top:-30px;display:flex;align-items:center;gap:12px}
+.trHead small{font:900 16px 'NW Black';background:var(--p5k);color:#fff;padding:2px 12px;transform:skewX(-10deg)}
+.trBody{display:flex;gap:26px;align-items:center;margin-top:14px;min-height:330px}
+.trElder{flex:none;width:170px;text-align:center}
+.trElder img{width:170px;height:220px;object-fit:contain;filter:drop-shadow(5px 5px 0 rgba(0,0,0,.8))}
+.trElder b{display:inline-block;font:900 18px 'NW Black';background:var(--p5r);color:#fff;padding:1px 12px;transform:skewX(-10deg)}
+.trTxt{flex:1;position:relative;padding:18px 22px;background:#fff;border:4px solid var(--p5k);box-shadow:6px 6px 0 var(--p5k)}
+.trTxt::before{content:"";position:absolute;left:-22px;top:60px;border:11px solid transparent;border-right:12px solid var(--p5k)}
+.trTxt h3{display:inline-block;font:900 30px 'NW Black';background:var(--p5k);color:#fff;padding:0 16px;transform:skewX(-10deg);margin-bottom:10px}
+.trTxt p{font:600 18px/1.65 var(--body);margin:6px 0}
+.trCard{flex:none;width:170px;display:flex;justify-content:center}
+.trHero img{width:170px;height:220px;object-fit:contain}
+.trFoot{display:flex;justify-content:flex-end;gap:12px;margin-top:16px}
+.trFoot #trSkip{margin-right:auto}
+#comboCt{top:330px}
+#pool .phot{left:calc(100% + 14px);bottom:auto;top:50%;transform:translateY(-50%) skewX(-10deg);animation:none}
+#pool .phot{animation:photP .8s ease-in-out infinite}
+@keyframes photP{50%{transform:translateY(-50%) skewX(-10deg) scale(1.08)}}
