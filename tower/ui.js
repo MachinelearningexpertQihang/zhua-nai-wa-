@@ -107,9 +107,12 @@ function p5TitleSVG(){
  <linearGradient id="p5fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="1"/><stop offset=".55" stop-color="#000" stop-opacity="0"/></linearGradient>
  <mask id="p5m"><rect width="1280" height="720" fill="url(#p5fade)"/></mask></defs>
  <rect width="1280" height="720" fill="#d8141a"/>
- <g fill="#b80f14" class="p5rays">${rays}</g>
+ <g fill="#b80f14" class="p5rays" style="transform-origin:875px 212px">${rays}</g>
  <rect width="1280" height="720" fill="url(#p5dot)" opacity=".22" mask="url(#p5m)"/>
- <circle cx="980" cy="300" r="190" fill="#0d0d0d"/><circle cx="980" cy="300" r="172" fill="#fff"/><circle cx="1010" cy="276" r="172" fill="#d8141a"/>
+ <pattern id="p5moonDot" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3" cy="3" r="2.4" fill="#d8141a"/></pattern><clipPath id="p5moonC"><circle cx="875" cy="212" r="158"/></clipPath>
+ <circle cx="875" cy="212" r="192" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="70 16 8 16" opacity=".85" class="p5ring"/>
+ <circle cx="875" cy="212" r="158" fill="#fff"/>
+ <g clip-path="url(#p5moonC)"><circle cx="905" cy="188" r="160" fill="url(#p5moonDot)" opacity=".6"/><circle cx="922" cy="174" r="156" fill="#d8141a"/></g>
  <path d="M0 0 H560 L380 720 H0 Z" fill="#0d0d0d"/>
  <path d="M560 0 L590 0 L410 720 L380 720 Z" fill="#fff"/>
  <rect x="0" y="0" width="580" height="720" fill="url(#p5dotW)"/>

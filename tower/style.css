@@ -1043,7 +1043,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .logo h1 .rn1{background:var(--p5w);color:var(--p5k);transform:rotate(4deg) translateY(16px);box-shadow:6px 6px 0 var(--p5k);font-size:92px}
 #title .logo h1 .rn2{background:var(--p5r);color:var(--p5w);transform:rotate(-3deg) translateY(-2px);box-shadow:6px 6px 0 var(--p5k);font-size:84px}
 #title .logo h1 .rn3{transform:rotate(7deg) translateY(10px);font-size:112px;border:4px solid var(--p5w)}
-#title .logo::after{content:"VER 3.6.1";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
+#title .logo::after{content:"VER 3.6.2";left:auto;right:-90px;top:-10px;writing-mode:horizontal-tb;font:900 18px/1 'NW Black',sans-serif;letter-spacing:3px;color:var(--p5k);background:var(--p5w);padding:6px 10px;border-radius:0;box-shadow:4px 4px 0 var(--p5r);transform:rotate(-8deg)}
 #title .tsub{margin:30px 0 0 4px}
 #title .tsub .ribbon{font-family:'NW Black';font-weight:900;font-size:20px;letter-spacing:6px;color:var(--p5k);background:var(--p5w);border:0;padding:6px 18px;transform:skewX(-12deg);box-shadow:5px 5px 0 var(--p5r)}
 #title .tmenu{top:330px;gap:14px}
@@ -1749,3 +1749,49 @@ img{-webkit-user-drag:none;pointer-events:none}
 #title .gbtn:not(.sm){padding:8px 46px 10px 30px;min-width:340px}
 #title .tmenu .sub{margin-top:26px}
 #title .tsub{margin-left:40px}
+
+/* 主页四主角：同一地台、整体右移、原地呼吸 */
+#title .tkungfu{right:410px;bottom:57px}
+#title .tmage{right:260px;bottom:57px}
+#title .thero{right:70px;bottom:57px}
+#title .tknight{right:-24px;bottom:58px}
+#title .tkungfu,#title .tmage,#title .thero,#title .tknight{transform-origin:50% 100%;animation-name:tBreath}
+@keyframes tBreath{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,.975)}}
+#title .thero .plat{display:none}
+#title .tfloor{position:absolute;left:520px;right:-40px;bottom:30px;height:46px;z-index:0;background:var(--p5k);transform:skewX(-18deg);box-shadow:0 -4px 0 var(--p5w),10px 10px 0 var(--p5r);pointer-events:none}
+#title .tknight{width:240px;height:305px;right:-34px}
+#title .tfloor{display:none}
+#title .tkungfu,#title .tmage,#title .thero,#title .tknight{isolation:isolate}
+#title .tkungfu::before,#title .tmage::before,#title .thero::before,#title .tknight::before{content:"";position:absolute;left:18%;right:18%;bottom:-10px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.7) 35%,rgba(216,20,26,.55) 62%,transparent);z-index:-1}
+#title .tkungfu::before{left:8%;right:12%}
+/* 事件页（遇见 NPC）· P5 统一 */
+.evPic{border-radius:0;border:5px solid var(--p5k);background:#d8141a;box-shadow:0 0 0 4px #fff,10px 10px 0 4px var(--p5k);clip-path:none;transform:rotate(-1.5deg)}
+.evPic::before{background:repeating-conic-gradient(#b80f14 0 9deg,transparent 9deg 18deg)}
+.evPic::after{content:"";position:absolute;inset:0;background:radial-gradient(#0d0d0d 1.6px,transparent 2px) 0 0/12px 12px;opacity:.18;pointer-events:none;-webkit-mask:linear-gradient(transparent 40%,#000);mask:linear-gradient(transparent 40%,#000)}
+.evPic img{filter:drop-shadow(6px 6px 0 rgba(13,13,13,.85))}
+.evTxt p{font:400 22px/1.7 'NW Black',sans-serif;color:var(--p5k)}
+.evo b{background:var(--p5k)!important;color:var(--p5w)!important;border-color:var(--p5k)!important;border-radius:0!important;transform:skewX(-6deg)}
+.evo:hover:not(:disabled) b{background:var(--p5r)!important}
+.evo small{font-family:'NW Black'!important;color:#3a3a3a!important}
+.evo:hover:not(:disabled) small{color:#ddd!important}
+.evo .good{color:#0a8a3a}.evo .bad{color:var(--p5r)}
+/* 升级动画 · P5 统一 */
+.upFx{background:radial-gradient(circle at 50% 46%,rgba(229,25,28,.28),rgba(8,6,10,.72) 70%)}
+.upRays{background:repeating-conic-gradient(rgba(229,25,28,.55) 0 7deg,transparent 7deg 20deg)}
+@keyframes upNew{0%{opacity:0;transform:scale(.85);filter:brightness(3)}60%{opacity:1;transform:scale(1.08);filter:brightness(1.4)}100%{opacity:1;transform:scale(1);filter:drop-shadow(0 0 0 #fff) drop-shadow(8px 8px 0 #e5191c)}}
+.upFlash{box-shadow:0 0 60px 30px rgba(255,255,255,.8)}
+.upSp{background:var(--p5w);border-color:var(--p5k)}
+.upSp:nth-of-type(odd){background:var(--p5r)}
+.upT small{display:inline-block;margin-top:14px;font:400 20px 'NW Black',sans-serif;-webkit-text-stroke:0;background:var(--p5w);color:var(--p5k);padding:4px 16px;transform:skewX(-10deg);box-shadow:5px 5px 0 var(--p5k)}
+/* 升级选天赋 · 统一 */
+.perk{background:var(--p5k)!important;color:var(--p5w)!important;border-color:var(--p5k)!important;box-shadow:0 0 0 4px var(--p5w),12px 12px 0 4px var(--p5r)!important}
+.perk b{background:var(--p5w)!important;color:var(--p5k)!important}
+.perk p{font:400 18px/1.5 'NW Black',sans-serif!important;color:#eee!important}
+.perk small{color:#ff5a5d!important}
+.perk .pi{background:var(--p5w)!important;border-color:var(--p5w)!important;box-shadow:6px 6px 0 var(--p5r)!important}
+.perk .pi svg{filter:brightness(0)}
+.perk:hover{background:var(--p5r)!important;box-shadow:0 0 0 4px var(--p5w),12px 12px 0 4px var(--p5k)!important}
+.perk:hover b{background:var(--p5k)!important;color:var(--p5w)!important}
+.perk:hover p,.lvWrap .perk:hover small{color:var(--p5w)!important}
+.perk:hover .pi{box-shadow:6px 6px 0 var(--p5k)!important}
+.p5Scene .p5ring{transform-origin:875px 212px;animation:p5spin 60s linear infinite reverse}

@@ -1,6 +1,6 @@
 /* ===================== 奶蛙之塔 · 主程序 ===================== */
 "use strict";
-const VER="3.6.1";
+const VER="3.6.2";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 /* 图片：把内嵌的 base64 一次性转成 blob 地址，之后每次渲染只传一个短链接，切页面和出牌都快很多 */
 const IMG_CACHE={};
@@ -118,7 +118,7 @@ function potMenu(el,i){const id=S.pots[i],P=POTIONS[id];const inB=B&&!B.over&&$(
 function usePotion(i){const id=S.pots[i],P=POTIONS[id];M.pots=(M.pots||0)+1;if(M.pots>=30)ach("potions");
  if(!B||B.over||!$("#battle").classList.contains("on")){if(id==="pheal"){S.pots.splice(i,1);S.hp=Math.min(S.max,S.hp+20);sfx("heal");toast("回复了 <b>20</b> 生命");renderTop();saveRun()}return}
  if(P.tgt){const al=B.alive();if(al.length===1){S.pots.splice(i,1);P.fx(B,al[0]);afterAction()}else{B.sel={pot:i};hint("点一个敌人使用 "+P.n);renderBattle()}return}
- S.pots.splice(i,1);P.fx(B);sfx("buff");afterAction()}
+ S.pots.splice(i,1);P.fx(B);sfx("buff");if(rnd()<.5)setTimeout(()=>heroSay(pick(HL("potion"))),300);afterAction()}
 function settings(){ov(`<div class="modal"><h3>设置</h3><div class="row" style="flex-direction:column;align-items:center;gap:14px"><button class="btn sm ${A.music?"":"ghost"}" id="sMus" style="min-width:240px">音乐：${A.music?"开":"关"}</button><button class="btn sm ${A.sfx?"":"ghost"}" id="sSfx" style="min-width:240px">音效：${A.sfx?"开":"关"}</button><button class="btn sm ghost" id="sSpeed" style="min-width:240px">战斗速度：${SPEED}×</button><button class="btn sm ghost" id="sCodex" style="min-width:240px">卡牌图鉴</button><button class="btn sm ghost" id="sTrain" style="min-width:240px">再听一次长老特训</button><button class="btn sm ghost" id="sQuit" style="min-width:240px">保存并回到标题</button><button class="btn sm pink" id="sGive" style="min-width:240px">放弃这次冒险</button><button class="btn sm" id="sClose" style="min-width:240px">继续</button></div><p class="credit">乐器音色：FluidR3 GM（Frank Wen），CC BY 3.0</p></div>`);
  $("#sMus").onclick=()=>{A.music=!A.music;audioSave();settings()};$("#sSfx").onclick=()=>{A.sfx=!A.sfx;audioSave();settings()};
  $("#sCodex").onclick=()=>codex();$("#sSpeed").onclick=()=>{SPEED=SPEED>=2?1:SPEED>=1.5?2:1.5;try{localStorage.setItem("nwt-speed",SPEED)}catch(e){}document.documentElement.style.setProperty("--spd",SPEED);settings()};$("#sTrain").onclick=async()=>{closeOv();const b=M.trainBase;M.trainBase=0;await training((S&&S.hero)||"naiwa");M.trainBase=b||1;saveMeta()};$("#sClose").onclick=closeOv;
@@ -181,7 +181,7 @@ function yardScreen(){
 function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("title");const sv=loadRun();
  $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map((c,i)=>`<span class="rn rn${i}" data-c="${c}">${c}</span>`).join("")}</h1><div class="tsub"><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div></div>
  <div class="tmenu">${sv?(()=>{const H=HEROES.find(h=>h.id===sv.hero)||HEROES[0],a=sv.act||0,stp=sv.atBoss?"首领":(sv.row>=0?`第 ${sv.row+1}/${ROWS} 步`:"入口");return`<div class="saveWrap"><button class="saveCard" id="tCont"><div class="svPic"><img src="${IMG(H.img)}" alt=""></div><div class="svInfo"><div class="svT"><b>回到塔里</b><span>${H.n}</span></div><div class="svL">第${"一二三四五"[a]||a+1}层 · ${ACTS[a]?ACTS[a].n:""}　${stp}</div><div class="svS"><span>${ICON.heart}${sv.hp}/${sv.max}</span><span>${ICON.deck}${(sv.deck||[]).length} 张</span><span>${ICON.coin}${sv.gold||0}</span><span>第 ${(sv.asc||0)+1} 周目</span></div></div><i class="svGo">▶</i></button><button class="newLink" id="tNew">重新开始</button></div>`})():`<button class="gbtn" id="tNew"><i class="pl"></i><b>开始冒险</b></button>`}<div class="sub"><button class="gbtn sm" id="tCodex"><b>卡牌图鉴</b></button><button class="gbtn sm" id="tBoss"><b>首领图鉴</b></button><button class="gbtn sm" id="tAch"><b>成就</b></button><button class="gbtn sm" id="tRank"><b>排行榜</b></button><button class="gbtn sm" id="tSet"><b>${A.music?"♪ 音乐开":"♪ 音乐关"}</b></button></div></div>
- <div class="tkungfu"><img src="${IMG("n1")}"></div><div class="tknight"><img src="${IMG("kn")}"></div><div class="tmage"><img src="${IMG("mg")}"></div><div class="thero"><img src="${IMG(HI())}"><i class="plat"></i></div>
+ <i class="tfloor"></i><div class="tkungfu"><img src="${IMG("n1")}"></div><div class="tknight"><img src="${IMG("kn")}"></div><div class="tmage"><img src="${IMG("mg")}"></div><div class="thero"><img src="${IMG(HI())}"><i class="plat"></i></div>
  ${window.toy?"":`<button class="zsBtn" id="zsBtn"><img src="zanshang.jpg" alt=""><span>赞赏作者</span></button>`}<button class="yardBtn" id="tYard"><img src="${IMG("m6")}" alt=""><span>长老的小院${(()=>{const n=META.filter(u=>mlv(u.id)<u.max&&(M.shards||0)>=u.cost(mlv(u.id))).length;return n?`<i class="dot"></i>`:""})()}</span><em>${ICON.star}${M.shards||0}</em></button>${M.isekaiMet?`<button class="isePeek" id="tIse"><img src="${IMG("yjx")}"></button>`:""}<div class="cloudSt" id="cloudSt">${CLOUD.txt()}</div><div class="tmeta"><span>通关 <b>${M.wins}</b> 次</span><span>成就 <b>${ACH.filter(a=>(M.ach||{})[a.id]).length}/${ACH.length}</b></span></div>`;
  const c=$("#tCont");if(c)c.onclick=()=>{S=sv;resume()};
  $("#tNew").onclick=()=>{if(sv)confirmBox("重新开始？","现在的存档会被覆盖。",()=>{closeOv();heroSelect()});else heroSelect()};
@@ -317,7 +317,7 @@ function startCombat(kind){{const bt=$("#battle");bt.classList.toggle("bossFight
  B.enemies.forEach(e=>e.intent=e.waitTurns>0?{k:"wait"}:ENEMY[e.id].ai(e,0));
  renderBattle(true);
  if(has("feather"))B.block(8,1);
- setTimeout(async()=>{if(!B)return;if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(!B)return;if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();if(rnd()<.3)heroSay(pick(HERO_LINE.start));startTurn()},300)}
+ setTimeout(async()=>{if(!B)return;if(!M.tut){M.tut=1;saveMeta();await tutorial()}if(!B)return;if(B.introTalk){await talk(B.introTalk);B.introTalk=null}if(B.introFx)B.introFx();{const bk="BFK".includes(B.kind),ek=B.kind==="E";if(bk)heroSay(pick(HL("boss")),1);else if(ek&&rnd()<.7)heroSay(pick(HL("elite")),1);else if(rnd()<.35)heroSay(pick(HL("start")))}startTurn()},300)}
 /* ===================== 长老特训：每个角色第一次出发前 ===================== */
 const TRAIN_BASE=[
  {t:"出牌和奶力",l:["每回合你有 3 点奶力。卡牌左上角的数字是它要花的奶力。","点一张牌出牌；要选目标的牌，再点一个敌人。","用不完的牌回合结束会弃掉，下回合重新抽 5 张。"],c:"strike"},
@@ -338,7 +338,7 @@ function training(hid){return new Promise(res=>{const pages=[...(M.trainBase?[]:
  draw()})}
 function tutorial(){return new Promise(res=>{ov(`<div class="modal" style="max-width:820px;text-align:left"><h3 style="text-align:center">奶蛙池怎么玩</h3><p>1. 打出的每张家族牌，都会往上方的<b>奶蛙池</b>里放一只奶蛙，它会自动排到同家族旁边。</p><p>2. <b>3 只相邻的同家族</b>就会消除：这张牌效果翻倍，再触发一次<b>家族爆发</b>。</p><p>3. 消除后后面的奶蛙会往前补位，补位又凑成 3 只就继续消，这就是<b>连锁</b>。每多一环，爆发翻一倍，还多给 1 点奶力。</p><p>4. 敌人会往池里<b>丢泥巴</b>把你的奶蛙隔开、<b>冻住</b>奶蛙、甚至<b>吸走</b>奶蛙。泥巴凑够 3 块也会消掉，常常能顺势连锁。池子满 7 格会溢出受伤。</p><p>5. 敌人血量低于 35% 时可以<b>抓</b>回去当伙伴卡；每层的<b>月相天气</b>在左上角；集齐 3 张同名牌会合成<b>金卡</b>。</p><div class="row"><button class="btn" id="tutOk">开打！</button></div></div>`);$("#tutOk").onclick=()=>{closeOv();res()}})}
 function relicPulse(id){const e=$(`#top .rl[data-rl="${id}"]`);if(e){e.classList.remove("pulse");void e.offsetWidth;e.classList.add("pulse")}}
-async function startTurn(){if(B.over)return;B.turn++;B.combo=0;B.hitStreak=0;B.palTurn=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
+async function startTurn(){if(B.over)return;B.turn++;B.lastAct=Date.now();B.combo=0;B.hitStreak=0;B.palTurn=0;B.played=0;B.fam={};B.wayUsed=0;B.myTurn=true;const p=B.p;
  B.horseN=0;B.fogUsed=0;B.chainsTurn=0;B.comboUsed=0;{let th=0;B.pool.forEach(x=>{if(x.ice){x.ice--;if(!x.ice)th++}});if(th){toast(`池里有 ${th} 只奶蛙解冻了`);B.poolResolve()}}p.noOverflow=0;if(!p.retain&&!p.pw.iron)p.block=(B.wx==="snow"||S.hero==="knight")?Math.floor(p.block/2):0;if(B.turn===1&&S.hero==="naiwa")p.block+=8;if(B.turn===1&&S.hero==="knight")p.block+=7;if(B.turn===1){if(has("mr_pillow"))p.block+=4;if(has("mr_mirror"))p.block+=6;if(has("mr_notes"))p.mana=(p.mana||0)+2}if(B.turn===1&&S.hero==="mage")p.mana=(p.mana||0)+2;B.knAtk=0;if(B.turn===1&&has("spikeshell")){p.block+=8;relicPulse("spikeshell")}if(B.turn===1){if(has("ironpot"))p.str=(p.str||0)+1;if(has("frogcharm")){B.poolInsert("frog");B.poolInsert("frog");B.poolResolve()}}if(has("bigspoon")&&!p.block)p.block+=4;if(has("snowglobe"))B.pool.forEach(x=>x.ice=0);if(has("darkmirror")){S.hp=Math.max(1,S.hp-1);p.tstr=(p.tstr||0)+2}B.horseRope=0;B.catBell=0;B.played5=0;{const W=p.pw2||{};if(W.mana)p.mana=(p.mana||0)+W.mana;if(W.starcat){const al=B.alive();if(al.length){B.curSpell="arc";B.spell(pick(al),W.starcat);B.curSpell=null}}if(W.shield)B.block(W.shield);if(W.tstr)p.tstr=(p.tstr||0)+W.tstr;if(W.heal)B.heal(W.heal);if(W.frogwall){for(let i=0;i<W.frogwall;i++)B.poolInsert("frog");B.poolResolve();B.poolOverflow()}if(W.vuln){const al=B.alive();if(al.length)B.apply(pick(al),"vuln",W.vuln)}};p.retain=0;
  banner("你的回合");sfx("turn");
  if(B.wxShift&&B.turn===B.wxShift.turn){weatherShift();await sleep(600);if(!B||B.over)return}
@@ -502,7 +502,7 @@ const API={
   if(f==="any"){for(let i=P.length;i>=0;i--){const t=[...P];t.splice(i,0,tok);if(findRun(t,this.poolNeed())){P.splice(i,0,tok);return}}P.push(tok);return}
   let last=-1;P.forEach((x,i)=>{if((x.f===f||x.f==="any")&&!x.ice)last=i});if(last<0)P.push(tok);else P.splice(last+1,0,tok)},
  poolAdd(f){this.poolInsert(f);const r=this.poolResolve();this.poolOverflow();renderPool();return r},
- poolResolve(){let lv=0,first=null,run;while((run=findRun(this.pool,this.poolNeed()))){lv++;this.pool.splice(run.i,run.n);if(!first)first=run.f;renderPool();this.poolFx(run.f,lv,run.n)}if(lv>=2){chainBanner(lv);heroSay(pick(HERO_LINE.chain[Math.min(lv,6)]),1);this.chainsTurn=(this.chainsTurn||0)+1;if(has("shadowcloak")){relicPulse("shadowcloak");this.alive().forEach(e=>this.hit(e,6,1,1))}if(this.p.pw.momentum){this.p.str+=this.p.pw.momentum;this.fxBuff(this.p)}if(this.p.pw.ninering){this.draw(2*this.p.pw.ninering);this.gainEnergy(this.p.pw.ninering)}if(perk("chain"))this.block(6*perk("chain"),1);if(has("chainbell")){relicPulse("chainbell");this.block(6,1)}}return first},
+ poolResolve(){let lv=0,first=null,run;while((run=findRun(this.pool,this.poolNeed()))){lv++;this.pool.splice(run.i,run.n);if(!first)first=run.f;renderPool();this.poolFx(run.f,lv,run.n)}if(lv>=2){chainBanner(lv);heroSay(pick(HLC(Math.min(lv,6))),1);this.chainsTurn=(this.chainsTurn||0)+1;if(has("shadowcloak")){relicPulse("shadowcloak");this.alive().forEach(e=>this.hit(e,6,1,1))}if(this.p.pw.momentum){this.p.str+=this.p.pw.momentum;this.fxBuff(this.p)}if(this.p.pw.ninering){this.draw(2*this.p.pw.ninering);this.gainEnergy(this.p.pw.ninering)}if(perk("chain"))this.block(6*perk("chain"),1);if(has("chainbell")){relicPulse("chainbell");this.block(6,1)}}return first},
  poolOverflow(){if(this.pool.length<=this.poolCap)return;const out=this.pool.splice(0,3);
   if(this.p.noOverflow||has("tidecharm"))toast("池子溢出了，但你没有受伤！");else{toast("池子溢出了！受到 <b>6</b> 伤害，最前面的 3 只被挤了出去");dmgPlayer(6,null,true)}
   sfx("hurt");const pl=$("#pool");pl.classList.remove("spill");void pl.offsetWidth;pl.classList.add("spill");this.poolResolve()},
@@ -593,7 +593,7 @@ async function catchEnemy0(e){if(!canCatch(e))return;const cc=S.mod==="pal"||(ha
  if(e.stolen){S.gold+=e.stolen;toast(`拿回了 <b>${e.stolen}</b> 金币`);e.stolen=0}
  toast(`抓到了 <b>${e.n}</b>！战斗结束后，伙伴卡「${CARDS[pal].n}」会加入牌组`);
  await sleep(500)}
-function killEnemy(t){S.stats.kills++;if(ENEMY[t.id].boss&&!t.guard)S.stats.endb=(S.stats.endb||0)+1;if(ENEMY[t.id].boss)S.stats.bosses=(S.stats.bosses||0)+1;M.kills=(M.kills||0)+1;if(M.kills>=100)ach("kill100");if(M.kills>=1000)ach("kill1000");if(t.id==="demon")ach("demon");if(t.guard)ach("guard");if(t.id==="mimic")ach("mimic");if(t.id==="goldfrog")ach("goldfrog");if(has("vampfang"))S.hp=Math.min(S.max,S.hp+4);if(ENEMY[t.id].boss&&BOSS_LORE[t.id]){M.boss=M.boss||{};const r=M.boss[t.id]=M.boss[t.id]||{};r.k=(r.k||0)+1;saveMeta();if(Object.keys(BOSS_LORE).every(k=>(M.boss[k]||{}).k))ach("allboss")}if(has("pearlbag"))B.extraGold+=8;if(t.af==="rich"){B.extraGold+=60;toast("富有的敌人掉了 <b>60</b> 金币")}if(t.af==="glitter")B.shinyLoot=1;if(t.id==="goldfrog"){B.goldKill=1;toast("打倒了<b>金色奶蛙</b>！金币哗啦啦地掉了一地")}B.alive().forEach(a=>{if(a.af==="vengeful"&&a!==t){a.str+=3;const el2=enEl(a);if(el2)say(el2.querySelector(".body"),"你竟敢！（力气 +3）")}});if(rnd()<.3)setTimeout(()=>heroSay(pick(HERO_LINE.kill)),500);if(t.stolen){S.gold+=t.stolen;toast(`抢回了 <b>${t.stolen}</b> 金币`);t.stolen=0}
+function killEnemy(t){S.stats.kills++;if(ENEMY[t.id].boss&&!t.guard)S.stats.endb=(S.stats.endb||0)+1;if(ENEMY[t.id].boss)S.stats.bosses=(S.stats.bosses||0)+1;M.kills=(M.kills||0)+1;if(M.kills>=100)ach("kill100");if(M.kills>=1000)ach("kill1000");if(t.id==="demon")ach("demon");if(t.guard)ach("guard");if(t.id==="mimic")ach("mimic");if(t.id==="goldfrog")ach("goldfrog");if(has("vampfang"))S.hp=Math.min(S.max,S.hp+4);if(ENEMY[t.id].boss&&BOSS_LORE[t.id]){M.boss=M.boss||{};const r=M.boss[t.id]=M.boss[t.id]||{};r.k=(r.k||0)+1;saveMeta();if(Object.keys(BOSS_LORE).every(k=>(M.boss[k]||{}).k))ach("allboss")}if(has("pearlbag"))B.extraGold+=8;if(t.af==="rich"){B.extraGold+=60;toast("富有的敌人掉了 <b>60</b> 金币")}if(t.af==="glitter")B.shinyLoot=1;if(t.id==="goldfrog"){B.goldKill=1;toast("打倒了<b>金色奶蛙</b>！金币哗啦啦地掉了一地")}B.alive().forEach(a=>{if(a.af==="vengeful"&&a!==t){a.str+=3;const el2=enEl(a);if(el2)say(el2.querySelector(".body"),"你竟敢！（力气 +3）")}});if(rnd()<.3)setTimeout(()=>heroSay(pick(HL("kill"))),500);if(t.stolen){S.gold+=t.stolen;toast(`抢回了 <b>${t.stolen}</b> 金币`);t.stolen=0}
  if(has("cape")){relicPulse("cape");setTimeout(()=>B&&B.heal(3),300)}
  if(t.id==="king")B.enemies.forEach(e=>{if(e.hp>0){e.hp=0}})}
 const ULT={king:{n:"泥巴海啸",m:1.5,s:"mud",d:4},snakeking:{n:"万蛇噬咬",m:.5,x:4},count:{n:"血月之吻",m:1.7,s:"weak",d:2},buddha:{n:"金刚掌",m:1.6,p:1},iceking:{n:"冰河时代",m:1.5,s:"weak",d:2},snowking:{n:"超级雪球",m:2},lavagiant:{n:"火山爆发",m:1.5,s:"burn",d:5},pearlqueen:{n:"滚烫满壶",m:.6,x:3,s:"burn",d:3},shadow:{n:"影分身连斩",m:.45,x:5},cosmicegg:{n:"超新星",m:2.2},rockfrog:{n:"落石",m:1.6},fallen:{n:"审判之光",m:1.5,s:"weak",d:2},thunderking:{n:"天雷",m:1.7,p:1},fourhead:{n:"四重奏",m:.4,x:4},abyssdragon:{n:"深渊之口",m:1.8,s:"vuln",d:2},fogwhite:{n:"白雾吞没",m:1.6,s:"weak",d:2},witch:{n:"厄运诅咒",m:1.4,s:"vuln",d:3},bloodbeast:{n:"撕咬",m:.55,x:4},boilerdragon:{n:"锅炉爆燃",m:1.6,s:"burn",d:6},tophat:{n:"最后的魔术",m:2,p:1},demon:{n:"大魔王之锅",m:2,p:1},_:{n:"全力一击",m:1.8}};
@@ -614,12 +614,12 @@ function dmgPlayer(v,src,raw){const p=B.p;let d=v;if(!raw){if(src){d+=src.str;if
  if(src&&!raw&&p.thorn&&src.hp>0){const t=src;setTimeout(()=>{if(t.hp>0){dealEnemy(t,p.thorn);renderBattle()}},150)}
  if(src&&src.af==="vamp"&&loss>0&&src.hp>0){const h=Math.ceil(loss/2);src.hp=Math.min(src.max,src.hp+h)}
  if(loss>0&&S.hp<=0)S.stats.killer=src?src.n:(B.lastSrc||"");
- if(loss>=15&&S.hp>0&&rnd()<.5)heroSay(pick(HERO_LINE.big));
- if(S.hp>0&&S.hp<=S.max*.25&&!B.heroLow){B.heroLow=1;heroSay(pick(HERO_LINE.low),1)}
+ if(loss>=15&&S.hp>0&&rnd()<.5)heroSay(pick(HL("big")));
+ if(S.hp>0&&S.hp<=S.max*.25&&!B.heroLow){B.heroLow=1;heroSay(pick(HL("low")),1)}
  renderTop();return loss}
 
 /* ---- 出牌 ---- */
-async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=curCost(c),x=0;
+async function playCard(c,target){if(busy)return;if(B)B.lastAct=Date.now();const D=CARDS[c.id];let cost=curCost(c),x=0;
  if(D.cost===-1){x=B.p.energy;cost=x}if(cost>B.p.energy)return;
  if(D.tgt&&(!target||target.hp<=0)){const al=B.alive();if(al.length===1)target=al[0];else return}
  busy=true;B.sel=null;hint();B.p.energy-=cost;B.hand.splice(B.hand.indexOf(c),1);
@@ -629,7 +629,7 @@ async function playCard(c,target){if(busy)return;const D=CARDS[c.id];let cost=cu
  B.bonus=0;if(D.type==="atk"){B.bonus=B.p.nextAtk;B.p.nextAtk=0;if(S.hero==="knight"&&!B.knAtk){B.knAtk=1;B.bonus+=Math.min(10,Math.floor(B.p.block/4))}}
  B.cardSeq=(B.cardSeq||0)+1;B.curFam=D.fam;B.curType=D.type;B.shinyPow=c.sh==="pow"?4:0;if(c.sh==="draw")B.after.push(async()=>B.draw(1));if(D.fam==="horse"&&B.p.horseFree)B.p.horseFree=0;
  if(D.fam==="horse"&&B.p.pw.blood){B.p.tstr+=B.p.pw.blood}
- if(D.fam==="pal"&&PAL_LINE[c.id])heroSay(pick(PAL_LINE[c.id]),1);else if(c.g&&rnd()<.5)heroSay(pick(HERO_LINE.golden));
+ if(D.fam==="pal"&&PAL_LINE[c.id])heroSay(pick(PAL_LINE[c.id]),1);else if(c.g&&rnd()<.5)heroSay(pick(HL("golden")));
  if(D.fam==="pal"&&has("palcollar"))B.after.push(async()=>B.draw(1));
  let tri=false;if(D.fam!=="none"&&D.type!=="cur"&&D.type!=="sts"){if(B.poolAdd(D.fam)===D.fam)tri=true}else if(D.spell){if(B.poolAdd("magic")==="magic")tri=true}else if(c.id==="mud")B.poolAdd("mud");
  if(B.wx==="fog"&&D.fam==="cat"&&!B.fogUsed){B.fogUsed=1;B.after.push(async()=>B.draw(1))}
@@ -681,7 +681,7 @@ $("#drawPile").onclick=()=>B&&viewCards(B.dp,"抽牌堆",`${B.dp.length} 张（�
 $("#discPile").onclick=()=>B&&viewCards(B.disc,"弃牌堆",`${B.disc.length} 张`,false);
 $("#exhPile").onclick=()=>B&&viewCards(B.exh,"消耗的牌",`本场战斗不会再回来`,false);
 $("#battle").addEventListener("click",e=>{if(B&&B.sel&&!e.target.closest(".card")&&!e.target.closest(".en")){const c=B.hand.find(x=>x.k===B.sel.k);if(c&&!CARDS[c.id].tgt&&e.target.closest("#arena")){playCard(c);return}B.sel=null;hint();renderBattle()}});
-async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;if(S.hero!=="mage"&&B.p.energy>0&&B.endWarn!==B.turn&&B.hand.some(c=>{const D=CARDS[c.id],v=curCost(c);return v>=0&&v<=B.p.energy&&D.cost!==-2&&D.type!=="cur"&&D.type!=="sts"})){B.endWarn=B.turn;const eb=$("#endBtn");eb.classList.remove("warnShake");void eb.offsetWidth;eb.classList.add("warnShake");toast(`还有 <b>${B.p.energy}</b> 点奶力和能打的牌。确定的话，再点一次结束回合`);return}busy=true;B.myTurn=false;B.sel=null;hint();$("#endBtn").classList.add("wait");
+async function endTurn(){if(busy||!B||!B.myTurn||B.over)return;if(S.hero!=="mage"&&B.p.energy>0&&B.endWarn!==B.turn&&B.hand.some(c=>{const D=CARDS[c.id],v=curCost(c);return v>=0&&v<=B.p.energy&&D.cost!==-2&&D.type!=="cur"&&D.type!=="sts"})){B.endWarn=B.turn;{const l=HL("endE");if(l.length&&rnd()<.6)heroSay(pick(l),1)}const eb=$("#endBtn");eb.classList.remove("warnShake");void eb.offsetWidth;eb.classList.add("warnShake");toast(`还有 <b>${B.p.energy}</b> 点奶力和能打的牌。确定的话，再点一次结束回合`);return}busy=true;B.myTurn=false;B.sel=null;hint();$("#endBtn").classList.add("wait");
  if(has("sugarcube")&&B.p.energy>0){B.p.block+=B.p.energy*3}if(S.hero==="mage"&&B.p.energy>0){B.p.mana=(B.p.mana||0)+B.p.energy;toast(`剩下的奶力化成了 <b>${B.p.energy}</b> 层魔力`)}
  const p=B.p;let mud=B.hand.filter(c=>c.id==="mud").length*(B.wx==="rain"?2:1);if(mud){dmgPlayer(mud*2,null,true);toast(`手里的泥巴块弄脏了你，受到 <b>${mud*2}</b> 伤害`);if(S.hp<=0)return lose()}
  const keep=[];for(const c of B.hand){delete c.tmp;if(CARDS[c.id].ret||c.sh==="ret")keep.push(c);else if(CARDS[c.id].eth)B.exh.push(c);else B.disc.push(c)}B.hand=keep;
@@ -862,7 +862,7 @@ function restSite(){show("rest");setBg("rest");playMusic("home");const heal=Math
  $("#rHeal").onclick=()=>{S.hp=Math.min(S.max,S.hp+heal);sfx("heal");toast(`回复了 <b>${heal}</b> 生命`);renderTop();done()};
  $("#rUp").onclick=async()=>{const r=await upgradePick();if(r)done()};
  $("#rTalk").onclick=async()=>{const t=["长老说，他年轻的时候也爬过这座塔。","「那时候我只想着往上爬，一次都没回头看。」","「后来才知道，最重要的东西，一直在塔底。」","长老抿了一口奶茶，没有再说下去。"];
-  await talk([["m6","奶蛙长老",pick(t)],["n1","功夫奶蛙","，长老？"],["m6","奶蛙长老","哈哈，人老了话就多。快睡吧。"]]);S.hp=Math.min(S.max,S.hp+Math.floor(heal/2));sfx("heal");renderTop();done()}}
+  await talk([["m6","奶蛙长老",pick(t)],[HI(),HN(),pick(REST_REPLY[S.hero]||REST_REPLY.naiwa)],["m6","奶蛙长老","哈哈，人老了话就多。快睡吧。"]]);S.hp=Math.min(S.max,S.hp+Math.floor(heal/2));sfx("heal");renderTop();done()}}
 async function upgradePick(){const list=S.deck.filter(c=>!c.u&&!["cur","sts"].includes(CARDS[c.id].type));
  const r=await pickCards(list,{title:"升级一张牌",sub:"升级后数值更强，有的还会变便宜",confirm:c=>`${cardHTML(c,"big")}<span class="arr">➜</span>${cardHTML({...c,u:1},"big")}`});
  if(r[0]){r[0].u=1;upFx([r[0]]);renderTop();return true}return false}
@@ -1228,6 +1228,7 @@ function eventScreen(){show("event");setBg("event");playMusic("space");
 $("#stage").addEventListener("scroll",e=>{e.target.scrollTop=0;e.target.scrollLeft=0});
 fit();titleScreen();
 /* 防卡死：任何报错都不该让游戏永远停住 */
+setInterval(()=>{try{if(!B||B.over||!B.myTurn||busy||!B.lastAct||B.idleSaid===B.turn||document.hidden)return;if(!$("#battle").classList.contains("on")||$("#ov").classList.contains("on")||$("#talk").classList.contains("on"))return;if(Date.now()-B.lastAct>14000){B.idleSaid=B.turn;const l=HL("idle");if(l.length)heroSay(pick(l))}}catch(e){}},2000);
 let busySince=0;setInterval(()=>{if(!busy){busySince=0;return}if(!busySince){busySince=Date.now();return}
  const talking=$("#talk").classList.contains("on")||$("#ov").classList.contains("on");
  if(!talking&&Date.now()-busySince>8000){busy=false;busySince=0;try{if(B&&!B.over){if(!B.alive().length)win();else{B.myTurn=true;$("#endBtn").classList.remove("wait");renderBattle()}}}catch(e){}}},1000);
