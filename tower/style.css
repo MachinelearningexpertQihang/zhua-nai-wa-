@@ -1534,3 +1534,72 @@ img{-webkit-user-drag:none;pointer-events:none}
 #pool .phot{left:calc(100% + 14px);bottom:auto;top:50%;transform:translateY(-50%) skewX(-10deg);animation:none}
 #pool .phot{animation:photP .8s ease-in-out infinite}
 @keyframes photP{50%{transform:translateY(-50%) skewX(-10deg) scale(1.08)}}
+
+/* ===== 伤害预览 / 斩杀 ===== */
+.hpw{position:relative}
+.pv{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:4}
+.pv .pvBar{position:absolute;top:calc(100% - 22px);height:16px;background:repeating-linear-gradient(-45deg,#fff 0 4px,#ffd200 4px 8px);opacity:.9;animation:pvBlink .7s ease-in-out infinite alternate}
+.pv b{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%) skewX(-10deg);white-space:nowrap;font:900 20px 'NW Black';color:#fff;background:#0d0d0d;padding:1px 10px;box-shadow:3px 3px 0 #ffd200}
+.pv.kill .pvBar{background:repeating-linear-gradient(-45deg,#fff 0 4px,#e5191c 4px 8px)}
+.pv.kill b{background:#e5191c;box-shadow:3px 3px 0 #0d0d0d;font-size:22px}
+@keyframes pvBlink{to{opacity:.45}}
+.en.killable .hpbar{animation:killFlash .45s ease-in-out infinite alternate}
+@keyframes killFlash{to{filter:brightness(1.6) drop-shadow(0 0 8px #e5191c)}}
+/* 能抓的时候更显眼 */
+.catchBtn{animation:catchPulse .8s ease-in-out infinite!important;box-shadow:0 0 0 3px #fff,0 0 18px 6px rgba(179,146,255,.9)!important}
+@keyframes catchPulse{50%{transform:scale(1.18) rotate(-6deg)}}
+/* 结束回合提醒 */
+#endBtn.warnShake{animation:warnShake .45s ease-in-out}
+@keyframes warnShake{20%,60%{transform:skewX(-12deg) rotate(-2deg) translateX(-10px)}40%,80%{transform:skewX(-12deg) rotate(-2deg) translateX(10px)}}
+/* 大伤害：屏幕边缘闪红 */
+.hurtV{position:absolute;inset:0;z-index:96;pointer-events:none;box-shadow:inset 0 0 90px 30px rgba(229,25,28,.75);animation:hurtV .6s ease-out forwards}
+.hurtV.big{box-shadow:inset 0 0 140px 50px rgba(229,25,28,.9)}
+@keyframes hurtV{from{opacity:1}to{opacity:0}}
+/* 牌堆可点 */
+.pile{cursor:pointer}
+.pile:hover .back{filter:brightness(1.4)}
+/* 能被这一下打死：身体边缘发红光，不写字 */
+.en.killable .hpbar{animation:none}
+.en.killable .body img{animation:killGlow .55s ease-in-out infinite alternate!important}
+@keyframes killGlow{from{filter:drop-shadow(0 0 3px #ff2a2a) drop-shadow(0 0 3px #ff2a2a)}to{filter:drop-shadow(0 0 10px #ff2a2a) drop-shadow(0 0 22px rgba(229,25,28,.9))}}
+.pv.kill b{background:#0d0d0d;box-shadow:3px 3px 0 #e5191c;font-size:20px}
+/* ===== 新小游戏 ===== */
+.mgHead small{color:#fff!important;background:#0d0d0d;display:inline-block!important;padding:2px 14px;transform:skewX(-10deg);font-family:'NW Black'}
+.mgRes{font-family:'NW Black'}
+.sgBox{position:absolute;left:50%;top:170px;transform:translateX(-50%);width:800px;height:360px}
+.sgCup{position:absolute;top:120px;width:140px;height:170px;border:0;background:none;padding:0;cursor:pointer;transition:left .35s ease-in-out,transform .3s;z-index:2}
+.sgCup .cup{position:absolute;inset:0;background:linear-gradient(90deg,#c41418,#ff4a4d 45%,#c41418);clip-path:polygon(14% 0,86% 0,100% 100%,0 100%);border-radius:6px}
+.sgCup .cup::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:#0d0d0d}
+.sgCup:hover .cup{filter:brightness(1.15)}
+.sgCup.lift{transform:translateY(-90px)}
+.sgBall{position:absolute;top:248px;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffd200 45%,#c79200);border:3px solid #0d0d0d;z-index:1;transition:opacity .2s}
+.fgBox{position:absolute;left:50%;top:140px;transform:translateX(-50%);width:700px;height:380px;text-align:center}
+.fgSmith{width:200px;height:220px;object-fit:contain;filter:drop-shadow(6px 6px 0 #0d0d0d)}
+.fgBox.spark .fgSmith{animation:castA .3s}
+.fgBar{position:relative;margin:16px auto 0;width:600px;height:40px;background:#222;border:4px solid #fff;box-shadow:6px 6px 0 var(--p5r)}
+.fgZone{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,#ffd200 0 8px,#ffb000 8px 16px)}
+.fgNeedle{position:absolute;top:-12px;width:6px;height:64px;margin-left:-3px;background:#fff;box-shadow:0 0 0 2px #0d0d0d}
+.fgDots{display:flex;justify-content:center;gap:16px;margin-top:20px}
+.fgDots u{width:28px;height:28px;border:3px solid #fff;transform:rotate(45deg);background:#333}
+.fgDots u.ok{background:#ffd200}.fgDots u.no{background:var(--p5r)}
+.rcTrack{position:absolute;left:50%;top:130px;transform:translateX(-50%);width:760px}
+.rcLane{position:relative;height:92px;margin-bottom:8px;background:repeating-linear-gradient(90deg,#3a5a2a 0 40px,#335224 40px 80px);border:3px solid #fff;cursor:pointer}
+.rcLane.me{border-color:#ffd200;box-shadow:0 0 0 3px #ffd200,0 0 18px #ffd200}
+.rcLane img{position:absolute;top:2px;width:86px;height:86px;object-fit:contain;transform:scaleX(-1)}
+.rcLane b{position:absolute;left:-36px;top:28px;font:900 26px 'NW Black';color:#fff}
+.rcGoal{position:absolute;right:30px;top:0;bottom:0;width:12px;background:repeating-linear-gradient(0deg,#fff 0 12px,#0d0d0d 12px 24px)}
+.wkGrid{position:absolute;left:50%;top:120px;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,170px);gap:18px}
+.wkHole{position:relative;width:170px;height:130px;border:0;padding:0;background:radial-gradient(ellipse at 50% 85%,#111 0 38%,#3a2a1a 40% 52%,transparent 54%);overflow:hidden;cursor:pointer}
+.wkM{position:absolute;left:50%;bottom:-100px;width:110px;height:110px;margin-left:-55px;transition:bottom .12s}
+.wkM img{width:100%;height:100%;object-fit:contain}
+.wkHole.up .wkM{bottom:8px}
+.wkHole.hit{background-color:rgba(255,210,0,.35)}
+.wkHole.bad{background-color:rgba(229,25,28,.45)}
+.wkTime{position:absolute;left:50%;top:600px;transform:translateX(-50%);width:560px;height:16px;border:3px solid #fff;background:#222}
+.wkTime i{display:block;height:100%;width:100%;background:#ffd200;transition:width .1s linear}
+#rwAll{margin-right:14px}
+/* 攻击牌左下角：这张牌总共会打多少 */
+.card .dmgB{position:absolute;left:-.45em;bottom:1.2em;z-index:4;display:flex;align-items:center;gap:.15em;padding:.1em .5em .1em .35em;background:#0d0d0d;border:.12em solid #fff;box-shadow:.15em .15em 0 var(--p5r);transform:skewX(-10deg);color:#fff;pointer-events:none}
+.card .dmgB .ico,.card .dmgB svg{width:1em;height:1em}
+.card .dmgB b{font:900 1.15em/1 'NW Black';color:#ffd200}
+.card .dmgB{left:auto;right:-.35em;bottom:auto;top:4.1em}
