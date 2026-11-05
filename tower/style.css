@@ -830,7 +830,7 @@ img{-webkit-user-drag:none;pointer-events:none}
 .ds b.r{color:#d0202e}
 /* 战斗时背景让位给角色 */
 #bg{transition:filter .5s}
-#stage.inBattle #bg{filter:brightness(.68) saturate(.8) blur(1.6px)}
+#stage.inBattle #bg{filter:brightness(.68) saturate(.8)}#stage.inBattle #bg.photoBg{filter:none}#stage.inBattle #bg .bgPhoto{animation:none;filter:saturate(.7) contrast(1.05) brightness(.68)}#stage.inBattle .ffly{display:none}
 #stage.inBattle #wxfx{opacity:.55}
 
 /* 继续冒险存档卡片 */
@@ -1709,3 +1709,28 @@ img{-webkit-user-drag:none;pointer-events:none}
 .lbS{font:900 20px 'NW Black';color:var(--p5r)}.lbS small{font-size:12px;color:#666}
 .lbMe{position:absolute;left:50%;top:604px;transform:translateX(-50%) skewX(-10deg);font:900 16px 'NW Black';background:#0d0d0d;color:#fff;padding:3px 16px}
 .lbMe b{color:#ffd200}
+
+.tipBox{pointer-events:auto!important;cursor:pointer;padding-right:34px!important}.tipX{position:absolute;right:6px;top:4px;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--milk);font:700 17px/24px var(--body);text-align:center;font-style:normal}
+
+/* 今日塔况 · P5 风格 */
+.modMg .modCard{position:absolute;left:50%;top:150px;width:600px;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;color:#fff;transform:translateX(-50%) rotate(-2deg);text-align:left}
+.modCard .mcIn{position:relative;padding:26px 44px 28px;background:var(--p5k);border:5px solid #fff;transform:skewX(-8deg);box-shadow:14px 14px 0 var(--p5r)}
+.modCard .mcIn>*{transform:skewX(8deg)}
+.mcTag{display:inline-block;font:italic 400 15px 'NW Black',sans-serif;letter-spacing:3px;color:#fff;background:var(--p5r);padding:3px 14px;transform:skewX(8deg) rotate(-2deg)!important}
+.mcName{display:block;margin-top:10px;font:400 66px/1.1 'NW Black',sans-serif;letter-spacing:8px;color:#fff;text-shadow:5px 5px 0 var(--p5r);white-space:nowrap}
+.mcName.roll{animation:mcRoll .09s linear}
+@keyframes mcRoll{from{transform:skewX(8deg) translateY(-22px);opacity:.25}to{transform:skewX(8deg) translateY(0);opacity:1}}
+.mcDesc{margin-top:16px;display:flex;flex-direction:column;gap:10px;min-height:44px}
+.mcDesc p{align-self:flex-start;font:400 20px/1.45 'NW Black',sans-serif;padding:6px 16px;transform:skewX(-8deg);opacity:0}
+.mcDesc .mdG{background:#fff;color:var(--p5k)}
+.mcDesc .mdB{background:var(--p5r);color:#fff}
+.mcDesc .mdB span{display:inline-block;margin-right:10px;padding:0 8px;background:var(--p5k);color:#fff;font-size:16px}
+.modCard.done .mcDesc p{animation:mcIn .32s cubic-bezier(.2,1.4,.4,1) forwards}
+.modCard.done .mcDesc p+p{animation-delay:.12s}
+@keyframes mcIn{from{opacity:0;transform:skewX(-8deg) translateX(-40px)}to{opacity:1;transform:skewX(-8deg) translateX(0)}}
+.modCard.done .mcName{animation:mcHit .35s ease-out}
+@keyframes mcHit{0%{transform:skewX(8deg) scale(1.25);text-shadow:0 0 0 var(--p5r)}100%{transform:skewX(8deg) scale(1);text-shadow:5px 5px 0 var(--p5r)}}
+.mcSt{position:absolute;right:-26px;top:-34px;width:104px;height:104px;border-radius:50%;background:var(--p5r);border:5px solid #fff;box-shadow:0 0 0 4px var(--p5k),6px 8px 0 4px rgba(0,0,0,.45);color:#fff;font:400 56px/94px 'NW Black',sans-serif;text-align:center;transform:rotate(14deg) scale(0);opacity:0}
+.modCard.done .mcSt{animation:mcStamp .38s .18s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes mcStamp{0%{transform:rotate(-20deg) scale(2.4);opacity:0}100%{transform:rotate(14deg) scale(1);opacity:1}}
+.modCard.done{animation:none}
