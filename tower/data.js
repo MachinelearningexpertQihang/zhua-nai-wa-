@@ -836,6 +836,22 @@ demon:{t:"塔顶不能没有人",td:"第一次被打倒时，会以 35% 生命�
 [[["rockfrog","king"],["fogwhite","snakeking"]],[["fallen","count"],["witch","buddha","fogwhite","snakeking"]],[["thunderking","iceking"],["bloodbeast","snowking"]],[["fourhead","boilerdragon"],["lavagiant","pearlqueen"]],[["abyssdragon","shadow"],["tophat","cosmicegg"]]].forEach(([f,gd],i)=>{ENCS[i].bosses=f.map(x=>[x]);ENCS[i].guards=gd});
 /* ===================== 成就 ===================== */
 const ACH=[
+{id:"combo15",n:"手停不下来",d:"一回合打出 15 连击",ic:"sword"},
+{id:"tri3",n:"三三得九",d:"一回合里消除三次",ic:"boom"},
+{id:"cutin",n:"高光时刻",d:"第一次触发高光剪影",ic:"star"},
+{id:"hit200",n:"一拳两百",d:"一次打出 200 点以上伤害",ic:"sword"},
+{id:"netfail",n:"网破了",d:"抓伙伴时被挣脱",ic:"q"},
+{id:"netfail3",n:"屡败屡战",d:"累计被挣脱 3 次",ic:"q"},
+{id:"netelite",n:"精英也是朋友",d:"抓到一只精英怪",ic:"heart"},
+{id:"overflow",n:"池子炸了",d:"让奶蛙池溢出",ic:"swirl"},
+{id:"snowkill",n:"到家了吗",d:"打散雪球大王",ic:"star"},
+{id:"abysskill",n:"水退了",d:"打败深渊龙蛙",ic:"star"},
+{id:"elder8",n:"往事都听完了",d:"在休息处听完长老讲的所有故事",ic:"heart"},
+{id:"chatty",n:"话痨",d:"一局里和长老聊天 3 次",ic:"heart"},
+{id:"mail",n:"有信来",d:"在信箱里读一封信",ic:"star"},
+{id:"thanks",n:"谢谢你",d:"看看作者想说的话",ic:"heart"},
+{id:"quiet",n:"安静爬塔",d:"把音乐关掉",ic:"q"},
+
 {id:"first",n:"第一步",d:"开始第一次爬塔",ic:"star"},
 {id:"oops",n:"出师未捷",d:"在第一层倒下",ic:"skull"},
 {id:"act3",n:"半山腰",d:"走到第三层",ic:"up"},
