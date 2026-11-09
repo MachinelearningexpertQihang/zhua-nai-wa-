@@ -2061,3 +2061,8 @@ img{-webkit-user-drag:none;pointer-events:none}
 .bubble.hero{background:var(--p5k)!important;color:var(--p5w)!important;border-color:var(--p5w)!important;box-shadow:5px 5px 0 var(--p5r)}
 .bubble::after{content:"";position:absolute;left:22px;bottom:-14px;border-left:10px solid transparent;border-right:6px solid transparent;border-top:14px solid var(--p5k)}
 .bubble.hero::after{border-top-color:var(--p5w)}
+.en.gone{display:none!important}
+.eCnt.tauntT{background:var(--p5r)!important;color:#fff!important;border:2px solid #fff;font-weight:900}
+.en.taunt .body::after{content:"";position:absolute;left:50%;bottom:4px;width:70%;height:22px;margin-left:-35%;border-radius:50%;border:4px solid var(--p5r);box-shadow:0 0 14px var(--p5r);animation:tauntRing 1s ease-in-out infinite alternate;pointer-events:none}
+@keyframes tauntRing{to{transform:scale(1.15);opacity:.6}}
+.en.tauntPing .body img{animation:hitA .35s!important}
