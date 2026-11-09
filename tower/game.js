@@ -1,6 +1,6 @@
 /* ===================== 奶蛙之塔 · 主程序 ===================== */
 "use strict";
-const VER="3.6.2";
+const VER="3.7";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 /* 图片：把内嵌的 base64 一次性转成 blob 地址，之后每次渲染只传一个短链接，切页面和出牌都快很多 */
 const IMG_CACHE={};
@@ -12,8 +12,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 let S=null,B=null,busy=false;
 let M={wins:0,runs:0,shards:0,tale:0,best:0,seen:{}};
 try{Object.assign(M,JSON.parse(localStorage.getItem("nwt-meta")||"{}"))}catch(e){}if(typeof M.pals!=="object"||!M.pals){M.palN=typeof M.pals==="number"?M.pals:0;M.pals={}}
-const saveMeta=()=>{M.t=Date.now();try{localStorage.setItem("nwt-meta",JSON.stringify(M))}catch(e){}if(window.CLOUD)CLOUD.mark()};
-const saveRun=()=>{if(window.CLOUD)CLOUD.mark();try{if(S)localStorage.setItem("nwt-run",JSON.stringify(S));else localStorage.removeItem("nwt-run")}catch(e){}};
+const saveMeta=()=>{M.t=Date.now();try{localStorage.setItem("nwt-meta",JSON.stringify(M))}catch(e){}try{NWB.soon();CLOUD.mark()}catch(e){}};
+const saveRun=()=>{try{if(S){S.ts=Date.now();localStorage.setItem("nwt-run",JSON.stringify(S))}else localStorage.removeItem("nwt-run")}catch(e){}try{NWB.soon();CLOUD.hot()}catch(e){}};
 const loadRun=()=>{try{const s=JSON.parse(localStorage.getItem("nwt-run")||"null");return s&&s.v===2?s:null}catch(e){return null}};
 
 /* ---------- 随机数（存档可复现） ---------- */
@@ -182,7 +182,7 @@ function titleScreen(){B=null;S=null;show("title");setBg("title");playMusic("tit
  $("#title").innerHTML=`<div class="logo"><h1>${"奶蛙之塔".split("").map((c,i)=>`<span class="rn rn${i}" data-c="${c}">${c}</span>`).join("")}</h1><div class="tsub"><span class="ribbon">满月升起，尖塔归来</span><span class="ver">${VER}</span></div></div>
  <div class="tmenu">${sv?(()=>{const H=HEROES.find(h=>h.id===sv.hero)||HEROES[0],a=sv.act||0,stp=sv.atBoss?"首领":(sv.row>=0?`第 ${sv.row+1}/${ROWS} 步`:"入口");return`<div class="saveWrap"><button class="saveCard" id="tCont"><div class="svPic"><img src="${IMG(H.img)}" alt=""></div><div class="svInfo"><div class="svT"><b>回到塔里</b><span>${H.n}</span></div><div class="svL">第${"一二三四五"[a]||a+1}层 · ${ACTS[a]?ACTS[a].n:""}　${stp}</div><div class="svS"><span>${ICON.heart}${sv.hp}/${sv.max}</span><span>${ICON.deck}${(sv.deck||[]).length} 张</span><span>${ICON.coin}${sv.gold||0}</span><span>第 ${(sv.asc||0)+1} 周目</span></div></div><i class="svGo">▶</i></button><button class="newLink" id="tNew">重新开始</button></div>`})():`<button class="gbtn" id="tNew"><i class="pl"></i><b>开始冒险</b></button>`}<div class="sub"><button class="gbtn sm" id="tCodex"><b>卡牌图鉴</b></button><button class="gbtn sm" id="tBoss"><b>首领图鉴</b></button><button class="gbtn sm" id="tAch"><b>成就</b></button><button class="gbtn sm" id="tRank"><b>排行榜</b></button><button class="gbtn sm" id="tSet"><b>${A.music?"♪ 音乐开":"♪ 音乐关"}</b></button></div></div>
  <i class="tfloor"></i><div class="tkungfu"><img src="${IMG("n1")}"></div><div class="tknight"><img src="${IMG("kn")}"></div><div class="tmage"><img src="${IMG("mg")}"></div><div class="thero"><img src="${IMG(HI())}"><i class="plat"></i></div>
- ${window.toy?"":`<button class="zsBtn" id="zsBtn"><img src="zanshang.jpg" alt=""><span>赞赏作者</span></button>`}<button class="yardBtn" id="tYard"><img src="${IMG("m6")}" alt=""><span>长老的小院${(()=>{const n=META.filter(u=>mlv(u.id)<u.max&&(M.shards||0)>=u.cost(mlv(u.id))).length;return n?`<i class="dot"></i>`:""})()}</span><em>${ICON.star}${M.shards||0}</em></button>${M.isekaiMet?`<button class="isePeek" id="tIse"><img src="${IMG("yjx")}"></button>`:""}<div class="cloudSt" id="cloudSt">${CLOUD.txt()}</div><div class="tmeta"><span>通关 <b>${M.wins}</b> 次</span><span>成就 <b>${ACH.filter(a=>(M.ach||{})[a.id]).length}/${ACH.length}</b></span></div>`;
+ ${window.toy?"":`<button class="zsBtn" id="zsBtn"><img src="zanshang.jpg" alt=""><span>赞赏作者</span></button>`}<button class="yardBtn" id="tYard"><i class="ybPic"><img src="${IMG("m6")}" alt=""></i><span>长老的小院${(()=>{const n=META.filter(u=>mlv(u.id)<u.max&&(M.shards||0)>=u.cost(mlv(u.id))).length;return n?`<i class="dot"></i>`:""})()}</span><em>${ICON.star}${M.shards||0}</em></button>${M.isekaiMet?`<button class="isePeek" id="tIse"><img src="${IMG("yjx")}"></button>`:""}<div class="cloudSt" id="cloudSt">${CLOUD.txt()}</div><div class="tmeta"><span>通关 <b>${M.wins}</b> 次</span><span>成就 <b>${ACH.filter(a=>(M.ach||{})[a.id]).length}/${ACH.length}</b></span></div>`;
  const c=$("#tCont");if(c)c.onclick=()=>{S=sv;resume()};
  $("#tNew").onclick=()=>{if(sv)confirmBox("重新开始？","现在的存档会被覆盖。",()=>{closeOv();heroSelect()});else heroSelect()};
  $("#tCodex").onclick=codex;$("#tBoss").onclick=bossCodex;$("#tAch").onclick=achScreen;$("#tRank").onclick=rankScreen;$("#tYard").onclick=()=>yardScreen();if($("#tIse"))$("#tIse").onclick=()=>{sfx("click");toast(pick(["那边的人还在抓奶蛙。我在这边挺好的。","门偶尔还会开。你要是看到了，记得帮我关上。","这边的奶茶比那边甜。","你也是从别的地方来的吧？我看得出来。","别拿网对着我。"]))};{const z=$("#zsBtn");if(z)z.onclick=()=>{sfx("click");ov(`<div class="zsBox"><img src="zanshang.jpg" alt="赞赏码"><p>微信扫一扫，请作者喝杯奶茶</p><button class="btn" id="zsX">关闭</button></div>`);$("#zsX").onclick=closeOv}}$("#tSet").onclick=()=>{A.music=!A.music;audioSave();titleScreen()}}
@@ -324,7 +324,7 @@ const TRAIN_BASE=[
  {t:"看敌人想干嘛",l:["敌人头顶的牌子是它下一步要做的事：剑是攻击，后面的数字是伤害，盾是加护盾。","看到它要打你，就先出护盾牌挡一挡。","点敌人可以看它的特性，点别处就关掉。"]},
  {t:"奶蛙池和三连",l:["奶蛙、奶马、奶鸡、奶猫这些家族牌，打出去会往上方的奶蛙池里放一只同家族的小家伙。","同家族 3 只挨在一起就会消除，触发家族爆发：奶蛙乱拳、奶马群踏、奶鸡加盾、奶猫回血抽牌。","凑成三连的那张牌会打两次。池子里快凑齐时会发光晃动，手里能凑成三连的牌也会发光。"],c:"frogslam"},
  {t:"连锁和连击",l:["消除以后池子合拢，如果又凑成一组，就是连锁。每次连锁爆发更强，还会多给 1 点奶力。","连击是这回合打出的攻击牌数量。有的牌写着「连击 ≥3 时」，要先垫几张攻击牌再打它。","池子满了会溢出，挤掉最前面 3 只，你还要挨 6 点伤害。"]},
- {t:"抓奶蛙",l:["敌人血量打到很低时，它身上会出现「抓」的按钮，花 1 点奶力就能抓住它，每场战斗能抓 1 次。","抓到的敌人会变成伙伴卡加入牌组，图鉴里也会记下来。","首领抓不了。"]},
+ {t:"抓奶蛙",l:["敌人血量打到血条上那道白线以下时，它身上会出现「抓」的按钮，花 1 点奶力扔网。越强的敌人越容易挣脱，按钮上会写成功率。每场战斗能抓 1 次，首领抓不了。","抓到的敌人会变成伙伴卡加入牌组，图鉴里也会记下来。","首领抓不了。"]},
  {t:"爬塔",l:["地图从左往右走：小怪、精英、事件、休息、商店、宝箱，每层中间有守关首领，最后是这一层的首领。","顶上的月亮和天气会改变规则，点一下就能看。","看不懂某张牌？长按它，就能看到完整说明和家族介绍。"]}];
 const TRAIN_HERO={
  naiwa:{t:"奶蛙：厚肚皮",l:["你的肚皮最厚，生命 84，每场战斗开局自带 8 点护盾。","稳稳地挡，慢慢地打。专属牌「枕头大战」会把护盾的一半变成伤害。","打不过就回来，没人会笑你。"],c:"n_pillow"},
@@ -400,14 +400,15 @@ function showPreview(){if(!B)return;$$("#enemies .pv").forEach(x=>x.remove());$$
  B.enemies.forEach(e=>{if(e.hp<=0||e.fled)return;const d=P.res[e.k];if(!d)return;const el=enEl(e);if(!el)return;const hw=el.querySelector(".hpw");if(!hw)return;const kill=d>=e.hp;
   if(kill)el.classList.add("killable")})}
 function hpHTML(hp,max,blk){return`<div class="blkB ${blk?"on":""}">${ICON.shield}<b>${blk||""}</b></div><div class="hpbar ${blk?"blk":""}"><u style="width:${hp/max*100}%"></u><i style="width:${hp/max*100}%"></i><span>${hp}/${max}</span></div>`}
+function enSize(e){const E=ENEMY[e.id];const big=e.big?1.15:1;if(E.boss)return Math.round(E.h*big*(e.guard?Math.min(1.2,320/E.h):Math.min(1.5,398/E.h)));const h=E.elite?Math.min(280,Math.max(210,E.h*1.12)):Math.min(235,Math.max(170,E.h*1.45));return Math.round(h*big)}
 function renderBattle(first){if(!B)return;const p=B.p;
  const pl=$("#player");if(first||!pl.firstChild)pl.innerHTML=`<div class="body"><i class="plat"></i><img src="${IMG(HI())}"></div><div class="hpw"></div><div class="sts"></div>`;
  pl.className="fighter";pl.querySelector(".hpw").innerHTML=hpHTML(S.hp,S.max,p.block);pl.querySelector(".sts").innerHTML=stsHTML(p);
- const en=$("#enemies");if(first)en.innerHTML="";{const al=B.enemies.filter(e=>e.hp>0&&!e.fled);en.classList.toggle("crowd",al.length>=3||(al.length>=2&&al.some(e=>ENEMY[e.id].boss)))}
+ const en=$("#enemies");if(first)en.innerHTML="";{const al=B.enemies.filter(e=>e.hp>0&&!e.fled);en.classList.toggle("crowd",al.length>=3||(al.length>=2&&al.some(e=>ENEMY[e.id].boss)));en.classList.toggle("crowd4",al.length>=4)}
  B.enemies.forEach(e=>{let el=en.querySelector(`[data-k="${e.k}"]`);const E=ENEMY[e.id];
-  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn"+(e.guard?" guardEn":" finalEn"):"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${Math.round(E.h*(e.big?1.15:1)*(E.boss?(e.guard?Math.min(1.2,320/E.h):Math.min(1.5,398/E.h)):1))}px;height:${Math.round(E.h*(e.big?1.15:1)*(E.boss?(e.guard?Math.min(1.2,320/E.h):Math.min(1.5,398/E.h)):1))}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
-   el.onclick=()=>clickEnemy(e);const cb=document.createElement("button");cb.className="catchBtn";cb.innerHTML=`${ICON.net}<span>抓</span>`;cb.onclick=ev=>{ev.stopPropagation();catchEnemy(e)};el.querySelector(".body").appendChild(cb)}
-  el.classList.toggle("canCatch",canCatch(e));el.classList.toggle("hasAf",!!e.af);el.classList.toggle("goldf",e.id==="goldfrog");
+  if(!el){el=document.createElement("div");el.className="en fighter"+(E.boss?" bossEn"+(e.guard?" guardEn":" finalEn"):"");el.dataset.k=e.k;el.style.position="relative";el.innerHTML=`<div class="itw"></div><div class="body"><i class="plat ${E.boss||E.elite?"stone":""}"></i><img src="${IMG(E.img)}" style="width:${enSize(e)}px;height:${enSize(e)}px"></div><div class="hpw"></div><div class="ename">${e.n}</div>${E.boss&&BOSS_LORE[e.id]?`<div class="btrait">${BOSS_LORE[e.id].t}</div>`:""}<div class="sts"></div>`;{const idx=B.enemies.indexOf(e);en.insertBefore(el,en.children[idx]||null)}
+   el.onclick=()=>clickEnemy(e);const cb=document.createElement("button");cb.className="catchBtn";cb.setAttribute("aria-label","抓");cb.innerHTML=`<img src="${NET_IMG}" alt="">`;cb.onclick=ev=>{ev.stopPropagation();catchEnemy(e)};el.querySelector(".body").appendChild(cb)}
+  el.classList.toggle("canCatch",canCatch(e));try{catchUI()}catch(x){}el.classList.toggle("hasAf",!!e.af);el.classList.toggle("goldf",e.id==="goldfrog");
   if(e.hp<=0&&!el.classList.contains("dead"))el.classList.add(e.fled?"fled":"dead");
   el.querySelector(".itw").innerHTML=intentHTML(e);el.querySelector(".hpw").innerHTML=hpHTML(e.hp,e.max,e.block);el.querySelector(".sts").innerHTML=stsHTML(e)+(e.id==="cosmicegg"?`<span class="eCnt">孵化 ${e.cnt==null?6:e.cnt}</span>`:"")+(e.id==="boilerdragon"?`<span class="eCnt">热度 ${e.heat||0}/3</span>`:"")+(e.fogged?`<span class="eCnt">雾中</span>`:"")+(e.id==="rockfrog"?`<span class="eCnt">岩甲 ${e.armor==null?6:e.armor}</span>`:"")+(e.id==="fallen"&&e.mode?`<span class="eCnt">${e.mode==="holy"?"圣光":"魔焰"}</span>`:"")+(e.id==="fourhead"?`<span class="eCnt">醒着 ${Math.max(1,Math.ceil(e.hp/e.max*4))} 个头</span>`:"");
   el.classList.toggle("tg",!!B.sel&&e.hp>0&&(B.sel.pot!=null||CARDS[(B.hand.find(c=>c.k===B.sel.k)||{id:"strike"}).id].tgt))});
@@ -573,7 +574,7 @@ function bossAfterHit(t,d,loss){const id=t.id;
  if(id==="buddha"&&d>=20&&t.hp>0&&!(t.stunCD>0)){t.stunCD=3;t.intent={k:"stun"};setTimeout(()=>{const el=enEl(t);if(el)say(el.querySelector(".body"),"金身裂了一道缝");renderBattle()},300)}
  if(id==="demon"&&t.hp<=0&&!t.revived){t.revived=1;ach("notover");t.hp=Math.round(t.max*.35);t.block=0;setTimeout(()=>{const el=enEl(t);banner("还没完",1);stageShake();if(el)say(el.querySelector(".body"),"我恨了这么久，总得恨完。");renderBattle()},400)}}
 function dealEnemy(t,d,i=0){if(PREV){const blk=B.pierce?0:Math.max(0,Math.min((t.block||0)-(PREV.blk[t.k]||0),d));PREV.blk[t.k]=(PREV.blk[t.k]||0)+blk;PREV.d[t.k]=(PREV.d[t.k]||0)+(d-blk);return}if(ENEMY[t.id].boss&&has("bossbane")&&B.curType)d=Math.round(d*1.25);if(ENEMY[t.id].boss)d=bossGuard(t,d);if(has("lavastone")&&B.curType==="atk"&&t.hp>0)t.burn=(t.burn||0)+1;const blk=B&&B.pierce?0:Math.min(t.block,d);t.block-=blk;const loss=d-blk;t.hp=Math.max(0,t.hp-loss);S.stats.dmg+=loss;if(B&&B.curType){S.stats.maxHit=Math.max(S.stats.maxHit||0,loss);if(loss>=50)ach("hit50");if(loss>=100)ach("hit100")}if(ENEMY[t.id].boss)bossAfterHit(t,d,loss);if(ENEMY[t.id].boss&&t.hp>0&&t.hp<=t.max/2&&B&&!B.rageMus){B.rageMus=1;musicRage(1);toast("首领急了！")}if(t.thorn&&B.curType==="atk"&&loss>=0&&!B.thornLock){B.thornLock=1;setTimeout(()=>{if(B){B.thornLock=0;dmgPlayer(t.thorn,null,true);if(S.hp<=0)lose()}},120)}
- if(t.af==="split"&&!t.splitDone&&t.hp>0&&t.hp<=t.max/2){t.splitDone=1;setTimeout(()=>{if(!B||B.over||B.alive().length>=4)return;const m=mkEnemy(t.id,9);m.n="分身·"+ENEMY[t.id].n;m.max=Math.ceil(t.max*.4);m.hp=m.max;m.intent=ENEMY[t.id].ai(m,0);B.enemies.push(m);const el2=enEl(t);if(el2)say(el2.querySelector(".body"),"分身术！");renderBattle()},400)}
+ if(t.af==="split"&&!t.splitDone&&t.hp>0&&t.hp<=t.max/2){t.splitDone=1;setTimeout(()=>{if(!B||B.over||B.alive().length>=4)return;const m=mkEnemy(t.id,9);m.n="分身·"+ENEMY[t.id].n;m.clone=1;m.max=Math.ceil(t.max*.4);m.hp=m.max;m.intent=ENEMY[t.id].ai(m,0);B.enemies.push(m);const el2=enEl(t);if(el2)say(el2.querySelector(".body"),"分身术！");renderBattle()},400)}
  if(ENEMY[t.id].boss&&!t.guard&&t.hp>0&&!t.rage&&t.hp<=t.max*.25){t.rage=1;t.str=(t.str||0)+3;setTimeout(()=>{const el2=enEl(t);if(el2){say(el2.querySelector(".body"),"我，生气了！！");anim(el2,"buffA")}toast(`${t.n}<b>狂暴了</b>：力气 +3`)},500)}
  if(t.hp>0&&!t.lowSaid&&t.hp<=t.max*.3){t.lowSaid=1;setTimeout(()=>{const el2=enEl(t);if(el2&&t.hp>0)say(el2.querySelector(".body"),eLine(t,"l"))},350)}
  const el=enEl(t);if(el){const c=center(el.querySelector(".body"));setTimeout(()=>{anim(el,d>=18?"hitBig":"hit");sfx(d>=18?"bighit":"hit");if(d>=12)hitStop(d>=25?110:60);hitFx(c.x+(Math.random()*30-15),c.y+(Math.random()*30-15),d>=18,!loss,B&&B.curType?B.curFam:null)},i*120);fnum(c.x+(i%2?18:-18),c.top+30,loss?loss:"格挡",loss?(B&&B.dotElem?"el-"+B.dotElem:B&&B.curElem?"el-"+B.curElem:""):"blk",i*120);if(d>=18)setTimeout(stageShake,i*120)}
@@ -583,12 +584,32 @@ if((ENEMY[t.id].flee||t.timid)&&t.hp>0&&t.hp<=t.max/2){t.fled=1;t.hp=0;if(t.timi
  if(t.id==="king"&&!t.phase2&&t.hp>0&&t.hp<=t.max/2){t.phase2=1;t.turn=0;t.intent=ENEMY.king.ai(t,0);t.block+=10;
   setTimeout(()=>{if(el)bubble(el,"泥巴们，起来！");for(let j=0;j<2;j++){if(B.alive().length>=4)break;const m=mkEnemy("mudling",j);m.intent=ENEMY.mudling.ai(m,0);B.enemies.unshift(m)}renderBattle()},400)}
  if(t.hp<=0)killEnemy(t)}
-function canCatch(e){if(!e)return false;const E=ENEMY[e.id];return!!B&&B.myTurn&&!busy&&e.hp>0&&!e.fled&&!E.boss&&E.pal&&B.catchLeft>0&&e.hp<=Math.ceil(e.max*(has("otherball")&&!B.ballUsed?.5:.35))}
+/* ---- 抓捕：血量够低才能抓；越强、难度越高越容易挣脱 ---- */
+const catchTh=()=>has("otherball")&&B&&!B.ballUsed?.5:.35;
+function catchable(e){if(!e||!B)return false;const E=ENEMY[e.id];return!!E&&!!E.pal&&!E.boss&&!e.clone&&!e.guard&&!"BFK".includes(B.kind||"")}
+function catchChance(e){const E=ENEMY[e.id];let p=(E.elite?.7:.94)-.05*(S.act||0);p+={easy:.12,normal:0,hard:-.14}[S.diff||"normal"]||0;p-=asc()*.02;
+ p+=Math.max(0,catchTh()-e.hp/e.max)*1.4;if(has("otherball")&&!B.ballUsed)p+=.15;if(S.mod==="pal")p+=.1;return Math.max(.2,Math.min(1,p))}
+function canCatch(e){return!!B&&B.myTurn&&!busy&&!!e&&e.hp>0&&!e.fled&&!e.caught&&catchable(e)&&B.catchLeft>0&&e.hp<=Math.ceil(e.max*catchTh())}
+function catchUI(){if(!B)return;B.enemies.forEach(e=>{const el=enEl(e);if(!el)return;const ok=canCatch(e);el.classList.toggle("canCatch",ok);el.classList.toggle("palable",catchable(e)&&e.hp>0&&!e.caught&&B.catchLeft>0);const b=el.querySelector(".catchBtn i");if(b&&ok){const t=Math.round(catchChance(e)*100)+"%";if(b.textContent!==t)b.textContent=t}const hb=el.querySelector(".hpw .hpbar");if(hb){let ln=hb.querySelector(".catchLn");const show=false;if(show&&!ln){ln=document.createElement("b");ln.className="catchLn";ln.innerHTML=ICON.net;hb.appendChild(ln)}if(ln){ln.style.display=show?"":"none";ln.style.left=(catchTh()*100)+"%";ln.classList.toggle("in",e.hp<=Math.ceil(e.max*catchTh()))}}})}
+setInterval(()=>{try{catchUI()}catch(e){}},250);
 async function catchEnemy(e){try{await catchEnemy0(e)}catch(err){console.log("catch err",err)}finally{busy=false;try{afterAction()}catch(x){}}}
-async function catchEnemy0(e){if(!canCatch(e))return;const cc=S.mod==="pal"||(has("otherball")&&!B.ballUsed)?0:1;if(B.p.energy<cc){toast("抓它需要 1 点奶力");shakeEl($("#energy"));return}
- const ball=has("otherball")&&!B.ballUsed;busy=true;if(ball){B.ballUsed=1;if(e.hp>Math.ceil(e.max*.35)||cc)toast("另一个世界的奶蛙球发光了")}else B.p.energy-=cc;B.catchLeft--;if(e.id==="isekaiX")ach("isekai2");const el=enEl(e);const c=center(el.querySelector(".body"));
- const n=document.createElement("div");n.className="netFx";n.innerHTML=ICON.net;n.style.left=c.x+"px";n.style.top=c.y+"px";$("#fx").appendChild(n);sfx("buff");
- await sleep(500);e.hp=0;e.caught=1;el.classList.add("caught");n.remove();sparks(c.x,c.y,"#b392ff",18);sfx("relic");
+async function catchEnemy0(e){
+ if(!canCatch(e)){if(!B||busy||!B.myTurn||!e||e.hp<=0)return;
+  if(!catchable(e))toast(ENEMY[e.id].boss?"首领抓不住":"这个抓不了");else if(B.catchLeft<=0)toast("这场战斗已经抓过了");else toast(`血量还太高，打到 <b>${Math.ceil(e.max*catchTh())}</b> 以下才能抓`);
+  const el0=enEl(e);if(el0)shakeEl(el0.querySelector(".body"));return}
+ const cc=S.mod==="pal"||(has("otherball")&&!B.ballUsed)?0:1;if(B.p.energy<cc){toast("抓它需要 1 点奶力");shakeEl($("#energy"));return}
+ const chance=catchChance(e),ok=rnd()<chance;
+ const ball=has("otherball")&&!B.ballUsed;busy=true;if(ball){B.ballUsed=1;if(e.hp>Math.ceil(e.max*.35)||cc)toast("另一个世界的奶蛙球发光了")}else B.p.energy-=cc;B.catchLeft--;const el=enEl(e);const c=center(el.querySelector(".body"));
+ const n=document.createElement("div");n.className="netFx";n.innerHTML=`<div class="netIn"><img src="${NET_IMG}" alt=""></div>`;n.style.left=c.x+"px";n.style.top=(c.y+10)+"px";$("#fx").appendChild(n);sfx("buff");
+ el.classList.add("netted");await sleep(520);
+ for(let k=0;k<3;k++){n.classList.remove("wig");void n.offsetWidth;n.classList.add("wig");sfx("click");await sleep(320);if(!ok&&k===(chance>.6?2:1))break}
+ el.classList.remove("netted");
+ if(!ok){n.classList.add("tear");sfx("hit");const bt=document.createElement("div");bt.className="catchRes fail";bt.innerHTML=`<b>挣脱了！</b><small>成功率 ${Math.round(chance*100)}%</small>`;bt.style.left=c.x+"px";bt.style.top=(c.y-40)+"px";$("#fx").appendChild(bt);setTimeout(()=>bt.remove(),1600);setTimeout(()=>n.remove(),500);
+  shakeEl(el.querySelector(".body"));say(el.querySelector(".body"),pick(["想抓我？没那么容易！","哼，网破了！","差一点点哦～","再来啊！"]));
+  toast(B.catchLeft>0?`<b>${e.n}</b> 挣脱了网！还能再抓 ${B.catchLeft} 次`:`<b>${e.n}</b> 挣脱了网！这场战斗的抓捕机会用完了`);renderBattle();await sleep(400);return}
+ if(e.id==="isekaiX")ach("isekai2");
+ e.hp=0;e.caught=1;el.classList.add("caught");n.classList.add("got");setTimeout(()=>n.remove(),600);sparks(c.x,c.y,"#b392ff",18);sfx("relic");
+ {const bt=document.createElement("div");bt.className="catchRes ok";bt.innerHTML=`<b>抓到了！</b><small>${e.n}</small>`;bt.style.left=c.x+"px";bt.style.top=(c.y-40)+"px";$("#fx").appendChild(bt);setTimeout(()=>bt.remove(),1600)}
  const pal=ENEMY[e.id].pal;B.caught.push(pal);S.stats.caught++;if(S.stats.caught>=5)ach("pals5");M.palN=(M.palN||0)+1;if(M.palN>=20)ach("pals");if(typeof M.pals!=="object"||!M.pals)M.pals={};M.pals[pal]=1;seeCard(pal);saveMeta();
  if(e.stolen){S.gold+=e.stolen;toast(`拿回了 <b>${e.stolen}</b> 金币`);e.stolen=0}
  toast(`抓到了 <b>${e.n}</b>！战斗结束后，伙伴卡「${CARDS[pal].n}」会加入牌组`);
@@ -784,8 +805,8 @@ const LV_XP=[0,0,2,4,7,11,16,22,29,37,46,56];
 const perk=id=>(S&&S.perks&&S.perks[id])||0;
 const PERKS={
  hp:{n:"强身",ic:"heart",max:9,d:"最大生命 +8，并回复 8",f:()=>{S.max+=8;S.hp=Math.min(S.max,S.hp+8)}},
- en:{n:"先手",ic:"star",max:2,d:"每场战斗第一回合多 1 点奶力"},
- dr:{n:"眼疾手快",ic:"deck",max:2,d:"每场战斗第一回合多抽 1 张"},
+ en:{n:"先手",ic:"star",max:2,d:"第一回合多 1 点奶力"},
+ dr:{n:"眼疾手快",ic:"deck",max:2,d:"第一回合多抽 1 张"},
  cap:{n:"大池子",ic:"q",max:2,d:"奶蛙池 +1 格，更不容易溢出"},
  frogB:{n:"奶蛙拳意",ic:"sword",max:3,d:"奶蛙爆发伤害 +50%"},
  horseB:{n:"奶马奔雷",ic:"wind",max:3,d:"奶马爆发伤害 +50%"},
@@ -800,8 +821,16 @@ const PERKS={
 };
 async function gainXP(n){if(!S.lv){S.lv=1;S.xp=0;S.perks={}}if(has("xpbook"))n=Math.ceil(n*1.5);if(S.mod==="xp")n*=2;S.xp+=n;renderTop();
  while(S.lv<LV_XP.length-1&&S.xp>=LV_XP[S.lv+1]){S.lv++;S.hp=Math.min(S.max,S.hp+5);renderTop();await levelUp()}saveRun()}
+/* 天赋流派 */
+const PSCH={frogB:{n:"奶蛙流",f:"frog"},horseB:{n:"奶马流",f:"horse"},chickB:{n:"奶鸡流",f:"chick"},catB:{n:"奶猫流",f:"cat"},rb:{n:"彩虹流",f:"any",c:"#b392ff"},chain:{n:"连锁流",c:"#e5191c"},
+ hp:{n:"体魄",c:"#ff5a5d"},str:{n:"体魄",c:"#ff5a5d"},regen:{n:"体魄",c:"#ff5a5d"},en:{n:"节奏",c:"#4fc3ff"},dr:{n:"节奏",c:"#4fc3ff"},cap:{n:"奶蛙池",c:"#7bd06b"},gold:{n:"财运",c:"#ffd23f"},upg:{n:"修行",c:"#b392ff"}};
+function perkCard(k,i){const P=PERKS[k],sc=PSCH[k]||{n:"通用",c:"#fff"},fc=sc.f&&FAM[sc.f]?FAM[sc.f].c:sc.c,cur=perk(k),mx=P.max;
+ const art=sc.f&&TOKEN[sc.f]?`<span class="pArt"><img src="${IMG(TOKEN[sc.f])}"></span>`:`<span class="pi">${ICON[P.ic]||""}</span>`;
+ const d=P.d.replace(/([+-]?\d+%?|×[\d.]+)/g,"<em>$1</em>");
+ const pips=mx>1?`<span class="pLv">${[...Array(Math.min(mx,9))].map((_,j)=>`<i class="${j<cur?"on":j===cur?"nx":""}"></i>`).join("")}</span>`:"";
+ return`<button class="perk sch" data-k="${k}" style="--sc:${fc}"><u>0${i+1}</u><span class="pTag">${sc.n}</span>${art}<b>${P.n}</b><p>${d}</p>${pips}<small>${cur?`Lv.${cur} → Lv.${cur+1}`:"NEW · 新天赋"}</small></button>`}
 function levelUp(title){return new Promise(res=>{sfx("win");const ids=shuffle(Object.keys(PERKS).filter(k=>perk(k)<PERKS[k].max)).slice(0,3);
- ov(`<div class="lvWrap"><div class="lvRays"></div><div class="lvSlash"></div><div class="lvUp"><i>LEVEL UP</i><b>${title||"等级提升！"}</b><small>${title?"":"<em>Lv."+S.lv+"</em>　生命 +5　"}选一个天赋，这一局一直有效</small></div><div class="perkRow">${ids.map((k,i)=>{const P=PERKS[k];return`<button class="perk" data-k="${k}"><u>0${i+1}</u><span class="pi">${ICON[P.ic]||""}</span><b>${P.n}</b><p>${P.d}</p><small>${perk(k)?"已有 "+perk(k)+" 级":"NEW · 新天赋"}</small></button>`}).join("")}</div></div>`);
+ ov(`<div class="lvWrap"><div class="lvRays"></div><div class="lvSlash"></div><div class="lvUp"><i>LEVEL UP</i><b>${title||"等级提升！"}</b><small>${title?"":"<em>Lv."+S.lv+"</em>　生命 +5　"}选一个天赋，这一局一直有效</small></div><div class="perkRow">${ids.map((k,i)=>perkCard(k,i)).join("")}</div></div>`);
  sparks(640,140,"#f7c948",34);
  $$("#ov .perk").forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.perks[k]=(S.perks[k]||0)+1;if(PERKS[k].f)PERKS[k].f();sfx("relic");closeOv();toast(`获得天赋 <b>${PERKS[k].n}</b>`);renderTop();saveRun();res()})})}
 

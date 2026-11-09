@@ -10,32 +10,60 @@ const TOY={ok:false,
  lim(e){return !!(e&&(e.code===307044||String(e.message||"").indexOf("307044")>=0))},
  timeout(p,ms){return Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error("timeout")),ms))])}};
 
+/* ---------- 存档保护 ----------
+   1) 进度比较按「进度量」而不是保存时间：新设备 / 缓存被清时的空进度，永远不会盖掉云端
+   2) 本地再存一份 IndexedDB 备份：localStorage 被清了也能找回
+   3) 云存档连接失败会重试；关键节点几秒内就上传；切后台 / 关闭时立刻上传 */
+function nwProg(m){if(!m)return 0;const n=o=>o&&typeof o==="object"?Object.keys(o).length:0;let p=(m.runs||0)*10+(m.deaths||0)*10+(m.wins||0)*50+n(m.got)*2+n(m.ach)*5+n(m.boss)*5+(m.shardsAll||0)+(m.kills||0)/10;try{Object.values(m.mast||{}).forEach(v=>p+=(+v||0)/5)}catch(e){}return Math.round(p)}
+const NWB={t:0,
+ open(){return new Promise((res,rej)=>{try{const r=indexedDB.open("nwt-backup",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})},
+ save(){clearTimeout(this.t);this.t=0;let m=null,s=null;try{m=localStorage.getItem("nwt-meta");s=localStorage.getItem("nwt-run")}catch(e){}if(!m)return;
+  this.open().then(db=>{const tx=db.transaction("kv","readwrite");tx.objectStore("kv").put({t:Date.now(),m,s},"s");tx.oncomplete=tx.onerror=()=>db.close()}).catch(()=>{})},
+ soon(){if(!this.t)this.t=setTimeout(()=>this.save(),1500)},
+ load(){return this.open().then(db=>new Promise(res=>{const tx=db.transaction("kv","readonly");const r=tx.objectStore("kv").get("s");r.onsuccess=()=>{res(r.result||null);db.close()};r.onerror=()=>{res(null);db.close()}})).catch(()=>null)},
+ async restore(){const o=await TOY.timeout(this.load(),3000).catch(()=>null);if(!o||!o.m)return false;let bm=null;try{bm=JSON.parse(o.m)}catch(e){return false}
+  if(nwProg(bm)<=nwProg(M))return false;
+  Object.keys(M).forEach(k=>delete M[k]);Object.assign(M,bm);try{localStorage.setItem("nwt-meta",o.m);if(o.s&&!localStorage.getItem("nwt-run"))localStorage.setItem("nwt-run",o.s)}catch(e){}
+  return true}};
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
+
 /* ---------- 云存档 ---------- */
-const CLOUD={st:"off",dirty:false,busy:false,last:[],back:0,fail:0,lastUp:0,timer:0,
+const CLOUD={st:"off",dirty:false,busy:false,last:[],back:0,fail:0,lastUp:0,timer:0,tries:0,pend:null,
  has(){return !!(window.toy&&toy.getCloudStorage&&toy.setCloudStorage)},
- pack(){const s=JSON.stringify({v:1,t:Date.now(),m:M,s:S||null}).replace(/[\u007f-\uffff]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));const ch=[];for(let i=0;i<s.length;i+=1000)ch.push(s.slice(i,i+1000));return ch},
- async init(){if(this.st!=="off")return;this.st="wait";
+ pack(){const s=JSON.stringify({v:1,t:Date.now(),m:M,s:S||null}).replace(/[\u007f-￿]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));const ch=[];for(let i=0;i<s.length;i+=1000)ch.push(s.slice(i,i+1000));return ch},
+ idle(){return typeof S==="undefined"||!S},
+ async init(){if(this.st!=="off"&&this.st!=="retry")return;this.st="wait";
+  try{if(await NWB.restore()&&this.idle()&&typeof titleScreen==="function"&&$("#title").classList.contains("on")){titleScreen();if(typeof toast==="function")toast("已从本机备份找回你的存档")}}catch(e){}
   if(!await TOY.wait()||!this.has()){this.st="none";return}
-  try{const r=await TOY.timeout(toy.getCloudStorage(["tw_m"]),8000);const meta=r&&r.tw_m?JSON.parse(r.tw_m):null;
+  let o=null,meta=null;
+  try{const r=await TOY.timeout(toy.getCloudStorage(["tw_m"]),8000);meta=r&&r.tw_m?JSON.parse(r.tw_m):null;
    if(meta&&meta.n&&meta.n<=120){const keys=[...Array(meta.n)].map((_,i)=>"tw_"+i);const r2=await TOY.timeout(toy.getCloudStorage(keys),10000);
-    const txt=keys.map(k=>(r2&&r2[k])||"").join("");let o=null;try{o=JSON.parse(txt)}catch(e){}
-    if(o&&o.m){this.last=keys.map(k=>(r2&&r2[k])||"");
-     const mine=M.t||0,theirs=(o.m&&o.m.t)||0;
-     if(theirs>mine+3000){Object.keys(M).forEach(k=>delete M[k]);Object.assign(M,o.m);try{localStorage.setItem("nwt-meta",JSON.stringify(M))}catch(e){}
-      if(o.s&&o.s.v===2){try{localStorage.setItem("nwt-run",JSON.stringify(o.s))}catch(e){}}
-      if(typeof titleScreen==="function"&&$("#title").classList.contains("on")&&!S)titleScreen();if(typeof toast==="function")toast("已从云端同步你的存档")}}}
-   this.st="on";this.mark()}
-  catch(e){this.st=TOY.lim(e)?"off":"nologin";if(this.st==="off")setTimeout(()=>this.init(),30000)}},
- mark(){if(this.st!=="on")return;this.dirty=true;clearTimeout(this.timer);this.timer=setTimeout(()=>this.up(),Math.max(60000,this.back))},
- async up(force){if(this.st!=="on"||this.busy||!this.dirty)return;if(!force&&Date.now()-this.lastUp<30000){this.mark();return}
+    const parts=keys.map(k=>(r2&&r2[k])||"");try{o=JSON.parse(parts.join(""))}catch(e){o=null}if(o&&o.m)this.last=parts}}
+  catch(e){if(TOY.lim(e)){this.st="off";setTimeout(()=>this.init(),30000);return}
+   this.tries++;if(this.tries<5){this.st="retry";setTimeout(()=>{if(this.st==="retry")this.init()},[3000,8000,20000,60000][this.tries-1]);return}this.st="nologin";return}
+  this.tries=0;
+  if(o&&o.m){const cp=nwProg(o.m),lp=nwProg(M);
+   if(cp>lp){if(this.idle())this.apply(o);else{this.pend=o;this.st="ask";this.askLater();return}}
+   else if(o.s&&o.s.v===2&&this.idle()){let lr=null;try{lr=JSON.parse(localStorage.getItem("nwt-run")||"null")}catch(e){}
+    if(!lr&&cp===lp||lr&&(o.s.ts||0)>(lr.ts||0)+3000){try{localStorage.setItem("nwt-run",JSON.stringify(o.s))}catch(e){}if($("#title").classList.contains("on"))titleScreen()}}}
+  this.st="on";this.hot()},
+ apply(o){Object.keys(M).forEach(k=>delete M[k]);Object.assign(M,o.m);try{localStorage.setItem("nwt-meta",JSON.stringify(M));if(o.s&&o.s.v===2)localStorage.setItem("nwt-run",JSON.stringify(o.s));else localStorage.removeItem("nwt-run")}catch(e){}
+  NWB.save();if(typeof titleScreen==="function"&&$("#title").classList.contains("on"))titleScreen();if(typeof toast==="function")toast("已从云端找回你的存档")},
+ askLater(){const go=()=>{if(this.st!=="ask"||!this.pend)return;if(!this.idle()||!$("#title").classList.contains("on")||$("#ov").classList.contains("on")){setTimeout(go,1500);return}
+   const o=this.pend;this.pend=null;this.apply(o);this.st="on";this.hot()};go()},
+ sched(ms,force){const due=Date.now()+ms;if(this.timer&&this.due<=due)return;clearTimeout(this.timer);this.due=due;this.timer=setTimeout(()=>{this.timer=0;this.up(force)},ms)},
+ hot(){if(this.st!=="on")return;this.dirty=true;this.sched(Math.max(2000,this.lastUp+8000-Date.now(),this.back||0),true)},
+ mark(){if(this.st!=="on")return;this.dirty=true;this.sched(Math.max(5000,this.lastUp+25000-Date.now(),this.back||0),false)},
+ async up(force){if(this.st!=="on"||this.busy||!this.dirty)return;if(!force&&Date.now()-this.lastUp<8000){this.mark();return}
   this.busy=true;this.dirty=false;
   try{const ch=this.pack();if(ch.length>120){this.st="big";return}const items={};ch.forEach((c,i)=>{if(this.last[i]!==c)items["tw_"+i]=c});
-   items.tw_m=JSON.stringify({v:1,n:ch.length,t:Date.now()});await TOY.timeout(toy.setCloudStorage(items),10000);this.last=ch;this.lastUp=Date.now();this.back=0;this.fail=0}
-  catch(e){this.dirty=true;if(TOY.lim(e))this.back=Math.min((this.back||15000)*2,600000);else{this.fail++;this.back=30000*this.fail}if(this.fail>=4)this.st="nologin";else this.mark()}
+   items.tw_m=JSON.stringify({v:1,n:ch.length,t:Date.now(),p:nwProg(M)});await TOY.timeout(toy.setCloudStorage(items),10000);this.last=ch;this.lastUp=Date.now();this.back=0;this.fail=0}
+  catch(e){this.dirty=true;if(TOY.lim(e))this.back=Math.min((this.back||15000)*2,600000);else{this.fail++;this.back=15000*this.fail}if(this.fail>=6)this.st="nologin";else this.mark()}
   finally{this.busy=false}},
- txt(){return{on:"☁ 云存档已开启",wait:"☁ 正在连接云存档",nologin:"☁ 登录 B站 后可开启云存档",big:"☁ 存档太大，暂时只存本地",none:"",off:""}[this.st]||""}};
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&CLOUD.dirty)CLOUD.up(true)});
-addEventListener("pagehide",()=>{if(CLOUD.dirty)CLOUD.up(true)});
+ txt(){const t=this.lastUp?new Date(this.lastUp):null;return{on:"☁ 云存档已开启"+(t?"　上次同步 "+t.getHours()+":"+String(t.getMinutes()).padStart(2,"0"):""),wait:"☁ 正在连接云存档",retry:"☁ 正在重新连接云存档",ask:"☁ 云端有进度更多的存档，回到主页会自动恢复",nologin:"☁ 登录 B站 后可开启云存档（现在只存在这台设备上）",big:"☁ 存档太大，暂时只存本地",none:"",off:""}[this.st]||""}};
+const nwFlush=()=>{try{if(typeof S!=="undefined"&&S&&typeof saveRun==="function")saveRun()}catch(e){}NWB.save();if(CLOUD.dirty)CLOUD.up(true)};
+document.addEventListener("visibilitychange",()=>{if(document.hidden)nwFlush();else if(CLOUD.st==="nologin"){CLOUD.st="off";CLOUD.tries=0;CLOUD.fail=0;CLOUD.init()}});
+addEventListener("pagehide",nwFlush);
 
 /* ---------- 成就全服统计 ----------
    官方 SDK 的共享存档只在「同一玩家的多个 Toy」之间共享，不跨玩家，排行榜也不返回总人数，
