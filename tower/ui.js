@@ -109,10 +109,13 @@ function p5TitleSVG(){
  <rect width="1280" height="720" fill="#d8141a"/>
  <g fill="#b80f14" class="p5rays" style="transform-origin:945px 215px">${rays}</g>
  <rect width="1280" height="720" fill="url(#p5dot)" opacity=".22" mask="url(#p5m)"/>
- <pattern id="p5moonDot" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3" cy="3" r="2.4" fill="#d8141a"/></pattern><clipPath id="p5moonC"><circle cx="945" cy="215" r="185"/></clipPath>
- <circle cx="945" cy="215" r="220" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="70 16 8 16" opacity=".85" class="p5ring"/>
- <circle cx="945" cy="215" r="185" fill="#fff"/>
- <g clip-path="url(#p5moonC)"><circle cx="980" cy="187" r="187" fill="url(#p5moonDot)" opacity=".6"/><circle cx="1000" cy="171" r="183" fill="#d8141a"/></g>
+ <radialGradient id="p5moonGl" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="p5moonFill" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#fff6ea"/><stop offset="1" stop-color="#ffd9d0"/></linearGradient><pattern id="p5moonDot" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3" cy="3" r="2.2" fill="#d8141a"/></pattern><clipPath id="p5moonC"><circle cx="945" cy="215" r="185"/></clipPath>
+ <circle cx="945" cy="215" r="300" fill="url(#p5moonGl)"/>
+ <circle cx="945" cy="215" r="228" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="80 14 6 14" opacity=".9" class="p5ring"/>
+ <circle cx="945" cy="215" r="250" fill="none" stroke="#0d0d0d" stroke-width="3" stroke-dasharray="4 18" opacity=".55" class="p5ring2"/>
+ <circle cx="945" cy="215" r="185" fill="url(#p5moonFill)"/>
+ <g clip-path="url(#p5moonC)"><circle cx="975" cy="190" r="188" fill="url(#p5moonDot)" opacity=".55"/><circle cx="1000" cy="171" r="183" fill="#d8141a"/><path d="M780 120 Q760 260 860 360" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".9"/></g>
+ <path d="M720 74 Q722.88 87.12 736 90 Q722.88 92.88 720 106 Q717.12 92.88 704 90 Q717.12 87.12 720 74Z" fill="#fff" opacity="0.95" class="tw" style="animation-delay:0.0s"/><path d="M1180 318 Q1182.16 327.84 1192 330 Q1182.16 332.16 1180 342 Q1177.84 332.16 1168 330 Q1177.84 327.84 1180 318Z" fill="#fff" opacity="0.85" class="tw" style="animation-delay:0.0s"/><path d="M760 321 Q761.62 328.38 769 330 Q761.62 331.62 760 339 Q758.38 331.62 751 330 Q758.38 328.38 760 321Z" fill="#fff" opacity="0.8" class="tw" style="animation-delay:0.0s"/><path d="M1120 50 Q1121.8 58.2 1130 60 Q1121.8 61.8 1120 70 Q1118.2 61.8 1110 60 Q1118.2 58.2 1120 50Z" fill="#fff" opacity="0.8" class="tw" style="animation-delay:0.0s"/>
  <path d="M0 0 H560 L380 720 H0 Z" fill="#0d0d0d"/>
  <path d="M560 0 L590 0 L410 720 L380 720 Z" fill="#fff"/>
  <rect x="0" y="0" width="580" height="720" fill="url(#p5dotW)"/>

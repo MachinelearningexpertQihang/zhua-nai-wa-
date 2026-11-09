@@ -1863,3 +1863,70 @@ img{-webkit-user-drag:none;pointer-events:none}
 .netFx{width:170px!important;height:170px!important;margin:-85px 0 0 -85px!important}
 .netFx .netIn img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 12px rgba(120,240,255,.9))}
 .catchLn{display:none!important}
+
+/* ===== 标题方案 A ===== */
+#title .logo h1 span.rn{background:none!important;clip-path:none!important;filter:none!important;box-shadow:none!important;border:0!important;width:auto!important;height:auto!important;padding:0!important;transform:none!important}#title .logo h1{flex-direction:row;gap:0!important;align-items:flex-end}#title .logo h1 span.rn{font-size:150px!important;line-height:1!important;color:#fff!important;-webkit-text-stroke:0!important;text-shadow:6px 6px 0 #e5191c,12px 12px 0 #0d0d0d!important}#title .logo h1 span.rn.rn1{font-size:120px!important;transform:translateY(-14px) rotate(4deg)!important}#title .logo h1 span.rn.rn2{color:#e5191c!important;text-shadow:6px 6px 0 #fff,12px 12px 0 #0d0d0d!important;font-size:110px!important}#title .logo h1 span.rn.rn3{font-size:180px!important;transform:rotate(-4deg)!important}
+
+/* 副标题：红色笔刷 */
+#title .tsub .ribbon{background:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%2090%22%20preserveAspectRatio%3D%22none%22%3E%3Cg%20fill%3D%22%23e5191c%22%3E%3Cpath%20d%3D%22M10%2034%20C40%2014%20110%2018%20170%2014%20C240%2010%20320%208%20392%2020%20C398%2036%20396%2056%20386%2070%20C320%2078%20250%2074%20180%2078%20C110%2082%2050%2084%2014%2074%20C2%2062%204%2046%2010%2034%20Z%22/%3E%3Cpath%20d%3D%22M2%2040%20C30%2034%2060%2036%2080%2038%20L78%2044%20C50%2042%2024%2044%200%2048%20Z%22/%3E%3Cpath%20d%3D%22M330%2074%20C360%2072%20384%2074%20398%2078%20L396%2084%20C370%2082%20350%2082%20326%2082%20Z%22/%3E%3Cpath%20d%3D%22M360%2010%20C376%208%20390%2010%20398%2014%20L396%2018%20C380%2016%20370%2016%20356%2016%20Z%22/%3E%3Cpath%20d%3D%22M6%2078%20C26%2080%2046%2082%2070%2082%20L68%2088%20C40%2088%2022%2086%204%2084%20Z%22/%3E%3C/g%3E%3Cg%20fill%3D%22%23000%22%20opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M30%2030%20C120%2024%20260%2022%20380%2028%20L380%2031%20C260%2026%20120%2028%2030%2033%20Z%22/%3E%3Cpath%20d%3D%22M40%2060%20C140%2058%20260%2062%20370%2058%20L370%2061%20C260%2066%20140%2062%2040%2063%20Z%22/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;clip-path:none!important;color:#fff!important;padding:12px 40px 14px!important;transform:rotate(-3deg)!important;text-shadow:3px 3px 0 #0d0d0d;-webkit-text-stroke:0!important;font-size:32px!important;filter:drop-shadow(6px 6px 0 #0d0d0d)}
+#title .tsub{margin-left:20px!important;margin-top:20px!important}
+/* 开始冒险：白色笔刷 + 黑字 */
+#title .gbtn:not(.sm){background:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%2090%22%20preserveAspectRatio%3D%22none%22%3E%3Cg%20fill%3D%22%23ffffff%22%3E%3Cpath%20d%3D%22M10%2034%20C40%2014%20110%2018%20170%2014%20C240%2010%20320%208%20392%2020%20C398%2036%20396%2056%20386%2070%20C320%2078%20250%2074%20180%2078%20C110%2082%2050%2084%2014%2074%20C2%2062%204%2046%2010%2034%20Z%22/%3E%3Cpath%20d%3D%22M2%2040%20C30%2034%2060%2036%2080%2038%20L78%2044%20C50%2042%2024%2044%200%2048%20Z%22/%3E%3Cpath%20d%3D%22M330%2074%20C360%2072%20384%2074%20398%2078%20L396%2084%20C370%2082%20350%2082%20326%2082%20Z%22/%3E%3Cpath%20d%3D%22M360%2010%20C376%208%20390%2010%20398%2014%20L396%2018%20C380%2016%20370%2016%20356%2016%20Z%22/%3E%3Cpath%20d%3D%22M6%2078%20C26%2080%2046%2082%2070%2082%20L68%2088%20C40%2088%2022%2086%204%2084%20Z%22/%3E%3C/g%3E%3Cg%20fill%3D%22%23000%22%20opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M30%2030%20C120%2024%20260%2022%20380%2028%20L380%2031%20C260%2026%20120%2028%2030%2033%20Z%22/%3E%3Cpath%20d%3D%22M40%2060%20C140%2058%20260%2062%20370%2058%20L370%2061%20C260%2066%20140%2062%2040%2063%20Z%22/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;transform:rotate(-2deg)!important;padding:14px 60px 16px 46px!important;min-width:360px;filter:drop-shadow(8px 8px 0 #e5191c)}
+#title .gbtn:not(.sm) b{color:#0d0d0d!important;font-size:58px!important;letter-spacing:12px;-webkit-text-stroke:1.6px #0d0d0d!important;transform:none!important;text-shadow:none!important}
+#title .gbtn:not(.sm)::after{content:"";display:block!important;position:absolute;right:22px;top:50%;width:0;height:0;margin-top:-13px;border-left:22px solid #e5191c;border-top:13px solid transparent;border-bottom:13px solid transparent}
+#title .gbtn:not(.sm):hover{background:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20400%2090%22%20preserveAspectRatio%3D%22none%22%3E%3Cg%20fill%3D%22%23e5191c%22%3E%3Cpath%20d%3D%22M10%2034%20C40%2014%20110%2018%20170%2014%20C240%2010%20320%208%20392%2020%20C398%2036%20396%2056%20386%2070%20C320%2078%20250%2074%20180%2078%20C110%2082%2050%2084%2014%2074%20C2%2062%204%2046%2010%2034%20Z%22/%3E%3Cpath%20d%3D%22M2%2040%20C30%2034%2060%2036%2080%2038%20L78%2044%20C50%2042%2024%2044%200%2048%20Z%22/%3E%3Cpath%20d%3D%22M330%2074%20C360%2072%20384%2074%20398%2078%20L396%2084%20C370%2082%20350%2082%20326%2082%20Z%22/%3E%3Cpath%20d%3D%22M360%2010%20C376%208%20390%2010%20398%2014%20L396%2018%20C380%2016%20370%2016%20356%2016%20Z%22/%3E%3Cpath%20d%3D%22M6%2078%20C26%2080%2046%2082%2070%2082%20L68%2088%20C40%2088%2022%2086%204%2084%20Z%22/%3E%3C/g%3E%3Cg%20fill%3D%22%23000%22%20opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M30%2030%20C120%2024%20260%2022%20380%2028%20L380%2031%20C260%2026%20120%2028%2030%2033%20Z%22/%3E%3Cpath%20d%3D%22M40%2060%20C140%2058%20260%2062%20370%2058%20L370%2061%20C260%2066%20140%2062%2040%2063%20Z%22/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat!important;transform:rotate(-2deg) translateX(8px) scale(1.04)!important;filter:drop-shadow(8px 8px 0 #fff)}
+#title .gbtn:not(.sm):hover b{color:#fff!important;-webkit-text-stroke:1.6px #fff!important}
+#title .gbtn:not(.sm):hover::after{border-left-color:#fff}
+
+.p5Scene .p5ring2{transform-origin:945px 215px;animation:p5spin 90s linear infinite}
+/* 主页小按钮：图标 + 统一宽度 */
+#title .tmenu .sub{gap:12px 14px!important}
+#title .gbtn.sm{display:flex!important;align-items:center;gap:8px;min-width:132px;justify-content:center;padding:6px 16px 7px!important;box-shadow:5px 5px 0 var(--p5r)!important;transition:transform .12s,background .12s}
+#title .gbtn.sm>*{transform:skewX(14deg)}
+#title .gbtn.sm .sbi{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;font:900 18px/1 'NW Black',sans-serif;font-style:normal;color:var(--p5r)}
+#title .gbtn.sm .sbi svg,#title .gbtn.sm .sbi .ico{width:22px;height:22px}
+#title .gbtn.sm:hover{background:var(--p5k)!important;transform:skewX(-14deg) translateY(-3px)!important;box-shadow:5px 8px 0 var(--p5r)!important}
+#title .gbtn.sm:hover .sbi{color:var(--p5w)}
+#title .gbtn.sm.off{opacity:.75}
+#title .gbtn.sm.off .sbi{color:#999;text-decoration:line-through}
+/* 信箱按钮 */
+.tmeta{display:flex;align-items:center;gap:10px}
+.mailBtn{position:relative;width:46px;height:38px;padding:4px 6px;background:var(--p5k);border:3px solid var(--p5w);box-shadow:3px 3px 0 var(--p5r);transform:skewX(-12deg);cursor:pointer}
+.mailBtn .mailIco{width:100%;height:100%;transform:skewX(12deg)}
+.mailBtn:hover{background:var(--p5r)}
+.mailBtn .dot,.mlItem .dot{position:absolute;right:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#ff3b3b;border:2px solid #fff;animation:catchBob 1s infinite}
+.mailBtn.wig,.mailBtn:has(.dot){animation:mailWig 2.4s ease-in-out infinite}
+@keyframes mailWig{0%,80%,100%{transform:skewX(-12deg)}84%{transform:skewX(-12deg) rotate(-10deg)}88%{transform:skewX(-12deg) rotate(10deg)}92%{transform:skewX(-12deg) rotate(-6deg)}}
+.mailBox{position:absolute;left:50%;top:50%;width:640px;transform:translate(-50%,-50%)}
+.mailBox .mgHead{text-align:center;margin-bottom:22px}
+.mlList{display:flex;flex-direction:column;gap:14px}
+.mlItem{position:relative;display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--p5w);color:var(--p5k);border:4px solid var(--p5k);box-shadow:7px 7px 0 var(--p5r);transform:skewX(-8deg);text-align:left;cursor:pointer}
+.mlItem>*{transform:skewX(8deg)}
+.mlItem .mailIco{width:42px;height:34px;flex:none}
+.mlItem b{flex:1;font:400 22px 'NW Black',sans-serif}
+.mlItem small{font:700 15px 'NW Black',sans-serif;color:#777}
+.mlItem.new b::after{content:"NEW";margin-left:10px;font-size:13px;color:#fff;background:var(--p5r);padding:1px 6px}
+.mlItem:hover{background:var(--p5k);color:var(--p5w)}
+.letter{position:absolute;left:50%;top:50%;width:760px;max-height:620px;transform:translate(-50%,-50%) rotate(-1deg);background:#fffdf6;border:5px solid var(--p5k);box-shadow:14px 14px 0 var(--p5r);padding:54px 50px 24px;color:var(--p5k)}
+.letter .ltHead{position:absolute;left:30px;top:-26px;display:flex;align-items:center;gap:12px}
+.letter .ltHead small{font:900 15px 'NW Black',sans-serif;background:var(--p5w);border:3px solid var(--p5k);padding:2px 10px;transform:skewX(-10deg)}
+.letter .ltBody{max-height:440px;overflow:auto;padding-right:8px;background:repeating-linear-gradient(transparent 0 37px,rgba(229,25,28,.14) 37px 38px)}
+.letter .ltBody p{font:400 19px/38px 'NW Black',sans-serif;text-indent:2em}
+.letter .ltSig{text-align:right;text-indent:0!important;color:var(--p5r)}
+.letter .ovFoot{position:static!important;margin-top:16px;display:flex;justify-content:center;gap:20px}
+.mailBox .ovFoot{position:static!important;margin-top:24px;display:flex;justify-content:center}
+/* 赞赏弹窗：二维码 + 作者的话 */
+.zsBox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:36px;align-items:center;width:960px;max-width:94%}
+.zsBox .zsL{flex:none;text-align:center}
+.zsBox .zsL img{width:330px!important;height:330px!important;border-radius:0!important;border:6px solid var(--p5w)!important;box-shadow:12px 12px 0 var(--p5r)!important;transform:rotate(-2deg)}
+.zsBox .zsL p{margin-top:16px;font:900 18px 'NW Black',sans-serif;color:var(--p5w)}
+.zsBox .zsR{position:relative;flex:1;background:var(--p5w);color:var(--p5k);border:5px solid var(--p5k);box-shadow:12px 12px 0 var(--p5r);padding:42px 30px 22px;transform:rotate(1deg)}
+.zsBox .zsR .ribbon{position:absolute;left:20px;top:-24px}
+.zsBox .zsR p{font:400 19px/1.75 'NW Black',sans-serif;color:var(--p5k)!important;margin-bottom:10px}
+.zsBox .zsR p b{color:var(--p5w);background:var(--p5r);padding:0 6px}
+.zsBox .zsR .zsSig{text-align:right;color:var(--p5r)!important}
+.zsBox .zsR .btn{margin-top:6px}
+.zsBox{flex-direction:row!important;text-align:left!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
+.mailBtn i.dot,.mlItem i.dot{display:block!important;position:absolute!important;right:-8px!important;top:-8px!important;left:auto!important;width:16px!important;height:16px!important;border-radius:50%!important;background:#ff2d2d!important;border:2px solid #fff!important;box-shadow:0 0 0 2px #0d0d0d!important;transform:none!important}
+.mailBtn{width:52px;height:42px}
+.zsBox .zsR{padding-top:52px!important}
